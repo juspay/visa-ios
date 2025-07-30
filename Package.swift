@@ -18,11 +18,11 @@ let package = Package(
     targets: [
         .target(
             name: "VisaBenefitsSDK",
-            path: "Sources/VisaBenefitsSDK",
-            publicHeadersPath: ".",
             dependencies: [
                 .product(name: "HyperSDK", package: "HyperSDK")
-            ]
+            ],
+            path: "Sources/VisaBenefitsSDK",
+            publicHeadersPath: "."
         )
     ]
 )
