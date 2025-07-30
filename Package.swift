@@ -9,7 +9,7 @@ let package = Package(
     products: [
         .library(
             name: "VisaBenefitsSDK",
-            targets: ["VisaBenefitsSDK", "VisaBenefitsSDKDependencies"]
+            targets: ["VisaBenefitsSDK"]
         )
     ],
     dependencies: [
@@ -24,10 +24,7 @@ let package = Package(
                 .headerSearchPath("Constants"),
                 .headerSearchPath("Utils"),
                 .headerSearchPath("CheckoutLite")
-            ]
-        ),
-        .target(
-            name: "VisaBenefitsSDKDependencies",
+            ],
             dependencies: [
                 .product(name: "HyperSDK", package: "HyperSDK")
             ]
