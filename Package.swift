@@ -20,11 +20,6 @@ let package = Package(
             name: "VisaBenefitsSDK",
             path: "Sources/VisaBenefitsSDK",
             publicHeadersPath: ".",
-            cSettings: [
-                .headerSearchPath("Constants"),
-                .headerSearchPath("Utils"),
-                .headerSearchPath("CheckoutLite")
-            ],
             dependencies: [
                 .product(name: "HyperSDK", package: "HyperSDK")
             ]
