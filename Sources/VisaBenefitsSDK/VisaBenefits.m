@@ -50,14 +50,23 @@
     }];
 }
 
+- (void)process:(UIViewController *)viewController processPayload:(NSDictionary *)processPayload {
+    NSDictionary *updatedPayload = [VisaBenefitsUtils updateServiceNameInPayload:processPayload tenantServiceName:self.tenantServiceName isResponse:false];
+    [super process:viewController processPayload:updatedPayload];
+}
+
+- (void)process:(NSDictionary *)processPayload {
+    NSDictionary *updatedPayload = [VisaBenefitsUtils updateServiceNameInPayload:processPayload tenantServiceName:self.tenantServiceName isResponse:false];
+    [super process:updatedPayload];
+}
+
 - (VisaBenefitsEventsCallback)merchantEvent {
-    __weak VisaBenefits *weakSelf = self;
-    return ^(NSDictionary * _Nullable dictionary) {
-        NSDictionary *finalPayload = [VisaBenefitsUtils updateServiceNameInPayload:dictionary tenantServiceName:weakSelf.tenantServiceName isResponse:true];
-        if ([weakSelf.delegate respondsToSelector:@selector(onEvent:)]) {
-            [weakSelf.delegate onEvent:finalPayload];
-        }
-    };
+    return [super merchantEvent];
+}
+
+- (void)setDelegate:(id<VisaBenefitsDelegate>)delegate {
+    [super setHyperDelegate:delegate];
+    _delegate = delegate;
 }
 
 @end
