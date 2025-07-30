@@ -15,15 +15,13 @@ typedef HyperEventsCallback VisaBenefitsEventsCallback;
 
 @end
 
-@interface VisaBenefits : HyperServices
+@interface VisaBenefits: HyperServices
 
 @property (nonatomic, weak) id <VisaBenefitsDelegate> _Nullable delegate;
 
-+ (void)preFetch:(NSDictionary *)data __unavailable;
+- (instancetype _Nonnull)initWithTenantId:(NSString * _Nonnull)tenantId region:(NSString * _Nonnull)region;
 
-- (instancetype _Nonnull)initWithClientId:(NSString * _Nonnull)clientId;
-
-- (void)initiate:(UIViewController * _Nonnull)viewController payload:(NSDictionary * _Nonnull)initiationPayload callback:(VisaBenefitsCallback _Nonnull)callback;
+- (void)show:(UIViewController * _Nonnull)viewController payload:(NSDictionary * _Nonnull)sdkPayload callback:(VisaBenefitsCallback _Nonnull)callback;
 
 - (VisaBenefitsEventsCallback _Nullable)merchantEvent;
 
