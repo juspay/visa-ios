@@ -3,62 +3,68 @@
 //
 
 #import "VisaBenefits.h"
-#import "VisaBenefitsUtils.h"
-#import "VisaBenefitsConstants.h"
+#import "VisaBenefitsTenantMap.h"
 
 @interface VisaBenefits()
 
-@property (nonatomic, strong) NSString *tenantServiceName;
+@property (nonatomic, strong) NSString *clientId;
 
 @end
 
 @implementation VisaBenefits
 
-- (instancetype)init
-{
+- (instancetype)initWithTenantId:(NSString *)tenantId region:(NSString *)region {
+    NSMutableString *updatedTenantId = tenantId;
+    if (region != nil && region != @"") {
+        updatedTenantId = [NSString stringWithFormat:@"%@_%@", tenantId, region];
+    }
+    VisaBenefitsTenantMap *tenant = [VisaBenefitsTenantMap tenantWithName:updatedTenantId];
+
+    if (!tenant) {
+        NSLog(@"Tenant '%@' not found, falling back to DEFAULT", tenantId);
+        tenant = [VisaBenefitsTenantMap tenantWithName:@"DEFAULT"];
+    }
+
     HyperTenantParams *tenantParams = [[HyperTenantParams alloc] init];
-    tenantParams.tenantId = VISA_BENEFITS_HYPER_TENANT_ID;
-    tenantParams.releaseConfigURL = VISA_BENEFITS_HYPER_RELEASE_CONFIG_URL;
-    
+    self.clientId = tenantId;
+    tenantParams.clientId = tenantId;
+    tenantParams.tenantId = tenant.tenantId;
+    tenantParams.releaseConfigURL = tenant.releaseConfigTemplateUrl;
+
     self = [super initWithTenantParams:tenantParams];
     if (self) {
-        
+
     }
     return self;
 }
 
-- (instancetype)initWithClientId:(NSString *)clientId {
-    HyperTenantParams *tenantParams = [[HyperTenantParams alloc] init];
-    tenantParams.clientId = clientId;
-    tenantParams.tenantId = VISA_BENEFITS_HYPER_TENANT_ID;
-    tenantParams.releaseConfigURL = VISA_BENEFITS_HYPER_RELEASE_CONFIG_URL;
-    
-    self = [super initWithTenantParams:tenantParams];
-    if (self) {
-        
-    }
-    return self;
-}
+- (NSDictionary *)updatedPayload:(NSDictionary *)sdkPayload action:(NSString *)action {
+    NSMutableDictionary *mutablePayload = [sdkPayload mutableCopy];
 
-- (void)initiate:(UIViewController *)viewController payload:(NSDictionary *)initiationPayload callback:(VisaBenefitsCallback)callback {
-    self.tenantServiceName = initiationPayload[@"service"];
-    NSDictionary *updatedPayload = [VisaBenefitsUtils updateServiceNameInPayload:initiationPayload tenantServiceName:self.tenantServiceName isResponse:false];
-    __weak VisaBenefits *weakSelf = self;
-    [super initiate:viewController payload:updatedPayload callback:^(NSDictionary * _Nullable dictionary) {
-        NSDictionary *finalPayload = [VisaBenefitsUtils updateServiceNameInPayload:dictionary tenantServiceName:weakSelf.tenantServiceName isResponse:true];
-        callback(finalPayload);
+    mutablePayload[@"clientId"] = self.clientId;
+    mutablePayload[@"action"] = action;
+    NSString *requestId = sdkPayload[@"requestId"];
+    NSMutableDictionary *updatedDictionary = [NSMutableDictionary dictionaryWithDictionary:@{
+        @"payload": mutablePayload
     }];
+    if (requestId) {
+        updatedDictionary[@"requestId"] = requestId;
+    }
+
+    updatedDictionary[@"service"] = @"com.visa.benefits";
+    return updatedDictionary;
 }
 
-- (void)process:(UIViewController *)viewController processPayload:(NSDictionary *)processPayload {
-    NSDictionary *updatedPayload = [VisaBenefitsUtils updateServiceNameInPayload:processPayload tenantServiceName:self.tenantServiceName isResponse:false];
-    [super process:viewController processPayload:updatedPayload];
+- (void)show:(UIViewController *)viewController payload:(NSDictionary *)sdkPayload callback:(VisaBenefitsCallback)callback {
+    NSDictionary *initSDKPayload = [self updatedPayload:sdkPayload action:@"initiate"];
+    __weak VisaBenefits *weakSelf = self;
+
+    [super initiate:viewController payload:initSDKPayload callback:callback];
+
+    NSDictionary *processSDKPayload = [self updatedPayload:sdkPayload action:@"process"];
+    [super process:viewController processPayload:processSDKPayload];
 }
 
-- (void)process:(NSDictionary *)processPayload {
-    NSDictionary *updatedPayload = [VisaBenefitsUtils updateServiceNameInPayload:processPayload tenantServiceName:self.tenantServiceName isResponse:false];
-    [super process:updatedPayload];
-}
 
 - (VisaBenefitsEventsCallback)merchantEvent {
     return [super merchantEvent];
