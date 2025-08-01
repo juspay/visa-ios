@@ -27,10 +27,10 @@
     }
 
     HyperTenantParams *tenantParams = [[HyperTenantParams alloc] init];
-    self.clientId = tenantId;
+    self.clientId = clientId;
     tenantParams.clientId = clientId;
     tenantParams.tenantId = tenantMap.tenantId;
-    tenantParams.releaseConfigURL = tenant.releaseConfigTemplateUrl;
+    tenantParams.releaseConfigURL = tenantMap.releaseConfigTemplateUrl;
 
     self = [super initWithTenantParams:tenantParams];
     if (self) {
