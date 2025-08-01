@@ -19,7 +19,7 @@ typedef HyperEventsCallback VisaBenefitsEventsCallback;
 
 @property (nonatomic, weak) id <VisaBenefitsDelegate> _Nullable delegate;
 
-- (instancetype _Nonnull)initWithTenantId:(NSString * _Nonnull)tenantId region:(NSString * _Nonnull)region;
+- (instancetype _Nonnull)initWithClientId:(NSString * _Nonnull)clientId region:(NSString * _Nonnull)region;
 
 - (void)show:(UIViewController * _Nonnull)viewController payload:(NSDictionary * _Nonnull)sdkPayload callback:(VisaBenefitsCallback _Nonnull)callback;
 

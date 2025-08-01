@@ -13,22 +13,23 @@
 
 @implementation VisaBenefits
 
-- (instancetype)initWithTenantId:(NSString *)tenantId region:(NSString *)region {
-    NSMutableString *updatedTenantId = tenantId;
+- (instancetype)initWithClientId:(NSString *)clientId region:(NSString *)region {
+    NSString *tenant = @"visa";
+    NSMutableString *updatedTenantId = tenant;
     if (region != nil && region != @"") {
-        updatedTenantId = [NSString stringWithFormat:@"%@_%@", tenantId, region];
+        updatedTenantId = [NSString stringWithFormat:@"%@_%@", tenant, region];
     }
-    VisaBenefitsTenantMap *tenant = [VisaBenefitsTenantMap tenantWithName:updatedTenantId];
+    VisaBenefitsTenantMap *tenantMap = [VisaBenefitsTenantMap tenantWithName:updatedTenantId];
 
     if (!tenant) {
-        NSLog(@"Tenant '%@' not found, falling back to DEFAULT", tenantId);
+        NSLog(@"Tenant '%@' not found, falling back to DEFAULT", tenant);
         tenant = [VisaBenefitsTenantMap tenantWithName:@"DEFAULT"];
     }
 
     HyperTenantParams *tenantParams = [[HyperTenantParams alloc] init];
     self.clientId = tenantId;
-    tenantParams.clientId = tenantId;
-    tenantParams.tenantId = tenant.tenantId;
+    tenantParams.clientId = clientId;
+    tenantParams.tenantId = tenantMap.tenantId;
     tenantParams.releaseConfigURL = tenant.releaseConfigTemplateUrl;
 
     self = [super initWithTenantParams:tenantParams];
