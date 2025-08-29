@@ -10,6 +10,10 @@ let package = Package(
         .library(
             name: "VisaBenefitsSDK",
             targets: ["VisaBenefitsSDK"]
+        ),
+        .library(
+            name: "BookingBashSDK",
+            targets: ["BookingBashSDK"]
         )
     ],
     dependencies: [
@@ -23,6 +27,12 @@ let package = Package(
             ],
             path: "Sources/VisaBenefitsSDK",
             publicHeadersPath: "."
+        ),
+        .target(
+            name: "BookingBashSDK",
+            dependencies: [],
+            path: "Sources/BookingBashSDK",
+            exclude: ["Info.plist", "Resources"]
         )
     ]
 )

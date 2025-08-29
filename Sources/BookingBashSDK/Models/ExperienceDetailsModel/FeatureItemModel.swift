@@ -1,0 +1,14 @@
+//
+//  FeatureItemModel.swift
+//  VisaActivity
+//
+//  Created by Apple on 01/08/25.
+//
+
+import Foundation
+
+struct FeatureItem: Identifiable {
+    let id = UUID()
+    let iconName: String
+    let title: String?
+}
