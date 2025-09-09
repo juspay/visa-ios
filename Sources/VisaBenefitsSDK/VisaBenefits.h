@@ -5,6 +5,10 @@
 #import <Foundation/Foundation.h>
 #import <HyperSDK/Hyper.h>
 
+// Forward declaration for BookingBash integration
+@class UIViewController;
+@protocol BookingBashDelegate;
+
 NS_ASSUME_NONNULL_BEGIN
 
 typedef HyperSDKCallback VisaBenefitsCallback;
@@ -24,6 +28,11 @@ typedef HyperEventsCallback VisaBenefitsEventsCallback;
 - (void)show:(UIViewController * _Nonnull)viewController payload:(NSDictionary * _Nonnull)sdkPayload callback:(VisaBenefitsCallback _Nonnull)callback;
 
 - (VisaBenefitsEventsCallback _Nullable)merchantEvent;
+
+// BookingBash SDK Integration
+- (void)showBookingBashExperiences:(UIViewController * _Nonnull)viewController encryptPayLoad:(NSString * _Nonnull)encryptPayLoad;
+
+- (void)showBookingBashTransactions:(UIViewController * _Nonnull)viewController;
 
 @end
 

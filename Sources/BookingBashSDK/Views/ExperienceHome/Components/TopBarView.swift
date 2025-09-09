@@ -1,0 +1,56 @@
+//
+//  TopBarView.swift
+//  VisaActivity
+//
+//  Created by Apple on 29/07/25.
+//
+
+import Foundation
+import SwiftUI
+
+struct TopBarView: View {
+    var onSearchTap: () -> Void
+    var onHamburgerTap: () -> Void
+    var body: some View {
+        HStack(spacing: 20) {
+            ZStack {
+                Circle()
+                    .stroke(Color.gray.opacity(0.4), lineWidth: 1)
+                    .frame(width: 44, height: 44)
+                Image(Constants.Icons.hamburger)
+                    .frame(width: 24, height: 24)
+                    .foregroundStyle(Color(hex: Constants.HexColors.neutral))
+            }
+            .onTapGesture {
+                onHamburgerTap()
+            }
+            
+            HStack(spacing: 8) {
+                Image(Constants.Icons.searchIcon)
+                    .frame(width: 15, height: 15)
+                    .foregroundStyle(Color(hex: Constants.HexColors.primaryStrong))
+                
+                Text(Constants.HomeScreenConstants.searchDestination)
+                    .lineLimit(1)
+                    .font(.custom(Constants.Font.openSansRegular, size: 14))
+                    .foregroundStyle(Color(hex: Constants.HexColors.blackStrong))
+                Spacer()
+                Image(systemName: Constants.Icons.xmark)
+                    .imageScale(.small)
+                    .frame(width: 18, height: 18)
+                    .foregroundStyle(Color(hex: Constants.HexColors.neutral))
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 12)
+            .background(
+                RoundedRectangle(cornerRadius: 50)
+                    .stroke(Color.gray.opacity(0.4), lineWidth: 1)
+            )
+            .onTapGesture {
+                onSearchTap()
+            }
+        }
+        .padding(.horizontal, 15)
+    }
+}
+
