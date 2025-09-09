@@ -18,7 +18,8 @@ let package = Package(
     ],
     dependencies: [
         .package(name: "HyperSDK", url: "https://github.com/juspay/hypersdk-ios.git", .exact("2.2.4")),
-        .package(url: "https://github.com/ozontech/SUINavigation", from: "1.11.0"),
+        .package(url: "https://github.com/ozontech/SUINavigation.git", from: "1.11.0"),
+        .package(url: "https://github.com/siteline/swiftui-introspect.git", from: "1.3.0"),
     ],
     targets: [
         .target(
