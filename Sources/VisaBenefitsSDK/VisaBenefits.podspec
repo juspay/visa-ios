@@ -8,7 +8,7 @@ Pod::Spec.new do |s|
 
     s.license      = { :type => "LGPL", :file => "LICENSE" }
 
-    s.platform     = :ios, "12.0"
+    s.platform     = :ios, "14.0"
     
     s.source       = { :http => "https://public.releases.juspay.in/hyper-sdk/ios/tenant-wrappers/HYPER_SDK_VERSION/VisaBenefits.zip"}
 
