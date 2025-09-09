@@ -18,7 +18,7 @@ let package = Package(
     ],
     dependencies: [
         .package(name: "HyperSDK", url: "https://github.com/juspay/hypersdk-ios.git", .exact("2.2.4")),
-        .package(url: "https://github.com/sindresorhus/SUINavigation.git", from: "1.0.0"),
+        .package(url: "https://github.com/ozontech/SUINavigation", from: "main"),
     ],
     targets: [
         .target(
