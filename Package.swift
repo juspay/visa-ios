@@ -18,7 +18,7 @@ let package = Package(
     ],
     dependencies: [
         .package(name: "HyperSDK", url: "https://github.com/juspay/hypersdk-ios.git", .exact("2.2.4")),
-        .package(url: "https://github.com/ozontech/SUINavigation", from: "main"),
+        .package(url: "https://github.com/ozontech/SUINavigation", from: "1.11.0"),
     ],
     targets: [
         .target(
@@ -35,7 +35,10 @@ let package = Package(
             dependencies: [
                 .product(name: "SUINavigation", package: "SUINavigation")
             ],
-            path: "Sources/BookingBashSDK"
+            path: "Sources/BookingBashSDK",
+            resources: [
+                .process("Resources")
+            ]
         )
     ]
 )
