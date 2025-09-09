@@ -1,10 +1,10 @@
-// swift-tools-version:5.3
+// swift-tools-version:5.5
 import PackageDescription
 
 let package = Package(
     name: "VisaBenefitsSDK",
     platforms: [
-        .iOS(.v14)
+        .iOS(.v15)
     ],
     products: [
         .library(
@@ -19,7 +19,7 @@ let package = Package(
     dependencies: [
         .package(name: "HyperSDK", url: "https://github.com/juspay/hypersdk-ios.git", .exact("2.2.4")),
         .package(url: "https://github.com/ozontech/SUINavigation.git", from: "1.11.0"),
-        .package(url: "https://github.com/siteline/swiftui-introspect.git", from: "1.3.0"),
+        .package(name: "SwiftUIIntrospect", url: "https://github.com/siteline/swiftui-introspect.git", from: "1.3.0"),
     ],
     targets: [
         .target(
@@ -34,7 +34,8 @@ let package = Package(
         .target(
             name: "BookingBashSDK",
             dependencies: [
-                .product(name: "SUINavigation", package: "SUINavigation")
+                .product(name: "SUINavigation", package: "SUINavigation"),
+                .product(name: "SwiftUIIntrospect", package: "SwiftUIIntrospect")
             ],
             path: "Sources/BookingBashSDK",
             resources: [
