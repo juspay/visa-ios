@@ -39,7 +39,8 @@ let package = Package(
             ],
             path: "Sources/BookingBashSDK",
             resources: [
-                .process("Resources")
+                .process("Resources"),
+                .process("Token.plist")
             ]
         )
     ]
