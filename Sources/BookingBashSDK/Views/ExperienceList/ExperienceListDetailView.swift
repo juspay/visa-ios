@@ -28,35 +28,63 @@ struct ExperienceListDetailView: View {
     
     var body: some View {
         ThemeTemplateView(header: {
-            MainTopHeaderView(headerText: "Save big with a fun pass")
+            MainTopHeaderView(headerText: "")
         }, content: {
-            VStack(spacing: 30) {
-                if let errorMessage = viewModel.errorMessage {
-                    // Error handling
-                    Text(" \(errorMessage)")
-                        .foregroundColor(.red)
-                        .padding()
-                } else if viewModel.experiences.isEmpty {
-                    // Empty state
-                    ProgressView("Loading experiences...")
-                        .padding()
+            ZStack {
+                if viewModel.isLoading {
+                    // Centered loading indicator
+                    VStack {
+                        Spacer()
+                        HStack {
+                            Spacer()
+                            ProgressView("Loading experiences...")
+                                .progressViewStyle(CircularProgressViewStyle(tint: .blue))
+                                .scaleEffect(1.2)
+                            Spacer()
+                        }
+                        Spacer()
+                    }
                 } else {
-                    LazyVStack(spacing: 20) {
-                        ForEach(Array(viewModel.experiences.enumerated()), id: \.1.id) { index, experience in
-                            ExperienceListCardView(experience: experience)
-                                .onTapGesture {
-                                    selectedProductCode = experience.productCode
-                                    selectedCurrency = experience.currency
-                                    listItemTapped = true
-                                    productIdG = experience.productCode
-                                    checkInDateG = checkInDate
+                    VStack(spacing: 30) {
+                        if let errorMessage = viewModel.errorMessage {
+                            // Error handling
+                            VStack {
+                                Spacer()
+                                Text(" \(errorMessage)")
+                                    .foregroundColor(.red)
+                                    .multilineTextAlignment(.center)
+                                    .padding()
+                                Spacer()
+                            }
+                        } else if viewModel.experiences.isEmpty {
+                            // Empty state
+                            VStack {
+                                Spacer()
+                                Text("No experiences found")
+                                    .foregroundColor(.gray)
+                                    .multilineTextAlignment(.center)
+                                    .padding()
+                                Spacer()
+                            }
+                        } else {
+                            LazyVStack(spacing: 20) {
+                                ForEach(Array(viewModel.experiences.enumerated()), id: \.1.id) { index, experience in
+                                    ExperienceListCardView(experience: experience)
+                                        .onTapGesture {
+                                            selectedProductCode = experience.productCode
+                                            selectedCurrency = experience.currency
+                                            listItemTapped = true
+                                            productIdG = experience.productCode
+                                           
+                                        }
+                                        .zIndex(Double(viewModel.experiences.count - index))
                                 }
-                                .zIndex(Double(viewModel.experiences.count - index))
+                            }
                         }
                     }
+                    .padding()
                 }
             }
-            .padding()
         })
         .navigationBarBackButtonHidden(true)
         .navigation(isActive: $navigateToFilterScreenView, id: Constants.NavigationId.filterScreenView) {
@@ -87,5 +115,3 @@ struct ExperienceListDetailView: View {
         }
     }
 }
-
-

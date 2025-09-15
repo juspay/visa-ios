@@ -16,11 +16,13 @@ struct ExperienceCountSortView: View {
     var body: some View {
         HStack {
             HStack(spacing: 4) {
-                Image(Constants.Icons.filters)
-                    .resizable()
-                    .frame(width: 24, height: 24)
-                    .foregroundStyle(Color(hex: Constants.HexColors.primary))
-                    
+                if let filtersImage = bundleImage(named: Constants.Icons.filters) {
+                    filtersImage
+                        .resizable()
+                        .frame(width: 16, height: 16)
+                        .foregroundStyle(.white)
+                }
+                
                 Text(String(format: Constants.ExperienceListConstants.experienceFound, count))
                     .font(.custom(Constants.Font.openSansSemiBold, size: 12))
                     .foregroundStyle(Color(hex: Constants.HexColors.neutral))
@@ -33,10 +35,12 @@ struct ExperienceCountSortView: View {
                 Text(Constants.DetailScreenConstants.sort)
                     .font(.custom(Constants.Font.openSansSemiBold, size: 12))
                     .foregroundStyle(Color(hex: Constants.HexColors.neutral))
-                Image(Constants.Icons.arrowDown)
-                    .resizable()
-                    .frame(width: 20, height: 20)
-                    .foregroundStyle(Color(hex: Constants.HexColors.primary))
+                if let arrowImage = bundleImage(named: Constants.Icons.arrowDown) {
+                    arrowImage
+                        .resizable()
+                        .frame(width: 16, height: 16)
+                        .foregroundStyle(Color(hex: Constants.HexColors.blackStrong))
+                }
             }
             .onTapGesture {
                 onSortTapped()

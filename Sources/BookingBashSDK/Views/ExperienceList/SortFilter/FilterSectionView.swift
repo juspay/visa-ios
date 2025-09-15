@@ -24,13 +24,15 @@ struct FilterSectionView: View {
                     viewModel.toggleOption(option.id)
                 }) {
                     HStack {
-                        Image(viewModel.isSelected(option.id)
+                        if let checkboxImage = bundleImage(named: viewModel.isSelected(option.id)
                               ? Constants.Icons.checkBoxFilled
-                              : Constants.Icons.checkBox)
-                            .resizable()
-                            .frame(width: 24, height: 24)
-                            .foregroundStyle(viewModel.isSelected(
-                                option.id) ? Color(hex: Constants.HexColors.primary) : Color(hex: Constants.HexColors.neutral))
+                              : Constants.Icons.checkBox) {
+                            checkboxImage
+                                .resizable()
+                                .frame(width: 24, height: 24)
+                                .foregroundStyle(viewModel.isSelected(
+                                    option.id) ? Color(hex: Constants.HexColors.primary) : Color(hex: Constants.HexColors.neutral))
+                        }
                         
                         Text(option.label)
                             .font(.custom(Constants.Font.openSansSemiBold, size: 12))

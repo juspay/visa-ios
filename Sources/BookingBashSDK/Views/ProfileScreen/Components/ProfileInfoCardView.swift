@@ -32,15 +32,15 @@ struct ProfileInfoCardView: View {
                     .foregroundStyle(Color(hex: Constants.HexColors.neutral))
             }
             
-//            HStack(spacing: 8) {
-//                Image(systemName: "phone")
-//                    .resizable()
-//                    .frame(width: 20, height: 20)
-//                    .foregroundStyle(Color(hex: Constants.HexColors.neutral))
-//                Text(profile.phone)
-//                    .font(.custom(Constants.Font.openSansSemiBold, size: 14))
-//                    .foregroundStyle(Color(hex: Constants.HexColors.neutral))
-//            }
+            HStack(spacing: 8) {
+                Image(systemName: "phone")
+                    .resizable()
+                    .frame(width: 20, height: 20)
+                    .foregroundStyle(Color(hex: Constants.HexColors.neutral))
+                Text("\(mobileCountryCode) \(mobileNumber)")
+                    .font(.custom(Constants.Font.openSansSemiBold, size: 14))
+                    .foregroundStyle(Color(hex: Constants.HexColors.neutral))
+            }
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)

@@ -16,10 +16,17 @@ struct FairTopBannerView: View {
     var body: some View {
         HStack(spacing: 8) {
             Spacer()
-            Image(iconName)
-                .resizable()
-                .frame(width: 24, height: 24)
-                .foregroundStyle(.white)
+            if let icon = bundleImage(named: iconName) {
+                icon
+                    .resizable()
+                    .frame(width: 24, height: 24)
+                    .foregroundStyle(.white)
+            } else {
+                Image(iconName)
+                    .resizable()
+                    .frame(width: 24, height: 24)
+                    .foregroundStyle(.white)
+            }
 
             Text(text)
                 .foregroundStyle(.white)

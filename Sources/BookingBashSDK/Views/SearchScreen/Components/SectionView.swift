@@ -37,9 +37,15 @@ struct SectionView: View {
                         onTap(destination)
                     }) {
                         HStack(spacing: 12) {
-                            Image(Constants.Icons.map)
-                                .frame(width: 20, height: 20)
-                                .foregroundStyle(.gray)
+//                            Image(Constants.Icons.map)
+//                                .frame(width: 20, height: 20)
+//                                .foregroundStyle(.gray
+                            if let mapImage = bundleImage(named: Constants.Icons.map) {
+                                mapImage
+                                    .resizable()
+                                    .frame(width: 20, height: 20)
+                                    .foregroundStyle(.gray)
+                            }
 
                             Text(destination.name)
                                 .font(.custom(Constants.Font.openSansSemiBold, size: 12))

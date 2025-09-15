@@ -16,10 +16,17 @@ struct IconTextRow: View {
 
     var body: some View {
         HStack(spacing: 6) {
-            Image(imageName)
-                .resizable()
-                .frame(width: 20, height: 20)
-                .foregroundStyle(color)
+            if let icon = bundleImage(named: imageName) {
+                icon
+                    .resizable()
+                    .frame(width: 20, height: 20)
+                    .foregroundStyle(color)
+            } else {
+                Image(imageName)
+                    .resizable()
+                    .frame(width: 20, height: 20)
+                    .foregroundStyle(color)
+            }
 
             Text(text)
                 .font(.custom(Constants.Font.openSansSemiBold, size: 12))

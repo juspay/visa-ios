@@ -9,20 +9,18 @@ import Foundation
 
 class ExperienceCheckoutViewModel: ObservableObject {
     @Published var orderNo: String?
+    @Published var location: String?
+    
     @Published var shouldNavigateToPayment: Bool = false
     @Published private var shouldNavigateToConfirmation: Bool = false
+    @Published var successProductInfo: ProductInfo?
     
-    
-    @Published var carousalData: [ExperienceDetailCarousalModel] = [
-        ExperienceDetailCarousalModel(imageName: "Nature"),
-        ExperienceDetailCarousalModel(imageName: "Nature"),
-        ExperienceDetailCarousalModel(imageName: "Nature"),
-        ExperienceDetailCarousalModel(imageName: "Nature"),
-        ExperienceDetailCarousalModel(imageName: "Nature"),
-        ExperienceDetailCarousalModel(imageName: "Nature")
-    ]
+    @Published var carousalData: [ExperienceDetailCarousalModel] = []
     
     @Published var showAll: Bool = false
+    
+    // Add property to store the selected travel date
+    @Published var selectedTravelDate: Date = Date()
     
     @Published var allFeatures: [FeatureItem] = [
         FeatureItem(iconName: "clock", title: "Flexible time"),
@@ -42,7 +40,7 @@ class ExperienceCheckoutViewModel: ObservableObject {
         InfoItem(title: "What's Excluded", type: .excluded),
         InfoItem(title: "Cancellation Policy",type: .cancellation),
         InfoItem(title: "Know Before You Go", type: .know),
-        InfoItem(title: "Where", type: .where_),
+//        InfoItem(title: "Where", type: .where_),
         InfoItem(title: "Reviews", type: .reviews),
         InfoItem(title: "Traveler Photos", type: .photos)
     ]
@@ -110,7 +108,7 @@ extension ExperienceCheckoutViewModel {
         
         let headers = [
             "Content-Type": "application/json",
-            "Authorization": "Basic Qy1FWTNSM0c6OWRjOWMwOWRiMzdkYWRmYmQyNDAxYTljNjBmODY1MGY1YjZlMDFjYg==",
+            "Authorization": TokenProvider.getAuthHeader() ?? "",
             "token": encryptedPayload
         ]
         
@@ -123,20 +121,16 @@ extension ExperienceCheckoutViewModel {
                     switch result {
                     case .success(let response):
                         if let responseData = response.data {
-                            print("=-=-=-=-=-==-=-=-=-=-=-=--=-=-///////////")
-                            print(responseData)
-                            print(responseData.info.title)
-                            packageTitleG = responseData.info.title
-                            addressG = responseData.info.city
+                            
+                            location = "\(responseData.info.city)\(" - ")\(responseData.info.country)"
                             priceSummaryPriceG = "\(responseData.priceSummary.strikeout?.totalAmount ?? 0)"
                             
-                            print(responseData.priceSummary.strikeout?.totalAmount)
-                            print(responseData.priceSummary.totalAmount)
                             var discountPrice = responseData.priceSummary.strikeout!.totalAmount  - responseData.priceSummary.totalAmount;
                             priceSummaryStrikeOutTotalG = "\(responseData.priceSummary.strikeout?.totalAmount ?? 0)"
                             priceSummaryDiscountG = "\(discountPrice)"
                             reviewResponse?.data = responseData
-                            print("response for ReviewTourDetailResponse\(response)")
+                            // Set dynamic carousel images from API response
+                            carousalData = responseData.info.images.map { ExperienceDetailCarousalModel(imageUrl: $0.url) }
                             setUiData(responseData: response.data)
                         } else {
                             print("error in fetching data")
@@ -150,20 +144,44 @@ extension ExperienceCheckoutViewModel {
     
     func setUiData(responseData: ReviewTourDetailData?) {
         if let data = responseData {
-            fairSummaryData = data.tourOption.rates.flatMap { rate in
-                rate.price.pricePerAgeBand.map { band in
-                    FareItem(
-                        title: "\(band.travelerCount) x \(band.ageBand) AED \(band.pricePerTraveler)",
-                        value: "AED \(band.totalBandPrice)",
+            fairSummaryData.removeAll()
+            
+            // For single adult calculation as per requirement
+            if let firstRate = data.tourOption.rates.first,
+               let firstBand = firstRate.price.pricePerAgeBand.first {
+                
+                // Use strikeout total amount (original price) for both sides
+                if let strikeout = data.priceSummary.strikeout {
+                    let originalAmount = strikeout.totalAmount
+                    
+                    // Add the main fare item showing original price on both sides
+                    fairSummaryData.append(FareItem(
+                        title: "1 Adult x AED \(String(format: "%.1f", originalAmount))",
+                        value: "AED \(String(format: "%.1f", originalAmount))",
                         isDiscount: false
-                    )
+                    ))
+                    
+                    // Add discount row: strikeout.totalAmount - price.totalAmount
+                    let discountAmount = strikeout.totalAmount - data.priceSummary.totalAmount
+                    if discountAmount > 0 {
+                        fairSummaryData.append(FareItem(
+                            title: "Discount",
+                            value: "- AED \(String(format: "%.1f", discountAmount))",
+                            isDiscount: true
+                        ))
+                    }
+                } else {
+                    // If no strikeout, use current price
+                    let currentAmount = data.priceSummary.totalAmount
+                    fairSummaryData.append(FareItem(
+                        title: "1 Adult x AED \(String(format: "%.1f", currentAmount))",
+                        value: "AED \(String(format: "%.1f", currentAmount))",
+                        isDiscount: false
+                    ))
                 }
             }
         }
     }
-    
-    
-    
 }
 extension ExperienceCheckoutViewModel {
     
@@ -173,8 +191,13 @@ extension ExperienceCheckoutViewModel {
             return
         }
         
+        // Format the selected travel date to yyyy-MM-dd format
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        let formattedTravelDate = dateFormatter.string(from: selectedTravelDate)
+        print("Formatted Travel Date: \(formattedTravelDate)")
         let body: [String: Any] = [
-            "travel_date": "2025-08-08",
+            "travel_date": formattedTravelDate,
             "title": "Mr",
             "product_id": productIdG,
             "first_name": firstName,
@@ -188,7 +211,7 @@ extension ExperienceCheckoutViewModel {
             "total_infant": 0,
             "total_senior": 0,
             "total_youth": 0,
-          
+            
             "option_id": "6890926fa47a497f767185bb",
             "currency": "INR",
             "coupon_code": "JulyOffer",
@@ -278,7 +301,7 @@ extension ExperienceCheckoutViewModel {
                 do {
                     if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
                         print("Full JSON Response: \(json)")
-                  
+                        
                         if let dataDict = json["data"] as? [String: Any],
                            let orderNo = dataDict["order_no"] as? String {
                             print(orderNo)

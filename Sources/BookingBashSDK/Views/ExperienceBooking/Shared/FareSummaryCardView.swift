@@ -14,12 +14,20 @@ struct FareSummaryCardView: View {
     var shouldShowTopBanner: Bool = true
     var totalLableText: String = Constants.BookingStatusScreenConstants.totalAmountPaid
     
+    // Calculate discount amount from fairSummaryData for top banner
+    private var discountAmount: String {
+        if let discountItem = fairSummaryData.first(where: { $0.isDiscount }) {
+            return discountItem.value.replacingOccurrences(of: "- ", with: "")
+        }
+        return "AED 0"
+    }
+    
     var body: some View {
         VStack(spacing: 0) {
-            if(shouldShowTopBanner) {
+            if(shouldShowTopBanner && !discountAmount.isEmpty && discountAmount != "AED 0") {
                 FairTopBannerView(
                     iconName: Constants.Icons.saving,
-                    text: String(format: Constants.BookingStatusScreenConstants.savingFormat ,priceSummaryDiscountG),
+                    text: String(format: Constants.BookingStatusScreenConstants.savingFormat, discountAmount),
                     gradientColors: [
                         Color(hex: Constants.HexColors.blueShade),
                         Color(hex: Constants.HexColors.blueShade),
@@ -33,19 +41,25 @@ struct FareSummaryCardView: View {
                     .font(.custom(Constants.Font.openSansBold, size: 14))
                     .foregroundStyle(Color(hex: Constants.HexColors.secondary))
                 
-                FareItemRowView(title: "1Adult x AED \(priceSummaryStrikeOutTotalG)", value: priceSummaryPriceG, isDiscount: true)
-                                
-                FareItemRowView(title: "Discount", value:priceSummaryDiscountG , isDiscount: true)
+                // Dynamically display fare items from fairSummaryData
+                ForEach(fairSummaryData.indices, id: \.self) { index in
+                    let fareItem = fairSummaryData[index]
+                    FareItemRowView(
+                        title: fareItem.title,
+                        value: fareItem.value,
+                        isDiscount: fareItem.isDiscount
+                    )
+                }
                 
                 SeparatorLine()
                 
                 HStack {
                     Text(totalLableText)
                     Spacer()
-                    Text("\(Constants.BookingStatusScreenConstants.aed) \(totalPrice)")
+                    Text(totalPrice.isEmpty ? "AED 0" : totalPrice)
                 }
                 .font(.custom(Constants.Font.openSansBold, size: 12))
-                .foregroundStyle(Color(hex: Constants.HexColors.secondary))   
+                .foregroundStyle(Color(hex: Constants.HexColors.secondary))
                 
                 Text(Constants.BookingStatusScreenConstants.pricesWithTaxes)
                     .font(.custom(Constants.Font.openSansRegular, size: 12))

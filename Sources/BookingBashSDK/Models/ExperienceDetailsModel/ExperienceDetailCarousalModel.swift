@@ -9,5 +9,5 @@ import Foundation
 
 struct ExperienceDetailCarousalModel: Identifiable {
     let id = UUID()
-    let imageName: String
+    let imageUrl: String
 }

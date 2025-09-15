@@ -24,7 +24,7 @@ struct SuccessPageResponse: Codable {
 struct SuccessPageData: Codable {
     let trackId: String
     let msg: String
-    let productInfo: SuccessProductInfo
+    let productInfo: SuccessProductInfo?
     let travellerInfo: SuccessTravellerInfo
     let bookingResponse: [SuccessBookingResponse]
     let orderNo: String
@@ -80,7 +80,7 @@ struct SuccessProductInfo: Codable {
     let destinations: [String]
     let itinerary: SuccessItinerary
     let translationInfo: SuccessTranslationInfo
-    let supplier: SuccessSupplier
+    let supplier: SuccessSupplier?
     let supplierName: String
     let reviews: SuccessReviews
     let ratings: Int
@@ -121,7 +121,7 @@ struct SuccessProductInfo: Codable {
         case bookingRequirements = "booking_requirements"
         case tags, destinations, itinerary
         case translationInfo = "translation_info"
-        case supplier
+        case supplier = "supplier"
         case supplierName = "supplier_name"
         case reviews, ratings
         case reviewCount = "review_count"

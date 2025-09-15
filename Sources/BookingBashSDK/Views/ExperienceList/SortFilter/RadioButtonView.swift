@@ -16,14 +16,14 @@ struct RadioButtonView: View {
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: 8) {
-                Image(isSelected
+                if let radioImage = bundleImage(named: isSelected
                       ? Constants.Icons.radioButtonChecked
-                      : Constants.Icons.radioButtonUnchecked)
-                    .resizable()
-                    .frame(width: 24, height: 24)
-                    .foregroundStyle(
-                        isSelected ? Color(hex: Constants.HexColors.primary) : Color(hex: Constants.HexColors.neutral)
-                    )
+                      : Constants.Icons.radioButtonUnchecked) {
+                    radioImage
+                        .resizable()
+                        .frame(width: 24, height: 24)
+                        .foregroundStyle(isSelected ? Color(hex: Constants.HexColors.primary) : Color(hex: Constants.HexColors.neutral))
+                }
                 
                 Text(title)
                     .font(.custom(Constants.Font.openSansSemiBold, size: 12))

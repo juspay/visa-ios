@@ -36,6 +36,7 @@ struct AvailabilityModel: Codable {
     let availabilityId: String
     let supplierCode: String
     let priceSummary: PriceSummary
+    
     let rates: [Rate]
 
     enum CodingKeys: String, CodingKey {

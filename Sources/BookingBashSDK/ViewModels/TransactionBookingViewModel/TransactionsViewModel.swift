@@ -6,13 +6,51 @@
 //
 import Foundation
 
+
 class TransactionsViewModel: ObservableObject {
     @Published var selectedTab: TransactionTab = .Upcoming
-    @Published var bookings: [Booking] = []
+    @Published private var allBookings: [Booking] = []
     @Published var isLoading = false
     @Published var errorMessage: String?
     
     private let url = URL(string: "https://travelapi-sandbox.bookingbash.com/services/api/activities/2.0/booking-list")!
+    
+    // Computed property to return filtered bookings based on selected tab
+    var bookings: [Booking] {
+        switch selectedTab {
+        case .Upcoming:
+            return upcomingBookings
+        case .Completed:
+            return completedBookings
+        case .Cancelled:
+            return cancelledBookings
+        }
+    }
+    
+    // Filter for upcoming bookings: travelDate >= today AND status == confirmed
+    private var upcomingBookings: [Booking] {
+        let today = Calendar.current.startOfDay(for: Date())
+        return allBookings.filter { booking in
+            let bookingDate = Calendar.current.startOfDay(for: booking.travelDate)
+            return bookingDate >= today && booking.status == .confirmed
+        }
+    }
+    
+    // Filter for completed bookings: travelDate < today AND status == confirmed
+    private var completedBookings: [Booking] {
+        let today = Calendar.current.startOfDay(for: Date())
+        return allBookings.filter { booking in
+            let bookingDate = Calendar.current.startOfDay(for: booking.travelDate)
+            return bookingDate < today && booking.status == .confirmed
+        }
+    }
+    
+    // Filter for cancelled bookings: status == cancelled (date doesn't matter)
+    private var cancelledBookings: [Booking] {
+        return allBookings.filter { booking in
+            booking.status == .cancelled
+        }
+    }
     
     func fetchBookings() {
         isLoading = true
@@ -25,7 +63,7 @@ class TransactionsViewModel: ObservableObject {
             "Content-Type": "application/json",
             "site_id": "68b585760e65320801973737",
             "token": encryptedPayload,
-            "Authorization": "Basic Qy1FWTNSM0c6OWRjOWMwOWRiMzdkYWRmYmQyNDAxYTljNjBmODY1MGY1YjZlMDFjYg=="
+            "Authorization": TokenProvider.getAuthHeader() ?? ""
         ]
         
         print(" Fetching bookings...")
@@ -36,8 +74,10 @@ class TransactionsViewModel: ObservableObject {
                 switch result {
                 case .success(let response):
                     let data = response.data.bookings
-                    self.bookings = data
+                    self.allBookings = data
                     print("✅ Got \(data.count) bookings")
+                    print("📊 Upcoming: \(self.upcomingBookings.count), Completed: \(self.completedBookings.count), Cancelled: \(self.cancelledBookings.count)")
+                    print("response for my transaction  \(data) ")
                     data.forEach { print($0) }
                 case .failure(let error):
                     self.errorMessage = error.localizedDescription
@@ -47,52 +87,3 @@ class TransactionsViewModel: ObservableObject {
         }
     }
 }
-
-
-//class TransactionsViewModel: ObservableObject {
-//    @Published var selectedTab: TransactionTab = .Upcoming
-//    @Published var items: [Booking] = []
-//    @Published var isLoading = false
-//    @Published var bookings: [Booking] = []
-//    @Published var errorMessage: String?
-//    
-//    private let url = URL(string: "https://travelapi-sandbox.bookingbash.com/services/api/activities/2.0/booking-list")!
-//    
-//    func fetchBookings() {
-//        guard let url = URL(string: "https://travelapi-sandbox.bookingbash.com/services/api/activities/2.0/booking-list") else { return }
-//        
-//        let requestBody = BookingListRequest(
-//            email: customerEmail,
-//            site_id: "68b585760e65320801973737"
-//        )
-//        print(requestBody)
-//        let headers = [
-//            "Content-Type": "application/json",
-//            "site_id": "68b585760e65320801973737",
-//            "token": encryptedPayload,
-//            "Authorization": "Basic Qy1FWTNSM0c6OWRjOWMwOWRiMzdkYWRmYmQyNDAxYTljNjBmODY1MGY1YjZlMDFjYg=="
-//        ]
-//        print(" Fetching bookings from API...")
-//        print(" Request Body:", requestBody)
-//        print(" Headers:", headers)
-//        
-//        NetworkManager.shared.post(url: url, body: requestBody, headers: headers) { (result: Result<BookingResponse, Error>) in
-//            DispatchQueue.main.async {
-//                switch result {
-//                case .success(let response):
-//                    print(" API Success")
-//                    print(" Response Data:", response)
-//                    self.setUIData(responseData: response.data.bookings)
-//                case .failure(let error):
-//                    self.errorMessage = error.localizedDescription
-//                    print("❌ Booking fetch error:", error.localizedDescription)
-//                }
-//            }
-//        }
-//    }
-//    private func setUIData(responseData: [Booking]) {
-//        self.bookings = responseData
-//        self.items = responseData
-//        print(" UI Data Prepared - Bookings Count:", responseData.count)
-//    }
-//}

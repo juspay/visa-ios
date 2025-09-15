@@ -13,19 +13,15 @@ class ProfileViewModel: ObservableObject {
     @Published var savedTravelers: [SavedTravelerModel] = []
     
     init() {
-        // Sample data - replace with actual user data
-//        self.userProfile = ProfileModel(
-//            name: "\(firstName) \(lastName)",
-//            email: customerEmail,
-//            phone: "+91 8654 xxxxxx"
-//        )
+        // Create ProfileModel with safe defaults to avoid validation errors
         self.userProfile = ProfileModel(
-                   name: "\(firstName) \(lastName)",
-                   email: customerEmail,
-                   phone: "+91 8654 xxxxxx",
-                   firstName: firstName,
-                   lastName: lastName
-               )
+            name: "\(firstName.isEmpty ? "Guest" : firstName) \(lastName.isEmpty ? "User" : lastName)",
+            email: customerEmail.isEmpty ? "" : customerEmail,
+            mobileNumber: mobileNumber.isEmpty ? "" : mobileNumber,
+            mobileCountryCode: mobileCountryCode.isEmpty ? "+971" : mobileCountryCode, // Always provide valid country code
+            firstName: firstName.isEmpty ? "" : firstName,
+            lastName: lastName.isEmpty ? "" : lastName
+        )
         
         self.savedTravelers = [
             SavedTravelerModel(

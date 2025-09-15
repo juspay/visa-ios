@@ -8,14 +8,8 @@
 import Foundation
 
 class ExperienceDetailViewModel: ObservableObject {
-    @Published var carousalData: [ExperienceDetailCarousalModel] = [
-        ExperienceDetailCarousalModel(imageName: "PlaceHolderImage"),
-        ExperienceDetailCarousalModel(imageName: "Nature"),
-        ExperienceDetailCarousalModel(imageName: "PlaceHolderImage"),
-        ExperienceDetailCarousalModel(imageName: "Nature"),
-        ExperienceDetailCarousalModel(imageName: "Nature"),
-        ExperienceDetailCarousalModel(imageName: "Nature")
-    ]
+    @Published var carousalData: [ExperienceDetailCarousalModel] = []
+    @Published var isLoading: Bool = false
     
     @Published var experienceDetail: ExperienceDetailModel?
     @Published var isViewMoreExpanded = false
@@ -47,7 +41,7 @@ class ExperienceDetailViewModel: ObservableObject {
         InfoItem(title: "What's Excluded", type: .excluded),
         InfoItem(title: "Cancellation Policy",type: .cancellation),
         InfoItem(title: "Know Before You Go", type: .know),
-        InfoItem(title: "Where", type: .where_),
+//        InfoItem(title: "Where", type: .where_),
         InfoItem(title: "Reviews", type: .reviews),
         InfoItem(title: "Traveler Photos", type: .photos)
     ]
@@ -62,12 +56,7 @@ class ExperienceDetailViewModel: ObservableObject {
                         ])
     ]
     
-    @Published var cancellationPolicyData: [InfoDetailModel] = [
-        InfoDetailModel(title: "Cancellation Policy",
-                        items: [
-                            "Tickets are non-cancellable, non-refundable and non-transferable."
-                        ])
-    ]
+    @Published var cancellationPolicyData: [InfoDetailModel] = []
     
     @Published var knowBeforeGo: [InfoDetailModel] = [
         InfoDetailModel(title: "Know before you go",
@@ -118,6 +107,7 @@ class ExperienceDetailViewModel: ObservableObject {
     ]
     
     @Published var price: String = ""
+    @Published var location: String = ""
     @Published var priceSuffix: String = "/Person"
     @Published var buttonText: String = "Check Availability"
     @Published var errorMessage: String?
@@ -132,7 +122,11 @@ class ExperienceDetailViewModel: ObservableObject {
     }
     
     func fetchReviewData(productCode: String, currency: String) {
-        guard let url = URL(string: "https://travelapi-sandbox.bookingbash.com/services/api/activities/2.0/details") else { return }
+        isLoading = true
+        guard let url = URL(string: "https://travelapi-sandbox.bookingbash.com/services/api/activities/2.0/details") else {
+            isLoading = false
+            return
+        }
         
         let requestBody = ExperienceRequest(
             product_code: productCode,
@@ -140,12 +134,13 @@ class ExperienceDetailViewModel: ObservableObject {
         )
         let headers = [
             "Content-Type": "application/json",
-            "Authorization": "Basic Qy1FWTNSM0c6OWRjOWMwOWRiMzdkYWRmYmQyNDAxYTljNjBmODY1MGY1YjZlMDFjYg==",
+            "Authorization": TokenProvider.getAuthHeader() ?? "",
             "token": encryptedPayload
         ]
         NetworkManager.shared.post(url: url, body: requestBody, headers: headers) { (result: Result<DetailExrienceApiResponse, Error>) in
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
+                self.isLoading = false
                 
                 switch result {
                 case .success(let response):
@@ -163,13 +158,14 @@ class ExperienceDetailViewModel: ObservableObject {
     
     func setUiData(responseData: DetailResponseData?) {
         if let data = responseData {
+            // Set dynamic carousel images from API response
+            carousalData = data.info.images.map { ExperienceDetailCarousalModel(imageUrl: $0.url) }
             
-            price = "\(data.price.currency) \(data.price.baseRate)"
-            packageTitleG = data.info.title
-            addressG = data.info.city
+            price = "\(data.price.currency) \(data.price.totalAmount)"
+            location = "\(data.info.city) \(data.info.country)"
             experienceDetail = ExperienceDetailModel(
                 title: data.info.title,
-                location: data.info.city,
+                location: "\(data.info.city) \(" - ")\(data.info.country)",
                 category: "",
                 rating: Double(data.info.ratings),
                 reviewCount: data.info.reviewCount
@@ -186,14 +182,21 @@ class ExperienceDetailViewModel: ObservableObject {
             )
             
             cancellationPolicy = data.info.cancellationPolicy.description
+            print(data.info.cancellationPolicy.description)
+            // Make cancellation policy dynamic
+            cancellationPolicyData = [
+                InfoDetailModel(title: "Cancellation Policy",
+                                items: [data.info.cancellationPolicy.description])
+            ]
             
             inclusionExclusionData = [
-                InfoDetailModel(title: "What’s Included",
+                InfoDetailModel(title: "What's Included",
                                 items: data.info.inclusions
                                ),
-                InfoDetailModel(title: "What’s excluded",
+                InfoDetailModel(title: "What's excluded",
                                 items: data.info.exclusions
                                )
+                
             ]
         }
     }

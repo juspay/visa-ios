@@ -36,6 +36,7 @@ struct SearchDataModel: Codable {
 struct SearchResultModel: Codable {
     let productCode: String
     let title: String
+    let thumbnail: String
     let shortDescription: String
     let price: PriceDetails
     let rating: Double
@@ -52,6 +53,7 @@ struct SearchResultModel: Codable {
     enum CodingKeys: String, CodingKey {
         case productCode = "product_code"
         case title
+        case thumbnail
         case shortDescription = "short_description"
         case price, rating
         case reviewCount = "review_count"

@@ -10,6 +10,7 @@ import SwiftUI
 
 struct ParticipantSelectionView: View {
     @ObservedObject var viewModel: ExperienceAvailabilitySelectOptionsViewModel
+    var onSelect: (() -> Void)? = nil // Add a closure for selection
     
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -46,10 +47,12 @@ struct ParticipantSelectionView: View {
                             Button(action: {
                                 viewModel.decrement(for: category)
                             }) {
-                                Image(Constants.Icons.minus)
-                                    .resizable()
-                                    .frame(width: 24, height: 24)
-                                    .foregroundStyle(Color(hex: Constants.HexColors.primary))
+                                if let minusImage = bundleImage(named: Constants.Icons.minus) {
+                                    minusImage
+                                        .resizable()
+                                        .frame(width: 24, height: 24)
+                                        .foregroundStyle(Color(hex: Constants.HexColors.primary))
+                                }
                             }
                             
                             Text("\(category.count)")
@@ -59,10 +62,12 @@ struct ParticipantSelectionView: View {
                             Button(action: {
                                 viewModel.increment(for: category)
                             }) {
-                                Image(Constants.Icons.plus)
-                                    .resizable()
-                                    .frame(width: 24, height: 24)
-                                    .foregroundStyle(Color(hex: Constants.HexColors.primary))
+                                if let plusImage = bundleImage(named: Constants.Icons.plus) {
+                                    plusImage
+                                        .resizable()
+                                        .frame(width: 24, height: 24)
+                                        .foregroundStyle(Color(hex: Constants.HexColors.primary))
+                                }
                             }
                         }
                     }
@@ -72,6 +77,7 @@ struct ParticipantSelectionView: View {
             
             Button(action: {
                 print("\(Constants.AvailabilityScreenConstants.selectedParticipants) \(viewModel.categories)")
+                onSelect?() // Call the closure when select is tapped
             }) {
                 Text(Constants.AvailabilityScreenConstants.select)
                     .font(.custom(Constants.Font.openSansBold, size: 12))

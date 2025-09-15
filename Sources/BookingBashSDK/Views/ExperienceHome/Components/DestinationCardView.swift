@@ -14,21 +14,42 @@ struct DestinationCardView: View {
     
     var body: some View {
         ZStack(alignment: .bottomLeading) {
-            Image(destination.imageName)
-                .resizable()
-                .scaledToFill()
-                .frame(width: itemWidth, height: 200)
+            AsyncImage(url: URL(string: destination.imageURL ?? "")) { phase in
+                switch phase {
+                case .empty:
+                    // Placeholder while loading
+                    ProgressView()
+                        .frame(width: itemWidth, height: 200)
+                case .success(let image):
+                    image
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: itemWidth, height: 200)
+                        .clipped()
+                case .failure:
+                    // Fallback image if network fails
+                    Image(systemName: "photo")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: itemWidth, height: 200)
+                        .foregroundColor(.gray)
+                @unknown default:
+                    EmptyView()
+                }
+            }
+            .overlay(
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.black.opacity(0.6), Color.clear]),
+                    startPoint: .bottom,
+                    endPoint: .center
+                )
+                .frame(height: 80)
+                .frame(maxWidth: .infinity)
                 .clipped()
-
-            LinearGradient(
-                gradient: Gradient(colors: [Color.black.opacity(0.6), Color.clear]),
-                startPoint: .bottom,
-                endPoint: .center
+                .cornerRadius(8),
+                alignment: .bottom
             )
-            .frame(height: 80)
-            .frame(maxWidth: .infinity)
-            .clipped()
-            .cornerRadius(8)
+
 
             Text(destination.name)
                 .font(.custom(Constants.Font.openSansBold, size: 16))
@@ -45,4 +66,3 @@ struct DestinationCardView: View {
         .shadow(color: Color.black.opacity(0.2), radius: 3, x: 0, y: 2)
     }
 }
-

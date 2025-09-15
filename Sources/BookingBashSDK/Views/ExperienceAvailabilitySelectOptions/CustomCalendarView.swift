@@ -12,7 +12,7 @@ import SwiftUI
 struct CustomCalendarView: View {
     @StateObject private var viewModel = ExperienceAvailabilitySelectOptionsViewModel()
     @State private var shouldNavigateToAvailabilityScreen: Bool = false
-    
+    var model: ExperienceDetailModel
     let columns = Array(repeating: GridItem(.flexible()), count: 7)
     var productCode: String?
     var currency: String?
@@ -87,7 +87,7 @@ struct CustomCalendarView: View {
         .padding(.horizontal, 16)
         .navigation(isActive: $shouldNavigateToAvailabilityScreen, id: Constants.NavigationId.availabilitySelectionMainView) {
             AvailabilitySelectionMainView(
-                experienceAvailabilitySViewModel: viewModel,
+                experienceAvailabilitySViewModel: viewModel, model: model,
                 productCode: productCode, currency: currency
             )
         }

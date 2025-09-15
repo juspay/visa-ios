@@ -17,10 +17,17 @@ struct ExperienceDetailsCardHeaderView: View {
             Spacer()
             HStack(spacing: 10) {
                 ForEach(images, id: \.self) { image in
-                    Image(image)
-                        .resizable()
-                        .frame(width: 24, height: 24)
-                        .foregroundStyle(Color(hex: Constants.HexColors.primary))
+                    if let icon = bundleImage(named: image) {
+                        icon
+                            .resizable()
+                            .frame(width: 24, height: 24)
+                            .foregroundStyle(Color(hex: Constants.HexColors.primary))
+                    } else {
+                        Image(image)
+                            .resizable()
+                            .frame(width: 24, height: 24)
+                            .foregroundStyle(Color(hex: Constants.HexColors.primary))
+                    }
                 }
             }
         }

@@ -19,10 +19,17 @@ struct ContactDetailsCardView: View {
             VStack(alignment: .leading, spacing: 6) {
                 ForEach(contactDetailsModel) { item in
                     HStack(spacing: 4) {
-                        Image(item.keyIcon)
-                            .resizable()
-                            .frame(width: 20, height: 20)
-                            .foregroundStyle(Color(hex: Constants.HexColors.neutral))
+                        if let icon = bundleImage(named: item.keyIcon) {
+                            icon
+                                .resizable()
+                                .frame(width: 20, height: 20)
+                                .foregroundStyle(Color(hex: Constants.HexColors.neutral))
+                        } else {
+                            Image(item.keyIcon)
+                                .resizable()
+                                .frame(width: 20, height: 20)
+                                .foregroundStyle(Color(hex: Constants.HexColors.neutral))
+                        }
                         Text(item.value)
                             .font(.custom(Constants.Font.openSansSemiBold, size: 12))
                             .foregroundStyle(Color(hex: Constants.HexColors.neutral))

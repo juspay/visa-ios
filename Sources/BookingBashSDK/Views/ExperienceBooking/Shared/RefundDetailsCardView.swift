@@ -18,7 +18,7 @@ struct RefundDetailsCardView: View {
                 .foregroundStyle(Color(hex: Constants.HexColors.secondary))
             
             HStack {
-                Text(Constants.BookingStatusScreenConstants.refundProcessed)
+                Text(Constants.BookingStatusScreenConstants.totalAmountPaid)
                 Spacer()
                 Text("\(Constants.BookingStatusScreenConstants.aed) \(viewModel.amountPaid)")
             }
@@ -64,4 +64,3 @@ struct RefundDetailsCardView: View {
         )
     }
 }
-

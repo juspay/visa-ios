@@ -48,6 +48,7 @@ struct Booking: Codable, Identifiable {
     let createdDate: Date
     let travellers: TransactionTravellerInfo
     let price: TransactionPriceDetails
+    let supplierName: String? // Add supplierName property
     let bookingDate: Date  // alias for createdDate
     
     enum CodingKeys: String, CodingKey {
@@ -61,37 +62,37 @@ struct Booking: Codable, Identifiable {
         case createdDate = "created_date"
         case travellers
         case price
+        case supplierName = "supplier_name" // Add supplierName coding key
     }
     
     // MARK: - Decoding
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        
         orderNo = try container.decode(String.self, forKey: .orderNo)
         bookingRef = try container.decode(String.self, forKey: .bookingRef)
         productTitle = try container.decode(String.self, forKey: .productTitle)
         productCode = try container.decode(String.self, forKey: .productCode)
         currency = try container.decode(String.self, forKey: .currency)
-        
         let statusString = try container.decode(String.self, forKey: .status)
         status = TransactionStatus(rawValue: statusString.uppercased()) ?? .pending
-        
-        // Dates
         let travelDateString = try container.decode(String.self, forKey: .travelDate)
         let createdDateString = try container.decode(String.self, forKey: .createdDate)
         
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        // Parse travel date (simple date format like "2025-09-12")
+        let travelDateFormatter = DateFormatter()
+        travelDateFormatter.dateFormat = "yyyy-MM-dd"
+        travelDateFormatter.timeZone = TimeZone.current
+        travelDate = travelDateFormatter.date(from: travelDateString) ?? Date()
         
-        travelDate = formatter.date(from: travelDateString) ?? Date()
-        createdDate = formatter.date(from: createdDateString) ?? Date()
+        // Parse created date (ISO 8601 format with time)
+        let createdDateFormatter = ISO8601DateFormatter()
+        createdDateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        createdDate = createdDateFormatter.date(from: createdDateString) ?? Date()
         bookingDate = createdDate
-        
-        // Travellers
         travellers = try container.decode(TransactionTravellerInfo.self, forKey: .travellers)
-        
-        // Price
         price = try container.decode(TransactionPriceDetails.self, forKey: .price)
+        // Decode supplierName if present
+        supplierName = try container.decodeIfPresent(String.self, forKey: .supplierName)
     }
     
     // MARK: - Encoding
@@ -186,8 +187,9 @@ extension Booking {
     
     var timeText: String {
         let formatter = DateFormatter()
-        formatter.dateFormat = "h:mm a" // Example: "5:30 PM"
-        return formatter.string(from: travelDate)
+        formatter.dateFormat = "HH:mm"
+        formatter.timeZone = TimeZone.current
+        return formatter.string(from: createdDate)
     }
     
     // Convenience properties for accessing traveller data

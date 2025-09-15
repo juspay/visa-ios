@@ -15,7 +15,8 @@ import Foundation
 struct ProfileModel {
     let name: String        
     let email: String
-    let phone: String
+    let mobileNumber: String
+    let mobileCountryCode: String
     
     // keep raw values if you want them separate too
     let firstName: String

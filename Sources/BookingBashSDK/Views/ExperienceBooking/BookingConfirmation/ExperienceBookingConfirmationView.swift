@@ -11,30 +11,30 @@ import SUINavigation
 enum CancellationSheetState {
     case none
     case reason
-    case confirm
+    case bottomSheet
 }
 
 struct ExperienceBookingConfirmationView: View {
-    @ObservedObject var experienceBookingConfirmationViewModel: ExperienceBookingConfirmationViewModel
+    @StateObject private var experienceBookingConfirmationViewModel = ExperienceBookingConfirmationViewModel()
     @State private var cancellationSheetState: CancellationSheetState = .none
     @State private var shouldExpandDetails: Bool = false
+    @State private var navigateToHome: Bool = false
+    @State private var isFetchingReasons: Bool = false
+    @State private var fetchReasonsError: String? = nil
+    @State private var navigateToCancellationView: Bool = false
     @OptionalEnvironmentObject private var navigationStorage: NavigationStorage?
+    @Environment(\.presentationMode) private var presentationMode
     
-    // Add optional orderNo parameter for transaction list flow
-    let orderNo: String?
+    // Parameters to determine navigation source
+    let orderNo: String
+    let isFromBookingJourney: Bool
     
-    // Default initializer for booking flow (maintains existing behavior)
-    init(experienceBookingConfirmationViewModel: ExperienceBookingConfirmationViewModel) {
-        self.experienceBookingConfirmationViewModel = experienceBookingConfirmationViewModel
-        self.orderNo = nil
-    }
-    
-    // New initializer for transaction list flow
-    init(experienceBookingConfirmationViewModel: ExperienceBookingConfirmationViewModel, orderNo: String) {
-        self.experienceBookingConfirmationViewModel = experienceBookingConfirmationViewModel
+    // Initializers
+    init(orderNo: String = "", isFromBookingJourney: Bool = true) {
         self.orderNo = orderNo
+        self.isFromBookingJourney = isFromBookingJourney
     }
-    
+
     var body: some View {
         ZStack(alignment: .bottom) {
             ThemeTemplateView(header: {
@@ -51,14 +51,24 @@ struct ExperienceBookingConfirmationView: View {
                             shouldExpandDetails = true
                         },
                         cancelBookingButtonTapped: {
-                            cancellationSheetState = .reason
+                            isFetchingReasons = true
+                            fetchReasonsError = nil
+                            experienceBookingConfirmationViewModel.fetchCancellationReasons(orderNo: orderNo) {
+                                isFetchingReasons = false
+                                if let error = experienceBookingConfirmationViewModel.errorMessage, !error.isEmpty {
+                                    fetchReasonsError = error
+                                } else {
+                                    cancellationSheetState = .reason
+                                }
+                            }
                         },
                         shouldExpandDetails: $shouldExpandDetails
                     )
                     
                     if shouldExpandDetails {
                         ContactDetailsCardView(contactDetailsModel: experienceBookingConfirmationViewModel.contactDetails, title: Constants.BookingStatusScreenConstants.supplierContactTitle)
-                        FareSummaryCardView(fairSummaryData: experienceBookingConfirmationViewModel.fairSummaryData, totalPrice: totalPriceG)
+                            
+                        FareSummaryCardView(fairSummaryData: experienceBookingConfirmationViewModel.fairSummaryData, totalPrice: "\(experienceBookingConfirmationViewModel.currency) \(String(format: "%.0f", experienceBookingConfirmationViewModel.totalAmount))")
                         ConfirmationInfoReusableCardView(section: experienceBookingConfirmationViewModel.cancellationPolicy, showBullets: false)
                         ConfirmationInfoReusableCardView(section: experienceBookingConfirmationViewModel.leadTraveller, showBullets: false)
                         ConfirmationInfoReusableCardView(section: experienceBookingConfirmationViewModel.specialRequest, showBullets: false)
@@ -69,7 +79,7 @@ struct ExperienceBookingConfirmationView: View {
                         ConfirmationInfoReusableCardView(section: experienceBookingConfirmationViewModel.additionalInformation, showBullets: true)
                         
                         ActionButton(title: Constants.BookingStatusScreenConstants.cancelBooking) {
-                            cancellationSheetState = .reason
+                            cancellationSheetState = .bottomSheet
                         }
                     }
                 }
@@ -78,36 +88,82 @@ struct ExperienceBookingConfirmationView: View {
             .navigationBarBackButtonHidden(true)
             .safeAreaInset(edge: .bottom) {
                 BackToHomeButtonView() {
-                    navigationStorage?.popToRoot()
+                    navigateToHome = true
                 }
             }
+            .modifier(NavigationDestinationModifier(navigateToHome: $navigateToHome))
         }
         .onAppear{
-            // Use the passed orderNo if available, otherwise use hardcoded value (for booking flow)
-            let orderToUse = orderNo ?? "ACT24596"
-            experienceBookingConfirmationViewModel.fetchBookingStatus(orderNo: orderToUse, siteId: "68b585760e65320801973737")
+            // Use the passed orderNo and isFromBookingJourney parameter
+            experienceBookingConfirmationViewModel.fetchBookingStatus(
+                orderNo: orderNo,
+                siteId: "68b585760e65320801973737",
+                isFromBookingJourney: isFromBookingJourney
+            )
         }
         .overlay {
-            if cancellationSheetState != .none {
+            if cancellationSheetState != .none || isFetchingReasons || fetchReasonsError != nil {
                 BottomSheetView(isPresented: Binding(
-                    get: { cancellationSheetState != .none },
+                    get: { cancellationSheetState != .none || isFetchingReasons || fetchReasonsError != nil },
                     set: { newValue in
-                        if !newValue { cancellationSheetState = .none }
+                        if (!newValue) {
+                            cancellationSheetState = .none
+                            isFetchingReasons = false
+                            fetchReasonsError = nil
+                        }
                     }
                 )) {
-                    switch cancellationSheetState {
-                    case .reason:
-                        SelectBookingCancellationReasonView(
-                            viewModel: experienceBookingConfirmationViewModel,
-                            cancellationSheetState: $cancellationSheetState
-                        )
-                    case .confirm:
-                        CancelBookingBottomSheetView(viewModel: experienceBookingConfirmationViewModel, cancellationSheetState: $cancellationSheetState)
-                    case .none:
-                        EmptyView()
+                    if isFetchingReasons {
+                        VStack(spacing: 16) {
+                            ProgressView()
+                            Text("Loading cancellation reasons...")
+                        }.padding()
+                    } else if let error = fetchReasonsError {
+                        VStack(spacing: 16) {
+                            Text("Failed to load reasons: \(error)")
+                                .foregroundColor(.red)
+                            Button("Retry") {
+                                isFetchingReasons = true
+                                fetchReasonsError = nil
+                                experienceBookingConfirmationViewModel.fetchCancellationReasons(orderNo: orderNo) {
+                                    isFetchingReasons = false
+                                    if let error = experienceBookingConfirmationViewModel.errorMessage, !error.isEmpty {
+                                        fetchReasonsError = error
+                                    } else {
+                                        cancellationSheetState = .reason
+                                    }
+                                }
+                            }
+                        }.padding()
+                    } else {
+                        switch cancellationSheetState {
+                        case .reason:
+                            SelectBookingCancellationReasonView(
+                                viewModel: experienceBookingConfirmationViewModel,
+                                cancellationSheetState: $cancellationSheetState,
+                                navigateToCancellationView: $navigateToCancellationView,
+                                orderNo: orderNo
+                            )
+                        case .bottomSheet:
+                            CancelBookingBottomSheetView(
+                                viewModel: experienceBookingConfirmationViewModel,
+                                cancellationSheetState: $cancellationSheetState
+                            ) {
+                                navigateToCancellationView = true
+                            }
+                        case .none:
+                            EmptyView()
+                        }
                     }
                 }
             }
+        }
+        // NavigationLink for navigation push to BookingCancellationView
+        NavigationLink(
+            destination: BookingCancellationView(experienceBookingConfirmationViewModel: experienceBookingConfirmationViewModel),
+            isActive: $navigateToCancellationView
+        ) {
+            EmptyView()
         }
     }
 }

@@ -13,11 +13,17 @@ struct AddItineraryButtonView: View {
             
         }) {
             HStack(spacing: 8) {
-                Image(Constants.BookingStatusScreenConstants.calendar)
-                    .resizable()
-                    .frame(width: 20, height: 20)
-                    .foregroundStyle(Color(hex: Constants.HexColors.primary))
-                
+                if let icon = bundleImage(named: Constants.BookingStatusScreenConstants.calendar) {
+                    icon
+                        .resizable()
+                        .frame(width: 20, height: 20)
+                        .foregroundStyle(Color(hex: Constants.HexColors.primary))
+                } else {
+                    Image(Constants.BookingStatusScreenConstants.calendar)
+                        .resizable()
+                        .frame(width: 20, height: 20)
+                        .foregroundStyle(Color(hex: Constants.HexColors.primary))
+                }
                 Text(Constants.BookingStatusScreenConstants.addItineraryToCalendar)
                     .font(.custom(Constants.Font.openSansSemiBold, size: 12))
                     .foregroundStyle(Color(hex: Constants.HexColors.primary))

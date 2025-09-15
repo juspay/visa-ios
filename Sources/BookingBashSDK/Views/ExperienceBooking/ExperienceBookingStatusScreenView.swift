@@ -23,7 +23,7 @@ struct ExperienceBookingStatusScreenView: View {
         VStack(spacing: 16) {
             switch viewModel.bookingStatus {
             case .confirmed:
-                ExperienceBookingConfirmationView(/*orderId: "ACT24596",*/ experienceBookingConfirmationViewModel: viewModel)
+                ExperienceBookingConfirmationView(orderNo: "" /*experienceBookingConfirmationViewModel: viewModel*/)
 
             case .bookingPending:
                 BookingPendingView(experienceBookingConfirmationViewModel: viewModel)

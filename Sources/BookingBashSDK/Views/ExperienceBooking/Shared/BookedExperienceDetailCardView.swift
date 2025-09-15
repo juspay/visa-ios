@@ -15,21 +15,37 @@ struct BookedExperienceDetailCardView: View {
     var isBookingConfirmationScreen: Bool = true
     @Binding var shouldExpandDetails: Bool
     
+    var bookingDate: String {
+        confirmationViewModel.bookingBasicDetails.first(where: { $0.key == "Booking Date" })?.value ?? "-"
+    }
+    
+    var travelDate: String {
+        confirmationViewModel.travelDate ?? "-"
+    }
+    
+    var bookingParticipants: String {
+        confirmationViewModel.bookingBasicDetails.first(where: { $0.key == "Participants" })?.value ?? "1 Adult"
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             ExperienceDetailsCardHeaderView(
                 images: [
                     Constants.Icons.print,
                     Constants.Icons.download,
-                    Constants.Icons.Share]
+                    Constants.Icons.shareYellow]
             )
             BookedExperienceDetailInfoTopLocationView(
-                title: confirmationViewModel.title ?? packageTitleG,
-                location: confirmationViewModel.location ?? addressG,
+                title: confirmationViewModel.title ?? "",
+                location: confirmationViewModel.location ?? location,
                 titleTextColor: Color(hex: Constants.HexColors.blackStrong),
                 locationTextColor: Color(hex: Constants.HexColors.neutral)
             )
-            BookedExperienceDateTimeView(color: Color(hex: Constants.HexColors.neutral), checkInDate: checkInDateG)
+            BookedExperienceDateTimeView(
+                color: Color(hex: Constants.HexColors.neutral),
+                selectedDate: travelDate,
+                selectedParticipants: bookingParticipants
+            )
             if(isBookingConfirmationScreen) {
                 AddItineraryButtonView()
                 HStack(spacing: 2) {

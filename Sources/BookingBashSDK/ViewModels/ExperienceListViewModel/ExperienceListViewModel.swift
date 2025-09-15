@@ -11,6 +11,7 @@ class ExperienceListViewModel: ObservableObject {
     @Published var experiences: [ExperienceListModel] = []
     @Published var searchDestination: SearchResponseModel?
     @Published var searchRequestModel: SearchRequestModel?
+    @Published var isLoading = false
     
     @Published var errorMessage: String?
     
@@ -25,6 +26,9 @@ class ExperienceListViewModel: ObservableObject {
     ) {
         guard let url = URL(string: "https://travelapi-sandbox.bookingbash.com/services/api/activities/2.0/search") else
         { return }
+        
+        isLoading = true
+        errorMessage = nil
         
         let filters = SearchFilters(
             limit: 50,
@@ -64,17 +68,19 @@ class ExperienceListViewModel: ObservableObject {
         
         let headers = [
             "Content-Type": "application/json",
-            "Authorization": "Basic Qy1FWTNSM0c6OWRjOWMwOWRiMzdkYWRmYmQyNDAxYTljNjBmODY1MGY1YjZlMDFjYg==",
+            "Authorization": TokenProvider.getAuthHeader() ?? "",
             "token": encryptedPayload
         ]
         
         NetworkManager.shared.post(url: url, body: requestBody, headers: headers) { (result: Result<SearchResponseModel, Error>) in
             DispatchQueue.main.async {
+                self.isLoading = false
                 switch result {
                 case .success(let response):
                     if let responseData = response.data {
                         self.searchDestination = response
                         self.setUIData(responseData: responseData)
+                        print("response from list view - \(response)")
                         print(" Decoded Response:", responseData)
                     } else {
                         self.errorMessage = "No data in response"
@@ -97,7 +103,7 @@ class ExperienceListViewModel: ObservableObject {
                 rating: Double($0.rating),
                 reviewCount: $0.reviewCount,
                 price: Int($0.price.baseRate.rounded()),
-                imageName: "Sky",
+                imageName: $0.thumbnail,
                 productCode: $0.productCode,
                 currency: $0.price.currency
             )

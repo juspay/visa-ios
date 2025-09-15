@@ -41,7 +41,7 @@ struct AvailabilitySelectionView: View {
                 AvailabilitySelectionRowView(
                     iconName: Constants.Icons.user,
                     title: Constants.AvailabilityScreenConstants.participants,
-                    value: viewModel.participants,
+                    value: viewModel.participantsSummary, // Use the summary string for all selected participants
                     onTap: onParticipantsTap
                 )
             }

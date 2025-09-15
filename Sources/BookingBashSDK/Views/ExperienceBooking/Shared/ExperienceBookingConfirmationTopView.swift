@@ -15,9 +15,16 @@ struct ExperienceBookingConfirmationTopView: View {
         HStack {
             Spacer()
             VStack(spacing: 12) {
-                Image(bookingInfo.image)
-                    .resizable()
-                    .frame(width: 40, height: 40)
+                if let icon = bundleImage(named: bookingInfo.image) {
+                    icon
+                        .resizable()
+                        .frame(width: 40, height: 40)
+                } else {
+                    Image(bookingInfo.image)
+                        .resizable()
+                        .frame(width: 40, height: 40)
+                }
+                
                 Text(bookingInfo.bookingStatus)
                     .font(.custom(Constants.Font.openSansBold, size: 16))
                     .foregroundStyle(Color(hex: Constants.HexColors.surfaceWeakest))

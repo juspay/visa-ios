@@ -15,10 +15,12 @@ struct SearchBarView: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            Image(Constants.Icons.searchIcon)
-                .resizable()
-                .frame(width: 20, height: 20)
-                .foregroundStyle(Color(hex: Constants.HexColors.primary))
+            if let searchImage = bundleImage(named: Constants.Icons.searchIcon) {
+                searchImage
+                    .resizable()
+                    .frame(width: 20, height: 20)
+                    .foregroundStyle(Color(hex: Constants.HexColors.primary))
+            }
             
             ZStack(alignment: .leading) {
                 if searchText.isEmpty {
@@ -55,4 +57,3 @@ struct SearchBarView: View {
         )
     }
 }
-

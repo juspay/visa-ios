@@ -10,6 +10,7 @@ import SwiftUI
 
 struct ExperiencePassesListView: View {
     @ObservedObject var viewModel: ExperienceAvailabilitySelectOptionsViewModel
+    var model: ExperienceDetailModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -24,8 +25,8 @@ struct ExperiencePassesListView: View {
                     .font(.custom(Constants.Font.openSansRegular, size: 14))
                     .foregroundStyle(Color(hex: Constants.HexColors.blackStrong))
             } else {
-                ForEach(viewModel.packages) { package in
-                    ExperiencePassesCardView(package: package, viewModel: viewModel)
+                ForEach(viewModel.packages) { package  in
+                    ExperiencePassesCardView(package: package, model: model, viewModel: viewModel)
                 }
             }
         }

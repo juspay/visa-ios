@@ -11,6 +11,7 @@ import SUINavigation
 
 struct AvailabilitySelectionMainView: View {
     @ObservedObject var experienceAvailabilitySViewModel: ExperienceAvailabilitySelectOptionsViewModel
+    let model: ExperienceDetailModel
     @OptionalEnvironmentObject private var navigationStorage: NavigationStorage?
     @State private var showDateSheet = false
     @State private var showParticipantsScreen = false
@@ -33,17 +34,21 @@ struct AvailabilitySelectionMainView: View {
                 )
                     .padding(.bottom, 16)
             }, content: {
-                ExperiencePassesListView(viewModel: experienceAvailabilitySViewModel)
+                ExperiencePassesListView(viewModel: experienceAvailabilitySViewModel, model: model)
                     .frame(maxWidth: .infinity)
                     
             })
             .navigationBarBackButtonHidden(true)
             .overlay(
                 BottomSheetView(isPresented: $showParticipantsScreen) {
-                    ParticipantSelectionView(viewModel: experienceAvailabilitySViewModel)
+                    ParticipantSelectionView(
+                        viewModel: experienceAvailabilitySViewModel,
+                        onSelect: {
+                            showParticipantsScreen = false
+                        }
+                    )
                 }
             )
         }
     }
 }
-

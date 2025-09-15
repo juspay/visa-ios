@@ -10,17 +10,19 @@ import SwiftUI
 
 struct DestinationScrollView: View {
     let destinations: [Destination]
+    let onDestinationTap: (Destination) -> Void
     
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 15) {
                 ForEach(destinations) { destination in
                     DestinationCardView(destination: destination)
-                    
+                        .onTapGesture {
+                            onDestinationTap(destination)
+                        }
                 }
             }
             .padding(.leading, 15)
         }
     }
 }
-

@@ -1,16 +1,10 @@
-//
-//  DestinationGridView.swift
-//  VisaActivity
-//
-//  Created by Apple on 29/07/25.
-//
-
 import Foundation
 import SwiftUI
 
 struct DestinationGridView: View {
     let destinations: [Destination]
     let geo: GeometryProxy
+    var onDestinationTap: ((Destination) -> Void)? = nil
     
     var body: some View {
         VStack(spacing: 20) {
@@ -27,9 +21,11 @@ struct DestinationGridView: View {
             ) {
                 ForEach(destinations) { destination in
                     DestinationCardView(destination: destination, itemWidth: itemWidth)
+                        .onTapGesture {
+                            onDestinationTap?(destination)
+                        }
                 }
             }
         }
-        
     }
 }

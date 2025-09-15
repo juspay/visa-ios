@@ -9,10 +9,12 @@ import Foundation
 
 struct Experience: Identifiable {
     let id = UUID()
-    let imageName: String
+    let imageURL: String // Changed from imageName to imageURL
     let country: String
     let title: String
     let originalPrice: Int
     let discount: Int
     let finalPrice: Int
+    let productCode: String
+    
 }

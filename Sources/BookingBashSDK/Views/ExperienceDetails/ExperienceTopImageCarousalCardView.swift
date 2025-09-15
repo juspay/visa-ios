@@ -12,9 +12,12 @@ struct ExperienceTopImageCarousalCardView: View {
     
     var body: some View {
         HStack {
-            Image(experienceDetailCarousalModel.imageName)
-                .resizable()
-                .frame(width: 245, height: 150)
+            AsyncImage(url: URL(string: experienceDetailCarousalModel.imageUrl)) { image in
+                image.resizable()
+            } placeholder: {
+                Color.gray // or a placeholder image
+            }
+            .frame(width: 245, height: 150)
         }
         .clipShape(RoundedRectangle(cornerRadius: 8))
         
@@ -23,6 +26,6 @@ struct ExperienceTopImageCarousalCardView: View {
 
 #Preview {
     ExperienceTopImageCarousalCardView(
-        experienceDetailCarousalModel: ExperienceDetailCarousalModel(imageName: Constants.Icons.nature)
+        experienceDetailCarousalModel: ExperienceDetailCarousalModel(imageUrl: Constants.Icons.nature)
     )
 }

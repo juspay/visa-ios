@@ -7,8 +7,6 @@
 
 import Foundation
 
-
-
 // MARK: - Payment Response
 struct PaymentApiResponse: Codable {
     let status: Bool

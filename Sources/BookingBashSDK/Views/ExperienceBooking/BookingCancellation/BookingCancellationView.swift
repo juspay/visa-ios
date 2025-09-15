@@ -12,7 +12,8 @@ struct BookingCancellationView: View {
     @ObservedObject var experienceBookingConfirmationViewModel: ExperienceBookingConfirmationViewModel
     @State private var shouldExpandDetails: Bool = false
     @OptionalEnvironmentObject private var navigationStorage: NavigationStorage?
-    
+    @State private var navigateToHome: Bool = false
+
     var body: some View {
         ZStack(alignment: .bottom) {
             ThemeTemplateView(header: {
@@ -36,7 +37,7 @@ struct BookingCancellationView: View {
                     
                     if shouldExpandDetails {
                         ContactDetailsCardView(contactDetailsModel: experienceBookingConfirmationViewModel.contactDetails, title: Constants.BookingStatusScreenConstants.supplierContactTitle)
-                        FareSummaryCardView(fairSummaryData: experienceBookingConfirmationViewModel.fairSummaryData, totalPrice: totalPriceG, shouldShowTopBanner: false)
+                        FareSummaryCardView(fairSummaryData: experienceBookingConfirmationViewModel.fairSummaryData, totalPrice: "\(experienceBookingConfirmationViewModel.currency) \(String(format: "%.0f", experienceBookingConfirmationViewModel.totalAmount))", shouldShowTopBanner: false)
                         RefundDetailsCardView(viewModel: experienceBookingConfirmationViewModel)
                         ConfirmationInfoReusableCardView(section: experienceBookingConfirmationViewModel.cancellationPolicy, showBullets: false)
                         ConfirmationInfoReusableCardView(section: experienceBookingConfirmationViewModel.leadTraveller, showBullets: false)
@@ -53,9 +54,11 @@ struct BookingCancellationView: View {
             .navigationBarBackButtonHidden(true)
             .safeAreaInset(edge: .bottom) {
                 BackToHomeButtonView() {
-                    navigationStorage?.popToRoot()
+                    navigateToHome = true
                 }
             }
+            .modifier(NavigationDestinationModifier(navigateToHome: $navigateToHome))
+
         }
     }
 }

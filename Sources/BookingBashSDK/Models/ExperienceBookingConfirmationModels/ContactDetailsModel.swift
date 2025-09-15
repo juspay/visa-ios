@@ -10,5 +10,5 @@ import Foundation
 struct ContactDetailsModel: Identifiable {
     let id = UUID()
     let keyIcon: String
-    let value: String
+    var value: String
 }

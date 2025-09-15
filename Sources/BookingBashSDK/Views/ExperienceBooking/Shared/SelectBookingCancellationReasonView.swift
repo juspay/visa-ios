@@ -11,6 +11,8 @@ import SwiftUI
 struct SelectBookingCancellationReasonView: View {
     @ObservedObject var viewModel: ExperienceBookingConfirmationViewModel
     @Binding var cancellationSheetState: CancellationSheetState
+    @Binding var navigateToCancellationView: Bool
+    let orderNo: String // Added orderNo parameter
     
     var body: some View {
         VStack(spacing: 0) {
@@ -24,7 +26,16 @@ struct SelectBookingCancellationReasonView: View {
 
             Button(action: {
                 print("\(Constants.BookingStatusScreenConstants.selectedReason) \(String(describing: viewModel.selectedReason?.title))")
-                cancellationSheetState = .confirm
+                guard let reasonCode = viewModel.selectedReason?.code else { return }
+                // Extract orderNo from bookingBasicDetails as in CancelBookingBottomSheetView
+                let orderNoToUse = viewModel.bookingBasicDetails.first(where: { $0.key == "Booking ID" })?.value ?? orderNo
+                
+                
+                viewModel.cancelBooking(orderNoo: orderNoToUse, siteId: "68b585760e65320801973737", reasonCode: reasonCode) { success in
+                    if success {
+                        navigateToCancellationView = true
+                    }
+                }
             }) {
                 Text(Constants.SharedConstants.next)
                     .font(.custom(Constants.Font.openSansBold, size: 12))
@@ -41,4 +52,3 @@ struct SelectBookingCancellationReasonView: View {
         }
     }
 }
-

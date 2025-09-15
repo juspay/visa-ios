@@ -17,18 +17,22 @@ struct TopBarView: View {
                 Circle()
                     .stroke(Color.gray.opacity(0.4), lineWidth: 1)
                     .frame(width: 44, height: 44)
-                Image(Constants.Icons.hamburger)
-                    .frame(width: 24, height: 24)
-                    .foregroundStyle(Color(hex: Constants.HexColors.neutral))
+                if let hamburgerImage = bundleImage(named: Constants.Icons.hamburger) {
+                    hamburgerImage
+                        .frame(width: 24, height: 24)
+                        .foregroundStyle(Color(hex: Constants.HexColors.neutral))
+                }
             }
             .onTapGesture {
                 onHamburgerTap()
             }
             
             HStack(spacing: 8) {
-                Image(Constants.Icons.searchIcon)
-                    .frame(width: 15, height: 15)
-                    .foregroundStyle(Color(hex: Constants.HexColors.primaryStrong))
+                if let searchImage = bundleImage(named: Constants.Icons.searchIcon) {
+                    searchImage
+                        .frame(width: 15, height: 15)
+                        .foregroundStyle(Color(hex: Constants.HexColors.primaryStrong))
+                }
                 
                 Text(Constants.HomeScreenConstants.searchDestination)
                     .lineLimit(1)
@@ -53,4 +57,3 @@ struct TopBarView: View {
         .padding(.horizontal, 15)
     }
 }
-

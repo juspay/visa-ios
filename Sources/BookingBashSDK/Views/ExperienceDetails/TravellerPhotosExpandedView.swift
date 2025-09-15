@@ -11,12 +11,13 @@ import SwiftUI
 struct TravellerPhotosExpandedView: View {
     var body: some View {
         VStack(spacing: 16) {
-            Image(Constants.Icons.shrek)
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(maxWidth: .infinity)
-                .frame(height: 470)
-                .clipShape(RoundedCorner(radius: 16, corners: [.topLeft, .topRight]))
+            if let shrekImage = bundleImage(named: Constants.Icons.shrek) {
+                shrekImage
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 200, height: 200)
+                    .clipped()
+            }
 
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 4) {
@@ -47,4 +48,3 @@ struct TravellerPhotosExpandedView: View {
         .padding(.horizontal)
     }
 }
-

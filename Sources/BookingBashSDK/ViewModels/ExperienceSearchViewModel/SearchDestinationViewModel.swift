@@ -42,7 +42,7 @@ class SearchDestinationViewModel: ObservableObject {
         // Add required headers
         let headers = [
             "Content-Type": "application/json",
-            "Authorization": "Basic Qy1FWTNSM0c6OWRjOWMwOWRiMzdkYWRmYmQyNDAxYTljNjBmODY1MGY1YjZlMDFjYg=="
+            "Authorization": TokenProvider.getAuthHeader() ?? ""
         ]
         
         print(url)

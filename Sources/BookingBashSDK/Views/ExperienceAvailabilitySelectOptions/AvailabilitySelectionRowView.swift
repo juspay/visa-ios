@@ -17,10 +17,17 @@ struct AvailabilitySelectionRowView: View {
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: 4) {
-                Image(iconName)
-                    .resizable()
-                    .frame(width: 20, height: 20)
-                    .foregroundStyle(.white)
+                if let icon = bundleImage(named: iconName) {
+                    icon
+                        .resizable()
+                        .frame(width: 20, height: 20)
+                        .foregroundStyle(.white)
+                } else {
+                    Image(iconName)
+                        .resizable()
+                        .frame(width: 20, height: 20)
+                        .foregroundStyle(.white)
+                }
 
                 Text(title)
                     .font(.custom(Constants.Font.openSansSemiBold, size: 12))
@@ -32,10 +39,12 @@ struct AvailabilitySelectionRowView: View {
                     .font(.custom(Constants.Font.openSansSemiBold, size: 12))
                     .foregroundStyle(Color(hex: Constants.HexColors.surfaceWeakest))
 
-                Image(Constants.Icons.arrowRight)
-                    .resizable()
-                    .frame(width: 20, height: 20)
-                    .foregroundStyle(.white)
+                if let arrowImage = bundleImage(named: Constants.Icons.arrowRight) {
+                    arrowImage
+                        .resizable()
+                        .frame(width: 20, height: 20)
+                        .foregroundStyle(.white)
+                }
             }
             .padding(16)
         }

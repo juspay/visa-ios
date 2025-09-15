@@ -13,21 +13,25 @@ struct ExperienceDetailsTopHeaderView: View {
             Spacer()
             Button(action: {
                 
-            }, label: {
-                Image(Constants.Icons.wishlist)
-                    .resizable()
-                    .foregroundStyle(Color.white)
-                    .frame(width: 24, height: 24)
-            })
+            }) {
+                if let wishlistImage = bundleImage(named: Constants.Icons.wishlist) {
+                    wishlistImage
+                        .resizable()
+                        .frame(width: 20, height: 20)
+                        .foregroundStyle(.white)
+                }
+            }
             
             Button(action: {
                 
-            }, label: {
-                Image(Constants.Icons.Share)
-                    .resizable()
-                    .foregroundStyle(Color.white)
-                    .frame(width: 24, height: 24)
-            })
+            }) {
+                if let shareImage = bundleImage(named: Constants.Icons.Share) {
+                    shareImage
+                        .resizable()
+                        .frame(width: 20, height: 20)
+                        .foregroundStyle(.white)
+                }
+            }
         }
     }
 }

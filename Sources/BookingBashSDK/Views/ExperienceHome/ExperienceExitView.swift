@@ -10,13 +10,17 @@ import SwiftUI
 struct ExperienceExitView: View {
     var body: some View {
         VStack(spacing: 30) {
-            Image(Constants.Icons.activity)
-                .resizable()
-                .frame(width: 50, height: 50)
-                .foregroundStyle(Color(hex: Constants.HexColors.neutral))
-            Text(Constants.HomeScreenConstants.cancelBookingText)
-                .font(.custom(Constants.Font.openSansBold, size: 16))
-                .foregroundStyle(Color(hex: Constants.HexColors.blackStrong))
+            if let activityImage = bundleImage(named: Constants.Icons.activity) {
+                activityImage
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 100, height: 100)
+            }
+            
+            Text("Thank you for choosing Visa")
+                .font(.custom(Constants.Font.openSansBold, size: 18))
+                .foregroundStyle(Color(hex: Constants.HexColors.secondary))
+                .multilineTextAlignment(.center)
             
             HStack(spacing: 20) {
                 ExitButtonsView(

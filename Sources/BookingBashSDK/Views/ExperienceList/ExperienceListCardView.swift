@@ -18,22 +18,35 @@ struct ExperienceListCardView: View {
         ZStack(alignment: .bottomTrailing) {
             HStack(alignment: .top, spacing: 12) {
                 GeometryReader { geo in
-                    Image(experience.imageName)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 120, height: geo.size.height)
-                        .clipped()
-                        .clipShape(RoundedCorner(radius: 8, corners: [.topLeft, .bottomLeft]))
+                    AsyncImage(url: URL(string: experience.imageName)) { image in
+                        image
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 120, height: geo.size.height)
+                            .clipped()
+                            .clipShape(RoundedCorner(radius: 8, corners: [.topLeft, .bottomLeft]))
+                    } placeholder: {
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.3))
+                            .frame(width: 120, height: geo.size.height)
+                            .clipShape(RoundedCorner(radius: 8, corners: [.topLeft, .bottomLeft]))
+                            .overlay(
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle())
+                            )
+                    }
                 }
                 .frame(width: 120)
                 
                 VStack(alignment: .leading, spacing: 20) {
                     VStack(alignment: .leading, spacing: 6) {
                         HStack(spacing: 2) {
-                            Image(Constants.Icons.star)
-                                .resizable()
-                                .frame(width: 16, height: 16)
-                                .foregroundStyle(Color(hex: Constants.HexColors.primary))
+                            if let starImage = bundleImage(named: Constants.Icons.star) {
+                                starImage
+                                    .resizable()
+                                    .frame(width: 16, height: 16)
+                                    .foregroundStyle(Color(hex: Constants.HexColors.primary))
+                            }
                             
                             Text(String(format: "%.1f", experience.rating))
                                 .font(.custom(Constants.Font.openSansSemiBold, size: 12))
@@ -70,12 +83,12 @@ struct ExperienceListCardView: View {
                                 showBanner = false
                             }
                         }) {
-                            Image(isFavorite
-                                  ? Constants.Icons.wishlistFill
-                                  : Constants.Icons.wishlist)
-                            .resizable()
-                            .frame(width: 18, height: 18)
-                            .foregroundStyle(Color(hex: Constants.HexColors.primaryStrong))
+                            if let wishlistImage = bundleImage(named: isFavorite ? Constants.Icons.wishlistFill : Constants.Icons.wishlist) {
+                                wishlistImage
+                                    .resizable()
+                                    .frame(width: 18, height: 18)
+                                    .foregroundStyle(Color(hex: Constants.HexColors.primaryStrong))
+                            }
                         }
                     }
                 }
@@ -91,10 +104,12 @@ struct ExperienceListCardView: View {
             
             if showBanner && isFavorite {
                 HStack(spacing: 6) {
-                    Image(Constants.Icons.check)
-                        .resizable()
-                        .frame(width: 20, height: 20)
-                        .foregroundStyle(.green)
+                    if let checkImage = bundleImage(named: Constants.Icons.check) {
+                        checkImage
+                            .resizable()
+                            .frame(width: 20, height: 20)
+                            .foregroundStyle(.green)
+                    }
                     
                     Text(Constants.ExperienceListConstants.addedInFavorites)
                         .font(.custom(Constants.Font.openSansBold, size: 12))

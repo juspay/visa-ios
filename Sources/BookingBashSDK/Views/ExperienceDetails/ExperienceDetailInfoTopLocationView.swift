@@ -17,13 +17,17 @@ struct ExperienceDetailInfoTopLocationView: View {
                 .font(.custom(Constants.Font.openSansBold, size: 18))
                 .foregroundStyle(.white)
             
-            HStack(spacing: 2) {
-                Image(Constants.Icons.map)
-                    .frame(width: 18, height: 18)
-                    .foregroundStyle(Color.white)
+            HStack(spacing: 8) {
+                if let mapImage = bundleImage(named: Constants.Icons.map) {
+                    mapImage
+                        .resizable()
+                        .frame(width: 16, height: 16)
+                        .foregroundStyle(.white)
+                }
+                
                 Text(location)
-                    .foregroundStyle(Color.white)
                     .font(.custom(Constants.Font.openSansRegular, size: 12))
+                    .foregroundStyle(.white)
             }
         }
     }

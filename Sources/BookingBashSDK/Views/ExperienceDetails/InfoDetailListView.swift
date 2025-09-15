@@ -48,7 +48,7 @@ struct InfoDetailListView: View {
     var body: some View {
         ThemeTemplateView(header: {
             HStack {
-                Text("Dubai Parks And Resorts")
+                Text(/*"Dubai Parks And Resorts"*/"")
                     .font(.custom(Constants.Font.openSansBold, size: 18))
                     .foregroundStyle(.white)
                 Spacer()

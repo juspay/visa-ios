@@ -10,7 +10,7 @@ import Foundation
 class ExperienceAvailabilitySelectOptionsViewModel: ObservableObject {
     @Published var selectedDate: String = ""
     @Published var participants: String = "1 Adult"
-    
+    @Published var experienceTitle: String = "" 
     @Published var months: [CalendarMonth] = []
     @Published var selectedDateFromCalender: Date = Date()
     let formatter = DateFormatter()
@@ -31,7 +31,6 @@ class ExperienceAvailabilitySelectOptionsViewModel: ObservableObject {
     func dateSelectedFromCalender(date: Date) {
         selectedDateFromCalender = date
         selectedDate = formatDate(date)
-        checkInDateG = selectedDate
     }
     
     func generateMonths() {
@@ -169,7 +168,29 @@ class ExperienceAvailabilitySelectOptionsViewModel: ObservableObject {
     }
     
     var canSelect: Bool {
-        totalSelected <= 15 
+        totalSelected <= 15
+    }
+    
+    // Returns a string like "2 Adults, 3 Children" for display
+    var participantsSummary: String {
+        let parts = categories.compactMap { category -> String? in
+            if category.count > 0 {
+                let type = category.type
+                if type == "Children" || type == "Child" {
+                    // Special handling for children
+                    if category.count == 1 {
+                        return "1 Child"
+                    } else {
+                        return "\(category.count) Children"
+                    }
+                } else {
+                    let plural = category.count > 1 ? type + "s" : type
+                    return "\(category.count) \(plural)"
+                }
+            }
+            return nil
+        }
+        return parts.joined(separator: ", ")
     }
 }
 
@@ -188,7 +209,7 @@ extension ExperienceAvailabilitySelectOptionsViewModel {
         )
         let headers = [
             "Content-Type": "application/json",
-            "Authorization": "Basic Qy1FWTNSM0c6OWRjOWMwOWRiMzdkYWRmYmQyNDAxYTljNjBmODY1MGY1YjZlMDFjYg==",
+            "Authorization": TokenProvider.getAuthHeader() ?? "",
             "token": encryptedPayload
         ]
         NetworkManager.shared.post(url: url, body: requestBody, headers : headers) { (result: Result<AvailabilityApiResponse, Error>) in
@@ -197,6 +218,12 @@ extension ExperienceAvailabilitySelectOptionsViewModel {
                 case .success(let data):
                     self.response = data
                     setApiResponse(response?.data)
+                    if let response = response {
+                        print("response in availability:", response)
+                    
+                    } else {
+                        print("response in availability: nil")
+                    }
                 case .failure(let error):
                     self.errorMessage = error.localizedDescription
                     print("Error:", error)
@@ -208,34 +235,33 @@ extension ExperienceAvailabilitySelectOptionsViewModel {
     func setApiResponse(_ responseData: AvailabilityData?) {
         guard let data = responseData else { return }
         
-        packages = data.availabilities.flatMap { availability in
-            availability.rates.map { rate in
-                // Collect times from ALL rates in this availability
-                let times = availability.rates.compactMap { $0.time }
-                
-                // Info items from labels
-                let infoItems: [InfoItems] = rate.labels.map { label in
-                    InfoItems(title: label, icon: "bolt.fill") // static icon, dynamic title
-                }
-                
-                // Pricing description
-                let pricingDescriptions: [String] = rate.price.pricePerAgeBand.map { ageBand in
-                    "\(ageBand.travelerCount) \(ageBand.ageBand) x AED \(ageBand.totalBandPrice)"
-                }
-                
-                // Total amount for this rate
-                let totalAmount = rate.price.pricePerAgeBand
-                    .map { $0.totalBandPrice }
-                    .reduce(0, +)
-                
-                return Package(
-                    title: rate.description.isEmpty ? "Two Park Pass - Dubai Parks and Resorts" : rate.description,
-                    times: times,
-                    infoItems: infoItems,
-                    pricingDescription: pricingDescriptions,
-                    totalAmount: "\(totalAmount)"
-                )
-            }
+        packages = data.availabilities.map { availability in
+            // Collect all times from rates
+            let times = availability.rates.compactMap { $0.time }
+            
+            // Use infoItems from the first rate with labels, or empty if none
+            let firstRateWithLabels = availability.rates.first(where: { !$0.labels.isEmpty })
+            let infoItems: [InfoItems] = firstRateWithLabels?.labels.map { label in
+                InfoItems(title: label, icon: "bolt.fill")
+            } ?? []
+            
+            // Pricing description from the first rate (or empty)
+            let pricingDescriptions: [String] = availability.rates.first?.price.pricePerAgeBand.map { ageBand in
+                "\(ageBand.travelerCount) \(ageBand.ageBand) x AED \(ageBand.totalBandPrice)"
+            } ?? []
+            
+            // Total amount from the first rate (or 0)
+            let totalAmount = availability.rates.first?.price.pricePerAgeBand
+                .map { $0.totalBandPrice }
+                .reduce(0, +) ?? 0
+            
+            return Package(
+                title: "Two Park Pass - Dubai Parks and Resorts",
+                times: times,
+                infoItems: infoItems,
+                pricingDescription: pricingDescriptions,
+                totalAmount: "\(totalAmount)"
+            )
         }
     }
 }

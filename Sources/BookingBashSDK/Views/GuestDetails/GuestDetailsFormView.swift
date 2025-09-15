@@ -2,28 +2,27 @@
 //  GuestDetailsFormView.swift
 //  VisaActivity
 //
-//  Created by Sakshi on 05/09/25.
+//  Created by apple on 05/09/25.
 //
 
 import SwiftUI
 
 struct GuestDetailsFormView: View {
     @State private var isExpanded = true
-//    @State private var details = GuestDetails()
     @StateObject private var profileViewModel = ProfileViewModel()
     @State private var mobileError: String? = nil
     @Binding var details : GuestDetails
-
+    
+    private let codes: [MobileCode] = [
+        MobileCode(name: "UAE", maxCharLimit: 9, countryCode: 1, dialCode: "+971", image: "https://d33mtyizv24ggq.cloudfront.net/assets/ae.svg"),
+        MobileCode(name: "China", maxCharLimit: 11, countryCode: 2, dialCode: "+86", image: "https://d33mtyizv24ggq.cloudfront.net/assets/cn.svg"),
+        MobileCode(name: "Singapore", maxCharLimit: 8, countryCode: 3, dialCode: "+65", image: "https://d33mtyizv24ggq.cloudfront.net/assets/sg.svg"),
+        MobileCode(name: "India", maxCharLimit: 10, countryCode: 4, dialCode: "+91", image: "https://d33mtyizv24ggq.cloudfront.net/assets/in.svg"),
+        MobileCode(name: "Iceland", maxCharLimit: 7, countryCode: 5, dialCode: "+354", image: "https://d33mtyizv24ggq.cloudfront.net/assets/is.svg")
+    ]
     
     // include placeholder "Title" as first element
     private let titleMenu = ["Title", "Mr", "Ms", "Mrs"]
-    // mobile codes
-    private let mobileCodes: [(flag: String, code: String)] = [
-        ("🇮🇳", "+91"),
-        ("🇺🇸", "+1"),
-        ("🇬🇧", "+44"),
-        ("🇦🇪", "+971")
-    ]
     
     var body: some View {
         VStack(spacing: 0) {
@@ -98,26 +97,69 @@ struct GuestDetailsFormView: View {
                             .padding(.horizontal, 14)
                         
                         CombinedMobileField(
-                            codes: mobileCodes,
-                            selectedCode: $details.countryCode,
-                            mobile: $details.mobile
+                            codes: codes,
+                            selectedCode: Binding(
+                                get: {
+                                    // Always use the validated country code to prevent invalid codes
+                                    if !details.mobileCountryCode.isEmpty {
+                                        return details.mobileCountryCode
+                                    } else {
+                                        return getValidCountryCode() // This ensures we always return a valid code
+                                    }
+                                },
+                                set: { newValue in
+                                    details.mobileCountryCode = newValue
+                                    // Update global variable when user changes it
+                                    mobileCountryCode = newValue
+                                }
+                            ),
+                            mobile: Binding(
+                                get: {
+                                    // Priority: 1. User updated value in details, 2. Global variable
+                                    if !details.mobileNumber.isEmpty {
+                                        return details.mobileNumber
+                                    } else if !mobileNumber.isEmpty {
+                                        return mobileNumber
+                                    } else {
+                                        return ""
+                                    }
+                                },
+                                set: { newValue in
+                                    details.mobileNumber = newValue
+                                    // Update global variable when user changes it
+                                    mobileNumber = newValue
+                                }
+                            ),
+                            onCodeChange: {
+                                // Clear only local mobile number when country code changes, keep global intact
+                                details.mobileNumber = ""
+                                // Don't clear mobileNumber global variable
+                            }
                         )
                         .padding(.horizontal, 14)
-                        .onChange(of: details.mobile) { newValue in
-                            // restrict to 10 digits only
-                            let filtered = newValue.filter { $0.isNumber }
-                            if filtered.count > 7 {
-                                details.mobile = String(filtered.prefix(7))
+                        .onChange(of: details.mobileNumber) { newValue in
+                            // Restrict to the maxCharLimit for the selected country code
+                            let currentCode = getCurrentCountryCode()
+                            if let selected = codes.first(where: { $0.dialCode == currentCode }) {
+                                let filtered = newValue.filter { $0.isNumber }
+                                if filtered.count > selected.maxCharLimit {
+                                    details.mobileNumber = String(filtered.prefix(selected.maxCharLimit))
+                                    mobileNumber = details.mobileNumber
+                                } else {
+                                    details.mobileNumber = filtered
+                                    mobileNumber = details.mobileNumber
+                                }
                             } else {
-                                details.mobile = filtered
+                                // fallback: default to 10 digits if country not found
+                                let filtered = newValue.filter { $0.isNumber }
+                                if filtered.count > 10 {
+                                    details.mobileNumber = String(filtered.prefix(10))
+                                    mobileNumber = details.mobileNumber
+                                } else {
+                                    details.mobileNumber = filtered
+                                    mobileNumber = details.mobileNumber
+                                }
                             }
-                        }
-                        
-                        if let error = mobileError {
-                            Text(error)
-                                .font(.system(size: 12))
-                                .foregroundColor(.red)
-                                .padding(.horizontal, 14)
                         }
                     }
                     
@@ -154,6 +196,60 @@ struct GuestDetailsFormView: View {
         .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray.opacity(0.35)))
         .clipShape(RoundedRectangle(cornerRadius: 10))
         .frame(maxWidth: .infinity, alignment: .leading)
+        .onAppear {
+            // Initialize details with global variables or API response data
+            initializeMobileData()
+        }
+    }
+    
+    // MARK: - Helper Methods
+    
+    /// Maps global country code to a valid dropdown option, returns default if not found
+    private func getValidCountryCode() -> String {
+        let globalCode = mobileCountryCode.isEmpty ? "" : mobileCountryCode
+        
+        // Check if global country code exists in our dropdown list
+        if !globalCode.isEmpty && codes.contains(where: { $0.dialCode == globalCode }) {
+            return globalCode // Return the actual global code if it exists in dropdown
+        }
+        
+        // If global code is empty or not found in dropdown, return default UAE
+        return "+971"
+    }
+    
+    private func initializeMobileData() {
+        // Debug print to see what we're working with
+        print("DEBUG: Global mobileCountryCode = '\(mobileCountryCode)'")
+        print("DEBUG: Global mobileNumber = '\(mobileNumber)'")
+        print("DEBUG: details.mobileCountryCode = '\(details.mobileCountryCode)'")
+        print("DEBUG: details.mobileNumber = '\(details.mobileNumber)'")
+        
+        // Always sync country code from global to local when page appears
+        if !mobileCountryCode.isEmpty && codes.contains(where: { $0.dialCode == mobileCountryCode }) {
+            details.mobileCountryCode = mobileCountryCode
+        } else if details.mobileCountryCode.isEmpty {
+            // Only set default if both global and local are empty
+            let validCode = getValidCountryCode()
+            print("DEBUG: Setting details.mobileCountryCode to '\(validCode)'")
+            details.mobileCountryCode = validCode
+            mobileCountryCode = validCode
+        }
+        
+        // Always sync mobile number from global to local when page appears
+        if !mobileNumber.isEmpty {
+            details.mobileNumber = mobileNumber
+        }
+        
+        print("DEBUG: Final details.mobileCountryCode = '\(details.mobileCountryCode)'")
+        print("DEBUG: Final details.mobileNumber = '\(details.mobileNumber)'")
+    }
+    
+    private func getCurrentCountryCode() -> String {
+        if !details.mobileCountryCode.isEmpty {
+            return details.mobileCountryCode
+        } else {
+            return getValidCountryCode()
+        }
     }
     
     // MARK: - Helper
@@ -169,6 +265,69 @@ struct GuestDetailsFormView: View {
 }
 
 // MARK: - Combined Title + FirstName (shared rounded border, vertical divider)
+
+struct CombinedMobileField: View {
+    let codes: [MobileCode]
+    @Binding var selectedCode: String
+    @Binding var mobile: String
+    var onCodeChange: (() -> Void)? = nil
+    
+    var body: some View {
+        HStack(spacing: 0) {
+            // Flag + dial code dropdown
+            Menu {
+                ForEach(codes) { c in
+                    Button {
+                        if selectedCode != c.dialCode {
+                            selectedCode = c.dialCode
+                            onCodeChange?()
+                        }
+                    } label: {
+                        HStack {
+                            Text(c.dialCode)
+                                .foregroundColor(.black)
+                        }
+                    }
+                }
+            } label: {
+                HStack {
+                    if let selected = codes.first(where: { $0.dialCode == selectedCode }),
+                       let url = URL(string: selected.image) {
+                        // SVGImageView(url: url) removed for now
+                    }
+                    Text(selectedCode)
+                        .foregroundColor(.black)
+                    Image(systemName: "chevron.down")
+                        .foregroundColor(.brown)
+                        .padding(.leading, 1) // Move arrow closer to code text
+                    Spacer()
+                }
+                .padding(.leading, 10)
+                .frame(minWidth: 88, maxWidth: 110, alignment: .leading)
+            }
+            
+            // Divider
+            Rectangle()
+                .fill(Color.gray.opacity(0.25))
+                .frame(width: 1)
+                .padding(.vertical, 8)
+            
+            // Mobile number text field
+            BareTextField(
+                placeholder: "Enter mobile number",
+                text: $mobile,
+                keyboardType: .numberPad
+            )
+            .padding(.leading, 12)
+        }
+        .frame(height: 44)
+        .background(Color.white)
+        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray.opacity(0.35)))
+        .cornerRadius(8
+        )
+    }
+}
+
 private struct CombinedTitleFirstName: View {
     let titleOptions: [String]
     @Binding var selectedTitle: String
@@ -215,56 +374,6 @@ private struct CombinedTitleFirstName: View {
     }
 }
 
-// MARK: - Combined Mobile Field (flag+code + divider + mobile number)
-private struct CombinedMobileField: View {
-    let codes: [(flag: String, code: String)]
-    @Binding var selectedCode: String
-    @Binding var mobile: String
-    
-    var body: some View {
-        HStack(spacing: 0) {
-            // flag + code menu
-            Menu {
-                ForEach(codes, id: \.code) { c in
-                    Button {
-                        selectedCode = c.code
-                    } label: {
-                        Label {
-                            Text(c.code)
-                                .foregroundColor(.gray)
-                        } icon: {
-                            Text(c.flag)
-                        }
-                    }
-                }
-            } label: {
-                    HStack(spacing: 8) {
-                        // show flag for current code (or fallback)
-                        Text(codes.first(where: { $0.code == selectedCode })?.flag ?? "🇮🇳")
-                            .foregroundStyle(Color.gray)
-                        Text(selectedCode)
-                            .font(.system(size: 14))
-                            .foregroundColor(Color.gray)
-                        Image(systemName: "chevron.down").foregroundColor(Color(.brown))
-                    }
-                    .padding(.leading, 12)
-                    .frame(minWidth: 88, maxWidth: 110, alignment: .leading)
-                }
-            
-            Rectangle()
-                .fill(Color.gray.opacity(0.25))
-                .frame(width: 1)
-                .padding(.vertical, 8)
-            
-            BareTextField(placeholder: "Enter mobile number", text: $mobile, keyboardType: .numberPad)
-                .padding(.leading, 12)
-        }
-        .frame(height: 44)
-        .background(Color.white)
-        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray.opacity(0.35)))
-        .cornerRadius(8)
-    }
-}
 
 // MARK: - Styled full width TextField (used for last name, email)
 private struct StyledTextField: View {
@@ -322,4 +431,3 @@ private struct Checkbox: View {
         .buttonStyle(.plain)
     }
 }
-

@@ -16,18 +16,27 @@ struct CheckboxTermsView: View {
         HStack(alignment: .top, spacing: 8) {
             Button(action: {
                 isAgreed.toggle()
-            }) {
-                Image(isAgreed
-                      ? Constants.Icons.checkBoxFilled
-                      : Constants.Icons.checkBox
-                )
-                .resizable()
-                .frame(width: 24, height: 24)
-                .foregroundStyle(
-                    isAgreed
-                    ? Color(hex: Constants.HexColors.primary)
-                    : Color(hex: Constants.HexColors.neutral)
-                )
+            }){
+                
+                if let icon = bundleImage(named: isAgreed ? Constants.Icons.checkBoxFilled : Constants.Icons.checkBox) {
+                    icon
+                        .resizable()
+                        .frame(width: 24, height: 24)
+                        .foregroundStyle(
+                            isAgreed
+                            ? Color(hex: Constants.HexColors.primary)
+                            : Color(hex: Constants.HexColors.neutral)
+                        )
+                } else {
+                    Image(isAgreed ? Constants.Icons.checkBoxFilled : Constants.Icons.checkBox)
+                        .resizable()
+                        .frame(width: 24, height: 24)
+                        .foregroundStyle(
+                            isAgreed
+                            ? Color(hex: Constants.HexColors.primary)
+                            : Color(hex: Constants.HexColors.neutral)
+                        )
+                }
             }
             .buttonStyle(PlainButtonStyle())
             

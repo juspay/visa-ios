@@ -19,10 +19,12 @@ struct InfoRowView: View {
 
             Spacer()
 
-            Image(Constants.Icons.arrowRight)
-                .resizable()
-                .frame(width: 20, height: 20)
-                .foregroundStyle(Color(hex: Constants.HexColors.primary))
+            if let arrowImage = bundleImage(named: Constants.Icons.arrowRight) {
+                arrowImage
+                    .resizable()
+                    .frame(width: 20, height: 20)
+                    .foregroundStyle(Color(hex: Constants.HexColors.neutral))
+            }
         }
         .padding()
         .background(Color.white)

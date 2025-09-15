@@ -6,15 +6,20 @@ struct DecryptedResponse: Codable {
 }
 
 struct Payload: Codable {
-    let firstName: String
+    let offerTxnId: String
     let lastName: String
+    let cardIssuerName: String
+    let mobileCountryCode: String
+    let mobileNumber: String
+    let isDeeplink: Bool
+    let eligibilityLevel: Int
+    let cardLastFour: String
+    let firstName: String
     let aliasId: String
+    let cardIssuerCountry: String
     let customerEmail: String
     let customerId: String
-    let isDeeplink: Bool
     let isEligible: Bool
     let location: String
-    let eligibilityLevel: Int
     let cardFirstSix: String
-    let cardLastFour: String
 }

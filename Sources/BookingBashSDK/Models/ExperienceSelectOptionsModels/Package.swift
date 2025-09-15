@@ -17,6 +17,8 @@ struct Package: Identifiable {
     var selectedTime: String?
     var isExpanded: Bool = false
     var isInfoExpanded: Bool = false
+    var supplierName: String? 
+    
 }
 
 struct InfoItems: Identifiable {

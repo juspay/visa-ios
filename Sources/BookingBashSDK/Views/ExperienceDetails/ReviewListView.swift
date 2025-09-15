@@ -21,10 +21,12 @@ struct ReviewListView: View {
         }, content: {
             VStack(alignment: .leading, spacing: 16) {
                 HStack(spacing: 4) {
-                    Image(Constants.Icons.star)
-                        .resizable()
-                        .frame(width: 28, height: 28)
-                        .foregroundStyle(Color(hex: Constants.HexColors.primary))
+                    if let starImage = bundleImage(named: Constants.Icons.star) {
+                        starImage
+                            .resizable()
+                            .frame(width: 28, height: 28)
+                            .foregroundStyle(Color(hex: Constants.HexColors.primary))
+                    }
                     
                     Text("4.5")
                         .font(.custom(Constants.Font.openSansBold, size: 22))
@@ -48,9 +50,11 @@ struct ReviewListView: View {
                         Text(Constants.DetailScreenConstants.mostRelevant)
                             .font(.custom(Constants.Font.openSansSemiBold, size: 12))
                             .foregroundStyle(Color(hex: Constants.HexColors.blackStrong))
-                        Image(Constants.Icons.arrowDown)
-                            .frame(width: 20, height: 20)
-                            .foregroundStyle(Color(hex: Constants.HexColors.primary))
+                        if let arrowImage = bundleImage(named: Constants.Icons.arrowDown) {
+                            arrowImage
+                                .frame(width: 20, height: 20)
+                                .foregroundStyle(Color(hex: Constants.HexColors.primary))
+                        }
                     }
                     .onTapGesture(perform: {
                         shouldShowRatingFilterOptions = true
@@ -79,5 +83,3 @@ struct ReviewListView: View {
         })
     }
 }
-
-

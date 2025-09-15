@@ -8,9 +8,11 @@
 struct ConfirmationRequest: Codable {
     let orderNo: String
     let siteId: String
+    let updateFlag:Bool
 
     enum CodingKeys: String, CodingKey {
         case orderNo = "order_no"
         case siteId = "site_id"
+        case updateFlag = "updateFlag"
     }
 }
