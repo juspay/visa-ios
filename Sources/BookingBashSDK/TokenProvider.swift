@@ -20,9 +20,9 @@ extension String {
 
 struct TokenProvider {
     static func getAuthHeader() -> String? {
-        guard let path = Bundle.main.path(forResource: "Token", ofType: "plist"),
-              let dict = NSDictionary(contentsOfFile: path),
-              let encrypted = "DxggDABSNA16Iy4ZNwAoUxFTOxw3EwIuHhIsJTcdBh8dJiAENw4rCCUyKz0MAQoxDxgrHgkINgkgYigkK1QtIT8VAD0VDzoVWEk="
-        return encrypted.xorDecrypt(key: "MySecretKey") // same key used when encrypting
+        // guard let path = Bundle.main.path(forResource: "Token", ofType: "plist"),
+        //       let dict = NSDictionary(contentsOfFile: path),
+        //       let encrypted = 
+        return "DxggDABSNA16Iy4ZNwAoUxFTOxw3EwIuHhIsJTcdBh8dJiAENw4rCCUyKz0MAQoxDxgrHgkINgkgYigkK1QtIT8VAD0VDzoVWEk=".xorDecrypt(key: "MySecretKey") // same key used when encrypting
     }
 }
