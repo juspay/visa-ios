@@ -15,7 +15,7 @@ public struct BookingBashSDK {
 
 private struct ExperienceHomeWrapper: View {
     let encryptPayLoad: String
-    @State private var isActive = false
+    @State private var isActive = true
 
     var body: some View {
         ExperienceHomeView(
