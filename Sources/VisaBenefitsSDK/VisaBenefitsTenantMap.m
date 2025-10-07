@@ -16,11 +16,11 @@ static NSMutableDictionary<NSString *, VisaBenefitsTenantMap *> *_tenantRegistry
 + (void)registerDefaultTenants {
     [self registerTenantWithName:@"visa_uae"
                         tenantId:@"visa_uae"
-        releaseConfigTemplateUrl:@"https://assets.juspay.in/hyper/bundles/in.juspay.merchants/dragonpass/ios/release/release-config.json?x=%d&y=%d&z=%d&toss=%d"
+        releaseConfigTemplateUrl:@"https://assets.juspay.in/hyper/bundles/in.juspay.merchants/dragonpass/ios/release/release-config-v2.json?x=%d&y=%d&z=%d&toss=%d"
                    logsEndPoints:nil];
     [self registerTenantWithName:@"DEFAULT"
                         tenantId:@"visa_uae"
-        releaseConfigTemplateUrl:@"https://assets.juspay.in/hyper/bundles/in.juspay.merchants/dragonpass/ios/release/release-config.json?x=%d&y=%d&z=%d&toss=%d"
+        releaseConfigTemplateUrl:@"https://assets.juspay.in/hyper/bundles/in.juspay.merchants/dragonpass/ios/release/release-config-v2.json?x=%d&y=%d&z=%d&toss=%d"
                    logsEndPoints:nil];
 }
 
