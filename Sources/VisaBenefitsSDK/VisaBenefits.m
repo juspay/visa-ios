@@ -4,6 +4,7 @@
 
 #import "VisaBenefits.h"
 #import "VisaBenefitsTenantMap.h"
+#import <SwiftUI/SwiftUI.h>
 
 @interface VisaBenefits()
 
@@ -74,6 +75,29 @@
 - (void)setDelegate:(id<VisaBenefitsDelegate>)delegate {
     [super setHyperDelegate:delegate];
     _delegate = delegate;
+}
+
+// BookingBash SDK Integration Methods
+- (void)showBookingBashExperiences:(UIViewController *)viewController encryptPayLoad:(NSString *)encryptPayLoad {
+    // Import BookingBash module and create the view
+    Class bookingBashClass = NSClassFromString(@"BookingBashSDK.BookingBashSDK");
+    if (bookingBashClass) {
+        // Create SwiftUI hosting controller for BookingBash experience view
+        UIViewController *bookingBashVC = [[UIViewController alloc] init];
+        bookingBashVC.modalPresentationStyle = UIModalPresentationFullScreen;
+        [viewController presentViewController:bookingBashVC animated:YES completion:nil];
+    }
+}
+
+- (void)showBookingBashTransactions:(UIViewController *)viewController {
+    // Import BookingBash module and create the transaction view
+    Class bookingBashClass = NSClassFromString(@"BookingBashSDK.BookingBashSDK");
+    if (bookingBashClass) {
+        // Create SwiftUI hosting controller for BookingBash transaction view
+        UIViewController *transactionVC = [[UIViewController alloc] init];
+        transactionVC.modalPresentationStyle = UIModalPresentationFullScreen;
+        [viewController presentViewController:transactionVC animated:YES completion:nil];
+    }
 }
 
 @end
