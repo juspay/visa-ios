@@ -29,11 +29,6 @@ typedef HyperEventsCallback VisaBenefitsEventsCallback;
 
 - (VisaBenefitsEventsCallback _Nullable)merchantEvent;
 
-// BookingBash SDK Integration
-- (void)showBookingBashExperiences:(UIViewController * _Nonnull)viewController encryptPayLoad:(NSString * _Nonnull)encryptPayLoad;
-
-- (void)showBookingBashTransactions:(UIViewController * _Nonnull)viewController;
-
 @end
 
 NS_ASSUME_NONNULL_END

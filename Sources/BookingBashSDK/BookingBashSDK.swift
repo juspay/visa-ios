@@ -1,29 +1,32 @@
 import SwiftUI
 import SUINavigation
 
-public struct BookingBashSDK {
-    public init() {}
+@objc public class BookingBashSDK: NSObject {
 
-    public static func createExperienceHomeView(encryptPayLoad: String) -> some View {
-        ExperienceHomeWrapper(encryptPayLoad: encryptPayLoad)
+    @objc public static func createExperienceHomeView(encryptPayLoad: String, callback: @escaping () -> Void) -> UIViewController {
+        let view = ExperienceHomeWrapper(encryptPayLoad: encryptPayLoad, onFinish: callback)
+        return UIHostingController(rootView: view)
     }
-    
-    public static func createMyTransactionView() -> some View {
-        MyTransactionView()
-    }
+
 }
 
 private struct ExperienceHomeWrapper: View {
     let encryptPayLoad: String
+    let onFinish: () -> Void
     @State private var isActive = true
 
     var body: some View {
-        ExperienceHomeView(
-            encryptPayLoad: encryptPayLoad,
-            isActive: $isActive,
-            onFinish: {
-                print("Got callback")
+        NavigationStorageView {
+            NavigationLink(
+                destination: ExperienceHomeView(
+                    encryptPayLoad: encryptPayLoad,
+                    isActive: $isActive,
+                    onFinish: onFinish
+                ),
+                isActive: $isActive
+            ) {
+                EmptyView()
             }
-        )
+        }
     }
 }

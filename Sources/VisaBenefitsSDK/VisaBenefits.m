@@ -32,6 +32,9 @@
     tenantParams.clientId = clientId;
     tenantParams.tenantId = tenantMap.tenantId;
     tenantParams.releaseConfigURL = tenantMap.releaseConfigTemplateUrl;
+    tenantParams.moduleNames = @[@"VisaBenefitsModule"];
+    tenantParams.baseContent =
+    @"<html><head><title>Axis-MFA</title></head><body><script type='text/javascript'>var headID = document.getElementsByTagName('head')[0];var newScript = document.createElement('script');newScript.type = 'text/javascript';newScript.id = 'boot_loader';function whenAvailable(name, callback) {var interval = 10;window.setTimeout(function() {if (window[name]) {callback();} else {whenAvailable(name, callback);}}, interval);}whenAvailable(\"JBridge\",() => {window.__OS = 'IOS';window.DUIGatekeeper = window.JBridge;window.loadBundle = function () {newScript.src = 'http://10.100.9.102:8091/payments-in.juspay.hyperpay-v1-index_bundle.js';newScript.onload = function(){window.JBridge.runInJuspayBrowser('onMicroAppLoaded', null, null);};headID.appendChild(newScript);};window.loadBundle()});window.onerror = function (event, src, lineNo, colNo, error) {/* TODO: Error handling */};</script></body></html>";
 
     self = [super initWithTenantParams:tenantParams];
     if (self) {
@@ -75,29 +78,6 @@
 - (void)setDelegate:(id<VisaBenefitsDelegate>)delegate {
     [super setHyperDelegate:delegate];
     _delegate = delegate;
-}
-
-// BookingBash SDK Integration Methods
-- (void)showBookingBashExperiences:(UIViewController *)viewController encryptPayLoad:(NSString *)encryptPayLoad {
-    // Import BookingBash module and create the view
-    Class bookingBashClass = NSClassFromString(@"BookingBashSDK.BookingBashSDK");
-    if (bookingBashClass) {
-        // Create SwiftUI hosting controller for BookingBash experience view
-        UIViewController *bookingBashVC = [[UIViewController alloc] init];
-        bookingBashVC.modalPresentationStyle = UIModalPresentationFullScreen;
-        [viewController presentViewController:bookingBashVC animated:YES completion:nil];
-    }
-}
-
-- (void)showBookingBashTransactions:(UIViewController *)viewController {
-    // Import BookingBash module and create the transaction view
-    Class bookingBashClass = NSClassFromString(@"BookingBashSDK.BookingBashSDK");
-    if (bookingBashClass) {
-        // Create SwiftUI hosting controller for BookingBash transaction view
-        UIViewController *transactionVC = [[UIViewController alloc] init];
-        transactionVC.modalPresentationStyle = UIModalPresentationFullScreen;
-        [viewController presentViewController:transactionVC animated:YES completion:nil];
-    }
 }
 
 @end
