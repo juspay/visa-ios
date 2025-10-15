@@ -1,9 +1,9 @@
 require 'json'
 
 allTenantParams = [  {
-            resource_url: "https://public.releases.juspay.in/hyper/bundles/in.juspay.merchants/%@client_id/ios/release/assets.zip",
-            sandbox_resource_url: "https://public.releases.juspay.in/hyper/bundles/in.juspay.merchants/%@client_id/ios/release/assets.zip",
-            versioned_resource_url: "https://public.releases.juspay.in/hyper-sdk/in/juspay/merchants/hyper.assets.%@client_id/%@asset_version/hyper.assets.%@client_id-%@asset_version.zipless",
+            resource_url: "https://airborne.sandbox.juspay.in/build/VISA/VISABenefits/zip",
+            sandbox_resource_url: "https://airborne.sandbox.juspay.in/build/VISA/VISABenefits/zip",
+            versioned_resource_url: "https://airborne.sandbox.juspay.in/build/VISA/VISABenefits/zip",
             merchant_config_json: "VisaBenefitsConfig.json",
             tenant_id: "visa_uae"
         }]
