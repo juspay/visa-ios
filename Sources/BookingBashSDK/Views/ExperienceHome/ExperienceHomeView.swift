@@ -244,13 +244,14 @@ private extension View {
     ) -> some View {
         overlay {
             if isPresented.wrappedValue {
-                let screenHeight = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?
-                    .screen.bounds.height ?? 0
-                BottomSheetView(isPresented: isPresented, sheetHeight: screenHeight * 0.9) {
-                    SearchDestinationBottomSheetView(
-                        searchDestinationViewModel: searchDestinationViewModel,
-                        onSelectDestination: onSelectDestination
-                    )
+                GeometryReader { geometry in
+                    let screenHeight = geometry.size.height
+                    BottomSheetView(isPresented: isPresented, sheetHeight: screenHeight * 0.9) {
+                        SearchDestinationBottomSheetView(
+                            searchDestinationViewModel: searchDestinationViewModel,
+                            onSelectDestination: onSelectDestination
+                        )
+                    }
                 }
             }
         }
@@ -267,9 +268,9 @@ private extension View {
     ) -> some View {
         overlay(alignment: .bottom) {
             if isPresented.wrappedValue {
-                let screenHeight = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?
-                    .screen.bounds.height ?? 0
-                BottomSheetView(isPresented: isPresented, sheetHeight: screenHeight * 0.34) {
+                GeometryReader { geometry in
+                    let screenHeight = geometry.size.height
+                    BottomSheetView(isPresented: isPresented, sheetHeight: screenHeight * 0.34) {
                     VStack(spacing: 20) {
                         
                         if let activityImage = ImageLoader.bundleImage(named: Constants.Icons.activity) {
@@ -320,6 +321,7 @@ private extension View {
                     .padding(.horizontal, 25)
                     .background(Color.white)
                     .cornerRadius(20)
+                    }
                 }
             }
         }
@@ -334,10 +336,10 @@ extension View {
     ) -> some View {
         overlay(alignment: .bottom) {
             if isPresented.wrappedValue {
-                let screenHeight = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?
-                    .screen.bounds.height ?? 0
-                
-                BottomSheetView(isPresented: isPresented, sheetHeight: screenHeight * 0.52) {
+                GeometryReader { geometry in
+                    let screenHeight = geometry.size.height
+                    
+                    BottomSheetView(isPresented: isPresented, sheetHeight: screenHeight * 0.52) {
                     VStack(spacing: 0) {
                         if let policyImage = ImageLoader.bundleImage(named: Constants.Icons.sheild) {
                             policyImage
@@ -409,6 +411,7 @@ extension View {
                     .padding(.horizontal, 25)
                     .background(Color.white)
                     .cornerRadius(20)
+                    }
                 }
             }
         }

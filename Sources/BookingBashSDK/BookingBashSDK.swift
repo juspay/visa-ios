@@ -17,12 +17,10 @@ private struct ExperienceHomeWrapper: View {
 
     var body: some View {
         NavigationStorageView {
-            NavigationLink(
-                destination: ExperienceHomeView(encryptPayLoadMainapp: encryptPayLoad, isActive: $isActive, onFinish: onFinish),
-                isActive: $isActive
-            ) {
-                EmptyView()
-            }
+            ExperienceHomeView(encryptPayLoadMainapp: encryptPayLoad, isActive: $isActive, onFinish: onFinish)
+        }
+        .onAppear {
+            isActive = true
         }
     }
 }
