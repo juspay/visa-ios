@@ -41,6 +41,7 @@ struct ExperienceHomeView: View {
                 showPrivacyPolicyIfNeeded()
                 
                 // Store the callback globally so it can be accessed from NavigationDestinationModifier
+                encryptedPayloadMain = encryptPayLoadMainapp;
                 globalOnFinishCallback = onFinish
             }
  

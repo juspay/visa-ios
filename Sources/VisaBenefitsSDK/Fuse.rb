@@ -1,11 +1,11 @@
 require 'json'
 
 allTenantParams = [  {
-            resource_url: "https://airborne.sandbox.juspay.in/build/VISA/VISABenefits/zip",
-            sandbox_resource_url: "https://airborne.sandbox.juspay.in/build/VISA/VISABenefits/zip",
-            versioned_resource_url: "https://airborne.sandbox.juspay.in/build/VISA/VISABenefits/zip",
+            resource_url: "https://visabenefits.me1.juspay.io/build/visabenefits/dragonpass-ios/zip",
+            sandbox_resource_url: "https://visabenefits.me1.juspay.io/build/visabenefits/dragonpass-ios/zip",
+            versioned_resource_url: "https://visabenefits.me1.juspay.io/build/visabenefits/dragonpass-ios/zip",
             merchant_config_json: "VisaBenefitsConfig.json",
-            tenant_id: "visa_uae"
+            tenant_id: "visabenefits"
         }]
 
 fuse_path = if Dir.exist?("./Pods/HyperSDK")

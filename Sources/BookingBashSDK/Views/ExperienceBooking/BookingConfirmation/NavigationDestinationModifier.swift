@@ -30,7 +30,7 @@ struct HomeDestinationWrapperView: View {
     
     var body: some View {
         ExperienceHomeView(
-            encryptPayLoadMainapp: encryptedPayload,
+            encryptPayLoadMainapp: encryptedPayloadMain,
             isActive: $isHomeActive,
             onFinish: globalOnFinishCallback
         )

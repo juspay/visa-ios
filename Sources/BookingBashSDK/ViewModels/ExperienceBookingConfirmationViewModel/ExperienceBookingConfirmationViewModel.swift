@@ -607,7 +607,7 @@ class ExperienceBookingConfirmationViewModel: ObservableObject {
         let headers = [
             Constants.APIHeaders.contentTypeKey: Constants.APIHeaders.contentTypeValue,
             Constants.APIHeaders.authorizationKey: TokenProvider.getAuthHeader() ?? "",
-            Constants.APIHeaders.tokenKey: encryptedPayload
+            Constants.APIHeaders.tokenKey: encryptedPayloadMain
         ]
         
         NetworkManager.shared.post(url: url, body: requestBody, headers: headers) { (result: Result<CancellationReasonsAPIResponse, Error>) in
@@ -661,7 +661,7 @@ class ExperienceBookingConfirmationViewModel: ObservableObject {
         let headers = [
             Constants.APIHeaders.contentTypeKey: Constants.APIHeaders.contentTypeValue,
             Constants.APIHeaders.authorizationKey: TokenProvider.getAuthHeader() ?? "",
-            Constants.APIHeaders.tokenKey: encryptedPayload,
+            Constants.APIHeaders.tokenKey: encryptedPayloadMain,
             Constants.APIHeaders.siteId: siteId
         ]
         

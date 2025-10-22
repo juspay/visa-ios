@@ -14,14 +14,19 @@ static NSMutableDictionary<NSString *, VisaBenefitsTenantMap *> *_tenantRegistry
 
         // releaseConfigTemplateUrl:@"https://%@api.dms.gbm.hsbc.com/hyper/bundles/in.juspay.merchants/%@/ios/%@/release-config.json?toss=%d"
 + (void)registerDefaultTenants {
-    [self registerTenantWithName:@"visa_uae"
-                        tenantId:@"visa_uae"
-        releaseConfigTemplateUrl:@"https://airborne.sandbox.juspay.in/release/VISA/VISABenefits?x=%d&y=%d&z=%d&toss=%d"
-                   logsEndPoints:nil];
+    NSDictionary *logsEndpoint = @{
+        @"sandboxLogUrl": @"https://visabenefits.me1.juspay.io/logs",
+        @"prodLogUrl": @"https://visabenefits.me1.juspay.io/logs"
+    };
+    
+    [self registerTenantWithName:@"visabenefits"
+                        tenantId:@"visabenefits"
+        releaseConfigTemplateUrl:@"https://visabenefits.me1.juspay.io/release/visabenefits/$client-ios"
+                   logsEndPoints:logsEndpoint];
     [self registerTenantWithName:@"DEFAULT"
-                        tenantId:@"visa_uae"
-        releaseConfigTemplateUrl:@"https://airborne.sandbox.juspay.in/release/VISA/VISABenefits?x=%d&y=%d&z=%d&toss=%d"
-                   logsEndPoints:nil];
+                        tenantId:@"visabenefits"
+        releaseConfigTemplateUrl:@"https://visabenefits.me1.juspay.io/release/visabenefits/$client-ios"
+                   logsEndPoints:logsEndpoint];
 }
 
 

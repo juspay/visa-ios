@@ -228,8 +228,8 @@ final class HomeViewModel: ObservableObject {
         print("========================")
         ssoTokenGlobal = response.data.accessToken
         ssoSiteIdGlobal = response.data.siteId
-        firstName = response.data.firstName
-        lastName = response.data.lastName
+        firstName = response.data.loyalty.req.memberProfile.firstName
+        lastName = response.data.loyalty.req.memberProfile.lastName
         mobileNumber = response.data.mobileNumber
         customerEmail = response.data.email
         mobileCountryCode = response.data.countryCode

@@ -343,7 +343,7 @@ extension ExperienceAvailabilitySelectOptionsViewModel {
         let headers = [
             Constants.APIHeaders.contentTypeKey: Constants.APIHeaders.contentTypeValue,
             Constants.APIHeaders.authorizationKey: TokenProvider.getAuthHeader() ?? "",
-            Constants.APIHeaders.tokenKey: encryptedPayload,
+            Constants.APIHeaders.tokenKey: encryptedPayloadMain,
             Constants.APIHeaders.siteId: ssoSiteIdGlobal,
             "track_id": "eb325ead-60be-4651-b6a5-4182dcd9824f"
         ]

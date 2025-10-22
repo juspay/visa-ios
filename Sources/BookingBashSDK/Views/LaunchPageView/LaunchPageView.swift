@@ -11,7 +11,7 @@ struct LaunchPageView: View {
             VStack {
                 NavigationLink(
                     destination: ExperienceHomeView(
-                        encryptPayLoadMainapp: encryptedPayload,
+                        encryptPayLoadMainapp: encryptedPayloadMain,
                         isActive: $isHomeActive,
                         onFinish: {
                             print("🔵 LaunchPageView - Home Finished callback triggered")
