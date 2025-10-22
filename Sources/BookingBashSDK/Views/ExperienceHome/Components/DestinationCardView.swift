@@ -49,8 +49,7 @@ struct DestinationCardView: View {
                 .cornerRadius(8),
                 alignment: .bottom
             )
-
-
+            
             Text(destination.name)
                 .font(.custom(Constants.Font.openSansBold, size: 16))
                 .foregroundStyle(Color.white)

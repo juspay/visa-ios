@@ -9,7 +9,8 @@ import SwiftUI
 
 struct ExperienceCardView: View {
     let experience: Experience
-    
+    var cardHeight: CGFloat = 230
+    var cardWidth: CGFloat = 400
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             GeometryReader { geometry in
@@ -30,6 +31,7 @@ struct ExperienceCardView: View {
                         )
                 }
             }
+            
             LinearGradient(
                 gradient: Gradient(colors: [
                     Color.black.opacity(0.6),
@@ -44,11 +46,7 @@ struct ExperienceCardView: View {
             
             VStack(alignment: .leading, spacing: 10) {
                 VStack(alignment: .leading) {
-//                    Text(experience.country)
-//                        .font(.custom(Constants.Font.openSansBold, size: 12))
-//                        .foregroundStyle(Color.white)
-//                        .font(.footnote)
-                    
+
                     Text(experience.title)
                         .font(.custom(Constants.Font.openSansBold, size: 14))
                         .foregroundStyle(Color.white)

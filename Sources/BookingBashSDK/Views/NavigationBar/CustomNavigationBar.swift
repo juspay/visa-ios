@@ -36,7 +36,7 @@ struct CustomNavigationBar: View {
             Spacer()
             
             // App logo on right side
-            Image("AppLogo") // 👈 replace with your asset name
+            Image("AppLogo") 
                 .resizable()
                 .scaledToFit()
                 .frame(width: 40, height: 32)

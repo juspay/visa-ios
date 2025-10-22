@@ -1,113 +1,295 @@
-//
-//  ReviewDetailResponseModel.swift
-//  VisaActivity
-//
-//  Created by Rohit Sankpal on 21/08/25.
-//
-
 import Foundation
 
-// MARK: - Root Response
+// MARK: - ReviewTourDetailResponse
 struct ReviewTourDetailResponse: Codable {
-    let status: Bool
-    let statusCode: Int
+    let status: Bool?
+    let statusCode: Int?
     var data: ReviewTourDetailData?
+    let error: ReviewAPIError?
 
     enum CodingKeys: String, CodingKey {
         case status
         case statusCode = "status_code"
-        case data
+        case data = "data"
+        case error
     }
 }
 
-// MARK: - ReviewTourDetailData
+
+
+
+struct ReviewAPIError: Codable {
+    let type: String
+    let code: String
+    let statusCode: Int
+    let details: String
+
+    enum CodingKeys: String, CodingKey {
+        case type, code
+        case statusCode = "status_code"
+        case details
+    }
+}
+
 struct ReviewTourDetailData: Codable {
-    let trackId: String
-    let reviewUid: String
-    let info: ReviewTourInfo
-    let tourOption: ReviewTourOption
-    let priceSummary: ReviewPriceSummary
+    let trackId: String?
+    let reviewUid: String?
+    let info: ReviewTourInfo?
+    let tourOption: ReviewTourOption?
+    let price: ReviewPriceSummary?
+    let questions: [String]?
+    let bookingQuestions: [ReviewBookingQuestionOrString]? // Now supports both object and string
+    let travelerPickup: ReviewTravelerPickup?
 
     enum CodingKeys: String, CodingKey {
         case trackId = "track_id"
         case reviewUid = "review_uid"
-        case info, tourOption = "tour_option", priceSummary = "price_summary"
+        case info
+        case tourOption = "tour_option"
+        case price
+        case questions
+        case bookingQuestions = "booking_questions"
+        case travelerPickup = "traveler_pickup"
+    }
+}
+
+
+// Enum to handle both ReviewBookingQuestion object and String in booking_questions
+enum ReviewBookingQuestionOrString: Codable {
+    case question(ReviewBookingQuestion)
+    case string(String)
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        if let question = try? container.decode(ReviewBookingQuestion.self) {
+            self = .question(question)
+        } else if let string = try? container.decode(String.self) {
+            self = .string(string)
+        } else {
+            throw DecodingError.typeMismatch(
+                ReviewBookingQuestionOrString.self,
+                DecodingError.Context(
+                    codingPath: decoder.codingPath,
+                    debugDescription: "Expected ReviewBookingQuestion or String"
+                )
+            )
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        switch self {
+        case .question(let question):
+            try container.encode(question)
+        case .string(let string):
+            try container.encode(string)
+        }
     }
 }
 
 // MARK: - ReviewTourInfo
 struct ReviewTourInfo: Codable {
-    let title: String
-    let available: Bool
-    let additionalInfo: [String]
-    let inclusions: [String]
-    let exclusions: [String]
-    let images: [ReviewTourImage]
-    let thumbnail: String
-    let description: String
-    let durationHours: ReviewDurationHours
-    let ageBands: [ReviewAgeBand]
-    let cancellationPolicy: ReviewCancellationPolicy
-    let language: String
-    let defaultLanguage: String
-    let tourGrades: [ReviewTourGrade]
-    let ticketInfo: ReviewTicketInfo
-    let locations: ReviewLocations
-    let region, city, country, confirmationType: String
-    let bookingRequirements: ReviewBookingRequirements
-    let tags: [Int]
-    let itinerary: ReviewItinerary
-    let supplier: ReviewSupplier
-    let reviews: ReviewReviews
-    let ratings, reviewCount: Int
-    let supplierCode, languageName: String
+    let title: String?
+    let activityCode: String?
+    let available: Bool?
+    let additionalInfo: [ReviewAdditionalInfo]?
+    let inclusions: [ReviewInclusion]?
+    let exclusions: [ReviewExclusion]?
+    let thumbnail: String?
+    let description: String?
+    let duration: ReviewDuration?
+    let ageBands: [ReviewAgeBand]?
+//    let language: String?
+//    let defaultLanguage: String?
+    let reviews: ReviewReviews?
+    let ratings: Double?
+    let reviewCount: Double?
+    let cancellationPolicy: ReviewCancellationPolicy?
+    let itinerary: ReviewItinerary?
+    let pickupLocation: [String]?
+    let tourGrades: [ReviewTourGrade]?
+    let ticketInfo: ReviewTicketInfo?
+    let locations: ReviewLocations?
+    let region: String?
+    let city: String?
+    let country: String?
+    let confirmationType: String?
+    let communicationChannel: AnyCodable?
+    let bookingRequirements: ReviewBookingRequirements?
+    let supplier: ReviewSupplier?
+    let supplierCode: String?
+//    let languageName: String?
 
     enum CodingKeys: String, CodingKey {
-        case title, available
+        case title
+        case activityCode = "activity_code"
+        case available
         case additionalInfo = "additional_info"
-        case inclusions, exclusions, images, thumbnail, description
-        case durationHours = "duration_hours"
+        case inclusions
+        case exclusions
+        case thumbnail
+        case description
+        case duration
         case ageBands = "age_bands"
+//        case language
+//        case defaultLanguage = "default_language"
+        case reviews
+        case ratings
+        case reviewCount = "review_count"
         case cancellationPolicy = "cancellation_policy"
-        case language
-        case defaultLanguage = "default_language"
+        case itinerary
+        case pickupLocation = "pickup_location"
         case tourGrades = "tour_grades"
         case ticketInfo = "ticket_info"
-        case locations, region, city, country
+        case locations
+        case region, city, country
         case confirmationType = "confirmation_type"
+        case communicationChannel = "communication_channel"
         case bookingRequirements = "booking_requirements"
-        case tags, itinerary, supplier, reviews, ratings
-        case reviewCount = "review_count"
+        case supplier
         case supplierCode = "supplier_code"
-        case languageName = "language_name"
+//        case languageName = "language_name"
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        title = try container.decodeIfPresent(String.self, forKey: .title)
+        activityCode = try container.decodeIfPresent(String.self, forKey: .activityCode)
+        available = try container.decodeIfPresent(Bool.self, forKey: .available)
+        additionalInfo = try container.decodeIfPresent([ReviewAdditionalInfo].self, forKey: .additionalInfo)
+        inclusions = try container.decodeIfPresent([ReviewInclusion].self, forKey: .inclusions)
+        exclusions = try container.decodeIfPresent([ReviewExclusion].self, forKey: .exclusions)
+        thumbnail = try container.decodeIfPresent(String.self, forKey: .thumbnail)
+        description = try container.decodeIfPresent(String.self, forKey: .description)
+        duration = try container.decodeIfPresent(ReviewDuration.self, forKey: .duration)
+        ageBands = try container.decodeIfPresent([ReviewAgeBand].self, forKey: .ageBands)
+//        language = try container.decodeIfPresent(String.self, forKey: .language)
+//        defaultLanguage = try container.decodeIfPresent(String.self, forKey: .defaultLanguage)
+        reviews = try container.decodeIfPresent(ReviewReviews.self, forKey: .reviews)
+        ratings = try container.decodeIfPresent(Double.self, forKey: .ratings)
+        reviewCount = try container.decodeIfPresent(Double.self, forKey: .reviewCount)
+        cancellationPolicy = try container.decodeIfPresent(ReviewCancellationPolicy.self, forKey: .cancellationPolicy)
+        itinerary = try container.decodeIfPresent(ReviewItinerary.self, forKey: .itinerary)
+        pickupLocation = try container.decodeIfPresent([String].self, forKey: .pickupLocation)
+        tourGrades = try container.decodeIfPresent([ReviewTourGrade].self, forKey: .tourGrades)
+        ticketInfo = try container.decodeIfPresent(ReviewTicketInfo.self, forKey: .ticketInfo)
+        locations = try container.decodeIfPresent(ReviewLocations.self, forKey: .locations)
+        region = try container.decodeIfPresent(String.self, forKey: .region)
+        city = try container.decodeIfPresent(String.self, forKey: .city)
+        country = try container.decodeIfPresent(String.self, forKey: .country)
+        confirmationType = try container.decodeIfPresent(String.self, forKey: .confirmationType)
+        communicationChannel = try container.decodeIfPresent(AnyCodable.self, forKey: .communicationChannel)
+        bookingRequirements = try container.decodeIfPresent(ReviewBookingRequirements.self, forKey: .bookingRequirements)
+        supplier = try container.decodeIfPresent(ReviewSupplier.self, forKey: .supplier)
+        supplierCode = try container.decodeIfPresent(String.self, forKey: .supplierCode)
+//        languageName = try container.decodeIfPresent(String.self, forKey: .languageName)
     }
 }
 
-// MARK: - ReviewTourImage
-struct ReviewTourImage: Codable {
-    let caption: String
-    let url: String
+// MARK: - AnyCodable helper for Any? type
+struct AnyCodable: Codable {
+    let value: Any?
+    
+    init(_ value: Any?) {
+        self.value = value
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        if container.decodeNil() {
+            self.value = nil
+        } else if let bool = try? container.decode(Bool.self) {
+            self.value = bool
+        } else if let int = try? container.decode(Int.self) {
+            self.value = int
+        } else if let double = try? container.decode(Double.self) {
+            self.value = double
+        } else if let string = try? container.decode(String.self) {
+            self.value = string
+        } else if let array = try? container.decode([AnyCodable].self) {
+            self.value = array.map { $0.value }
+        } else if let dictionary = try? container.decode([String: AnyCodable].self) {
+            self.value = dictionary.mapValues { $0.value }
+        } else {
+            self.value = nil
+        }
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        if value == nil {
+            try container.encodeNil()
+        } else {
+            throw EncodingError.invalidValue(value as Any, EncodingError.Context(codingPath: encoder.codingPath, debugDescription: "AnyCodable encoding not fully implemented"))
+        }
+    }
 }
 
-// MARK: - ReviewDurationHours
-struct ReviewDurationHours: Codable {
-    let fromMinutes: Int
-    let toMinutes: Int
+// MARK: - ReviewAdditionalInfo
+struct ReviewAdditionalInfo: Codable {
+    let type: String?
+    let description: String?
+}
+
+// MARK: - ReviewInclusion
+struct ReviewInclusion: Codable {
+    let category: String?
+    let categoryDescription: String?
+    let type: String?
+    let typeDescription: String?
+    let description: String?
+    let otherDescription: String?
 
     enum CodingKeys: String, CodingKey {
-        case fromMinutes = "from_minutes"
-        case toMinutes = "to_minutes"
+        case category
+        case categoryDescription = "category_description"
+        case type
+        case typeDescription = "type_description"
+        case description
+        case otherDescription = "other_description"
     }
+}
+
+// MARK: - ReviewExclusion
+struct ReviewExclusion: Codable {
+    let category: String?
+    let categoryDescription: String?
+    let type: String?
+    let typeDescription: String?
+    let description: String?
+    let otherDescription: String?
+
+    enum CodingKeys: String, CodingKey {
+        case category
+        case categoryDescription = "category_description"
+        case type
+        case typeDescription = "type_description"
+        case description
+        case otherDescription = "other_description"
+    }
+}
+
+// MARK: - ReviewDuration
+struct ReviewDuration: Codable {
+    let from: Int?
+    let to: Int?
+    let display: String?
 }
 
 // MARK: - ReviewAgeBand
 struct ReviewAgeBand: Codable {
-    let sortOrder: Int
-    let bandId, description, pluralDescription: String
-    let ageFrom, ageTo: Int
-    let adult, treatAsAdult: Bool
-    let minTravelersPerBooking, maxTravelersPerBooking: Int
-    let type, unitType: String
+    let sortOrder: Double?
+    let bandId: String?
+    let description: String?
+    let pluralDescription: String?
+    let ageFrom: Double?
+    let ageTo: Double?
+    let adult: Bool?
+    let treatAsAdult: Bool?
+    let minTravelersPerBooking: Double?
+    let maxTravelersPerBooking: Double?
+    let type: String?
+    let unitType: String?
 
     enum CodingKeys: String, CodingKey {
         case sortOrder = "sort_order"
@@ -127,36 +309,42 @@ struct ReviewAgeBand: Codable {
 
 // MARK: - ReviewCancellationPolicy
 struct ReviewCancellationPolicy: Codable {
-    let type, description: String
-    let badWeatherCancellation, insufficientTravelersCancellations: Bool
-    let cancellationPolicies: [ReviewCancellationRule]
+    let type: String?
+    let description: String?
+    let cancelIfBadWeather: Bool?
+    let cancelIfInsufficientTravelers: Bool?
+    let refundEligibility: [ReviewRefundEligibility]?
 
     enum CodingKeys: String, CodingKey {
         case type, description
-        case badWeatherCancellation = "bad_weather_cancellation"
-        case insufficientTravelersCancellations = "insufficient_travelers_cancellations"
-        case cancellationPolicies = "cancellation_policies"
+        case cancelIfBadWeather = "cancel_if_bad_weather"
+        case cancelIfInsufficientTravelers = "cancel_if_insufficient_travelers"
+        case refundEligibility = "refund_eligibility"
     }
 }
 
-struct ReviewCancellationRule: Codable {
-    let dayRangeMin: Int
-    let dayRangeMax: Int?
-    let charges: Int
+struct ReviewRefundEligibility: Codable {
+    let dayRangeMin: Double?
+    let dayRangeMax: Double?
+    let percentageRefundable: Double?
 
     enum CodingKeys: String, CodingKey {
         case dayRangeMin = "day_range_min"
         case dayRangeMax = "day_range_max"
-        case charges
+        case percentageRefundable = "percentage_refundable"
     }
 }
 
 // MARK: - ReviewTourGrade
 struct ReviewTourGrade: Codable {
-    let sortOrder: Int
-    let currencyCode, gradeTitle, gradeCode, gradeDescription: String?
+    let sortOrder: Double?
+    let currencyCode: String?
+    let gradeTitle: String?
+    let gradeCode: String?
+    let gradeDescription: String?
     let langServices: String?
-    let gradeDepartureTime, priceFrom: String
+    let gradeDepartureTime: String?
+    let priceFrom: String?
 
     enum CodingKeys: String, CodingKey {
         case sortOrder = "sort_order"
@@ -172,8 +360,10 @@ struct ReviewTourGrade: Codable {
 
 // MARK: - ReviewTicketInfo
 struct ReviewTicketInfo: Codable {
-    let ticketTypes: [String]
-    let ticketTypeDescription, ticketsPerBooking, ticketsPerBookingDescription: String
+    let ticketTypes: [String]?
+    let ticketTypeDescription: String?
+    let ticketsPerBooking: String?
+    let ticketsPerBookingDescription: String?
 
     enum CodingKeys: String, CodingKey {
         case ticketTypes = "ticket_types"
@@ -185,9 +375,10 @@ struct ReviewTicketInfo: Codable {
 
 // MARK: - ReviewLocations
 struct ReviewLocations: Codable {
-    let start, end: [ReviewLocationDetail]
-    let redemption: ReviewRedemption
-    let travelerPickup: ReviewTravelerPickup
+    let start: [ReviewLocationDetail]?
+    let end: [ReviewLocationDetail]?
+    let redemption: ReviewRedemption?
+    let travelerPickup: ReviewTravelerPickup?
 
     enum CodingKeys: String, CodingKey {
         case start, end, redemption
@@ -196,12 +387,13 @@ struct ReviewLocations: Codable {
 }
 
 struct ReviewLocationDetail: Codable {
-    let location: String
-    let description: String
+    let location: String?
+    let description: String?
 }
 
 struct ReviewRedemption: Codable {
-    let redemptionType, specialInstructions: String
+    let redemptionType: String?
+    let specialInstructions: String?
 
     enum CodingKeys: String, CodingKey {
         case redemptionType = "redemption_type"
@@ -210,8 +402,8 @@ struct ReviewRedemption: Codable {
 }
 
 struct ReviewTravelerPickup: Codable {
-    let pickupOptionType: String
-    let allowCustomTravelerPickup: Bool
+    let pickupOptionType: String?
+    let allowCustomTravelerPickup: Bool?
 
     enum CodingKeys: String, CodingKey {
         case pickupOptionType = "pickup_option_type"
@@ -221,8 +413,9 @@ struct ReviewTravelerPickup: Codable {
 
 // MARK: - ReviewBookingRequirements
 struct ReviewBookingRequirements: Codable {
-    let minTravelersPerBooking, maxTravelersPerBooking: Int
-    let requiresAdultForBooking: Bool
+    let minTravelersPerBooking: Double?
+    let maxTravelersPerBooking: Double?
+    let requiresAdultForBooking: Bool?
 
     enum CodingKeys: String, CodingKey {
         case minTravelersPerBooking = "min_travelers_per_booking"
@@ -233,37 +426,49 @@ struct ReviewBookingRequirements: Codable {
 
 // MARK: - ReviewItinerary
 struct ReviewItinerary: Codable {
-    let itineraryType: String
-    let skipTheLine, privateTour: Bool
-    let durationHours: ReviewDurationHours
-    let itineraryItems: [ReviewItineraryItem]
+    let itineraryType: String?
+    let skipTheLine: Bool?
+    let privateTour: Bool?
+//    let durationHours: ReviewDurationHours?
+    let itineraryItems: [ReviewItineraryItem]?
 
     enum CodingKeys: String, CodingKey {
         case itineraryType = "itinerary_type"
         case skipTheLine = "skip_the_line"
         case privateTour = "private_tour"
-        case durationHours = "duration_hours"
+//        case durationHours = "duration_hours"
         case itineraryItems = "itinerary_items"
     }
 }
 
 struct ReviewItineraryItem: Codable {
-    let pointOfInterestLocation: ReviewPointOfInterestLocation
-    let passByWithoutStopping: Bool
-    let admissionIncluded, description: String
+    let pointOfInterestLocation: ReviewPointOfInterestLocation?
+    let duration: ReviewItineraryDuration?
+    let passByWithoutStopping: Bool?
+    let admissionIncluded: String?
+    let description: String?
 
     enum CodingKeys: String, CodingKey {
         case pointOfInterestLocation = "point_of_interest_location"
+        case duration
         case passByWithoutStopping = "pass_by_without_stopping"
         case admissionIncluded = "admission_included"
         case description
     }
 }
 
+struct ReviewItineraryDuration: Codable {
+    let fixedDurationInMinutes: Int?
+    
+    enum CodingKeys: String, CodingKey {
+        case fixedDurationInMinutes = "fixed_duration_in_minutes"
+    }
+}
+
 struct ReviewPointOfInterestLocation: Codable {
-    let location: ReviewPOILocation
-    let attractionId: Int
-    let name: String
+    let location: ReviewPOILocation?
+    let attractionId: Double?
+    let name: String?
 
     enum CodingKeys: String, CodingKey {
         case location
@@ -273,18 +478,20 @@ struct ReviewPointOfInterestLocation: Codable {
 }
 
 struct ReviewPOILocation: Codable {
-    let ref: String
+    let ref: String?
 }
 
 // MARK: - ReviewSupplier
 struct ReviewSupplier: Codable {
-    let name, reference: String
+    let name: String?
+    let reference: String?
 }
 
 // MARK: - ReviewReviews
 struct ReviewReviews: Codable {
-    let reviewCountTotals: [ReviewCountTotal]
-    let totalReviews, combinedAverageRating: Int
+    let reviewCountTotals: [ReviewCountTotal]?
+    let totalReviews: Double?
+    let combinedAverageRating: Double?
 
     enum CodingKeys: String, CodingKey {
         case reviewCountTotals = "review_count_totals"
@@ -294,509 +501,170 @@ struct ReviewReviews: Codable {
 }
 
 struct ReviewCountTotal: Codable {
-    let rating, count: Int
+    let rating: Double?
+    let count: Double?
 }
 
 // MARK: - ReviewTourOption
 struct ReviewTourOption: Codable {
-    let availabilityId, supplierCode: String
-    let priceSummary: ReviewPriceSummary
-    let rates: [ReviewRate]
+    let availabilityId: String?
+    let supplierCode: String?
+    let subActivityName: String?
+    let subActivityDescription: String?
+    let rates: [ReviewRate]?
 
     enum CodingKeys: String, CodingKey {
         case availabilityId = "availability_id"
         case supplierCode = "supplier_code"
-        case priceSummary = "price_summary"
+        case subActivityName = "sub_activity_name"
+        case subActivityDescription = "sub_activity_description"
         case rates
     }
 }
 
-// MARK: - ReviewPriceSummary
-struct ReviewPriceSummary: Codable {
-    let baseRate, taxes, totalAmount: Double
-    let currency: String
-    let commissionAmount: Double?
-    let roeBase: Double?
-    let strikeout: ReviewStrikeout?
+// MARK: - ReviewRate
+struct ReviewRate: Codable {
+    let available: Bool?
+    let time: String?
+    let commission: Double?
+    let subActivityCode: String?
+    let price: ReviewRatePrice?
 
     enum CodingKeys: String, CodingKey {
-        case baseRate = "base_rate"
-        case taxes
-        case commissionAmount = "commission_amount"
-        case totalAmount = "total_amount"
-        case currency
-        case roeBase = "roe_base"
-        case strikeout
+        case available, time
+        case commission
+        case subActivityCode = "sub_activity_code"
+        case price
     }
 }
 
-// MARK: - ReviewStrikeout
+// MARK: - ReviewRatePrice
+struct ReviewRatePrice: Codable {
+    let pricingModel: String?
+    let baseRate: Double?
+    let taxes: Double?
+    let totalAmount: Double?
+    let currency: String?
+    let priceType: String?
+    let strikeout: ReviewStrikeout?
+    let pricePerAge: [ReviewPricePerAge]?
+
+    enum CodingKeys: String, CodingKey {
+        case pricingModel = "pricing_model"
+        case baseRate = "base_rate"
+        case taxes
+        case totalAmount = "total_amount"
+        case currency
+        case priceType = "price_type"
+        case strikeout
+        case pricePerAge = "price_per_age"
+    }
+}
+
+struct ReviewPricePerAge: Codable {
+    let bandId: String?
+    let perPriceTraveller: Double?
+    let count: Double?
+    let bandTotal: Double?
+
+    enum CodingKeys: String, CodingKey {
+        case bandId = "band_id"
+        case perPriceTraveller = "per_price_traveller"
+        case count
+        case bandTotal = "band_total"
+    }
+}
+
 struct ReviewStrikeout: Codable {
-    let baseRate, taxes, totalAmount: Double
-    let savingPercentage: Int
+    let baseRate: Double?
+    let taxes: Double?
+    let totalAmount: Double?
+    let savingPercentage: Double?
+    let savingAmount: Double?
 
     enum CodingKeys: String, CodingKey {
         case baseRate = "base_rate"
         case taxes
         case totalAmount = "total_amount"
         case savingPercentage = "saving_percentage"
+        case savingAmount = "saving_amount"
     }
 }
 
-// MARK: - ReviewRate
-struct ReviewRate: Codable {
-    let description, time, rateCode: String
-    let available: Bool
-    let price: ReviewRatePrice
-    let labels: [String]
-
-    enum CodingKeys: String, CodingKey {
-        case description, time
-        case rateCode = "rate_code"
-        case available, price, labels
-    }
-}
-
-// MARK: - ReviewRatePrice
-struct ReviewRatePrice: Codable {
-    let baseRate, taxes, commissionAmount, totalAmount: Double
-    let currency: String
-    let pricePerAgeBand: [ReviewPricePerAgeBand]
-    let supplierPriceDetails: ReviewSupplierPriceDetails
+// MARK: - ReviewPriceSummary
+struct ReviewPriceSummary: Codable {
+    let baseRate: Double?
+    let taxes: Double?
+    let totalAmount: Double?
+    let currency: String?
+    let roeBase: Double?
+    let pricePerAge: [ReviewPricePerAgeSummary]?
+    let pricingModel: String?
+    let priceType: String?
+    let strikeout: ReviewStrikeout?
 
     enum CodingKeys: String, CodingKey {
         case baseRate = "base_rate"
         case taxes
-        case commissionAmount = "commission_amount"
         case totalAmount = "total_amount"
         case currency
-        case pricePerAgeBand = "price_per_age_band"
-        case supplierPriceDetails = "supplier_price_details"
+        case roeBase = "roe_base"
+        case pricePerAge = "price_per_age"
+        case pricingModel = "pricing_model"
+        case priceType = "price_type"
+        case strikeout
     }
 }
 
-struct ReviewPricePerAgeBand: Codable {
-    let ageBand: String
-    let travelerCount: Int
-    let pricePerTraveler, totalBandPrice: Double
+struct ReviewPricePerAgeSummary: Codable {
+    let ageBand: String?
+    let pricePerTraveller: Double?
+    let travellerCount: Double?
+    let totalAmount: Double?
 
     enum CodingKeys: String, CodingKey {
         case ageBand = "age_band"
-        case travelerCount = "traveler_count"
-        case pricePerTraveler = "price_per_traveler"
-        case totalBandPrice = "total_band_price"
+        case pricePerTraveller = "price_per_traveller"
+        case travellerCount = "traveller_count"
+        case totalAmount = "total_amount"
     }
 }
 
-struct ReviewSupplierPriceDetails: Codable {
-    let currency: String
-    let totalPrice, netPrice, partnerNetPrice, bookingFee: Double
-    let partnerTotalPrice: Double
-    let pricePerAgeBand: [ReviewPricePerAgeBand]
-
+// MARK: - ReviewBookingQuestion
+struct ReviewBookingQuestion: Codable {
+    let id: String?
+    let question: String?
+    let type: String?
+    let required: Bool?
+    let options: [String]?
+    let placeholder: String?
+    
     enum CodingKeys: String, CodingKey {
-        case currency
-        case totalPrice = "total_price"
-        case netPrice = "net_price"
-        case partnerNetPrice = "partner_net_price"
-        case bookingFee = "booking_fee"
-        case partnerTotalPrice = "partner_total_price"
-        case pricePerAgeBand = "price_per_age_band"
+        case id, question, type, required, options, placeholder
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        id = try container.decodeIfPresent(String.self, forKey: .id)
+        question = try container.decodeIfPresent(String.self, forKey: .question)
+        type = try container.decodeIfPresent(String.self, forKey: .type)
+        options = try container.decodeIfPresent([String].self, forKey: .options)
+        placeholder = try container.decodeIfPresent(String.self, forKey: .placeholder)
+        
+        // Handle required field that can be either Bool or String
+        if let requiredBool = try? container.decodeIfPresent(Bool.self, forKey: .required) {
+            required = requiredBool
+        } else if let requiredString = try? container.decodeIfPresent(String.self, forKey: .required) {
+            // Convert string to boolean (common API patterns: "true"/"false", "1"/"0", "yes"/"no")
+            required = requiredString.lowercased() == "true" ||
+                      requiredString == "1" ||
+                      requiredString.lowercased() == "yes"
+        } else {
+            required = nil
+        }
     }
 }
 
-
-//// MARK: - Root
-//struct TourOptionApiResponse: Codable {
-//    let status: Bool
-//    let statusCode: Int
-//    var data: TourOptionData?
-//
-//    enum CodingKeys: String, CodingKey {
-//        case status
-//        case statusCode = "status_code"
-//        case data
-//    }
-//}
-//
-//// MARK: - Data
-//struct TourOptionData: Codable {
-//    let trackId: String
-//    let reviewUid: String
-//    let info: TourInfo
-//    let tourOption: TourOption
-//    let priceSummary: TourPriceSummary
-//
-//    enum CodingKeys: String, CodingKey {
-//        case trackId = "track_id"
-//        case reviewUid = "review_uid"
-//        case info
-//        case tourOption = "tour_option"
-//        case priceSummary = "price_summary"
-//    }
-//}
-//
-//// MARK: - Tour Info
-//struct TourInfo: Codable {
-//    let title: String
-//    let available: Bool
-//    let additionalInfo, inclusions, exclusions: [String]
-//    let images: [TourImage]
-//    let thumbnail: String
-//    let description: String
-//    let durationHours: DurationHours
-//    let ageBands: [AgeBand]
-//    let cancellationPolicy: CancellationPolicy
-//    let language, defaultLanguage: String
-//    let tourGrades: [TourGrade]
-//    let ticketInfo: TicketInfoModel
-//    let locations: Locations
-//    let region, city, country, confirmationType: String
-//    let bookingRequirements: BookingRequirements
-//    let tags: [Int]
-//    let itinerary: Itinerary
-//    let supplier: Supplier
-//    let reviews: Reviews
-//    let ratings, reviewCount: Int
-//    let supplierCode, languageName: String
-//
-//    enum CodingKeys: String, CodingKey {
-//        case title, available
-//        case additionalInfo = "additional_info"
-//        case inclusions, exclusions, images, thumbnail, description
-//        case durationHours = "duration_hours"
-//        case ageBands = "age_bands"
-//        case cancellationPolicy = "cancellation_policy"
-//        case language
-//        case defaultLanguage = "default_language"
-//        case tourGrades = "tour_grades"
-//        case ticketInfo = "ticket_info"
-//        case locations, region, city, country
-//        case confirmationType = "confirmation_type"
-//        case bookingRequirements = "booking_requirements"
-//        case tags, itinerary, supplier, reviews, ratings
-//        case reviewCount = "review_count"
-//        case supplierCode = "supplier_code"
-//        case languageName = "language_name"
-//    }
-//}
-//
-//// MARK: - Tour Image
-//struct TourImage: Codable {
-//    let caption: String
-//    let url: String
-//}
-//
-//// MARK: - Ticket Info
-//struct TicketInfoModel: Codable {
-//    let ticketTypes: [String]
-//    let ticketTypeDescription, ticketsPerBooking, ticketsPerBookingDescription: String
-//
-//    enum CodingKeys: String, CodingKey {
-//        case ticketTypes = "ticket_types"
-//        case ticketTypeDescription = "ticket_type_description"
-//        case ticketsPerBooking = "tickets_per_booking"
-//        case ticketsPerBookingDescription = "tickets_per_booking_description"
-//    }
-//}
-//
-//// MARK: - Locations
-//struct Locations: Codable {
-//    let start, end: [LocationData]
-//    let redemption: Redemption
-//    let travelerPickup: TravelerPickup
-//
-//    enum CodingKeys: String, CodingKey {
-//        case start, end, redemption
-//        case travelerPickup = "traveler_pickup"
-//    }
-//}
-//
-//struct LocationData: Codable {
-//    let location: String
-//    let description: String
-//}
-//
-//struct Redemption: Codable {
-//    let redemptionType, specialInstructions: String
-//
-//    enum CodingKeys: String, CodingKey {
-//        case redemptionType = "redemption_type"
-//        case specialInstructions = "special_instructions"
-//    }
-//}
-//
-//struct TravelerPickup: Codable {
-//    let pickupOptionType: String
-//    let allowCustomTravelerPickup: Bool
-//
-//    enum CodingKeys: String, CodingKey {
-//        case pickupOptionType = "pickup_option_type"
-//        case allowCustomTravelerPickup = "allow_custom_traveler_pickup"
-//    }
-//}
-//
-//// MARK: - Booking Requirements
-//struct BookingRequirements: Codable {
-//    let minTravelersPerBooking, maxTravelersPerBooking: Int
-//    let requiresAdultForBooking: Bool
-//
-//    enum CodingKeys: String, CodingKey {
-//        case minTravelersPerBooking = "min_travelers_per_booking"
-//        case maxTravelersPerBooking = "max_travelers_per_booking"
-//        case requiresAdultForBooking = "requires_adult_for_booking"
-//    }
-//}
-//
-//// MARK: - Itinerary
-//struct Itinerary: Codable {
-//    let itineraryType: String
-//    let skipTheLine, privateTour: Bool
-//    let durationHours: DurationHours
-//    let itineraryItems: [ItineraryItem]
-//
-//    enum CodingKeys: String, CodingKey {
-//        case itineraryType = "itinerary_type"
-//        case skipTheLine = "skip_the_line"
-//        case privateTour = "private_tour"
-//        case durationHours = "duration_hours"
-//        case itineraryItems = "itinerary_items"
-//    }
-//}
-//
-//struct ItineraryItem: Codable {
-//    let pointOfInterestLocation: PointOfInterestLocation
-//    let passByWithoutStopping: Bool
-//    let admissionIncluded: String
-//    let description: String
-//
-//    enum CodingKeys: String, CodingKey {
-//        case pointOfInterestLocation = "point_of_interest_location"
-//        case passByWithoutStopping = "pass_by_without_stopping"
-//        case admissionIncluded = "admission_included"
-//        case description
-//    }
-//}
-//
-//struct PointOfInterestLocation: Codable {
-//    let location: RefLocation
-//    let attractionId: Int
-//    let name: String
-//
-//    enum CodingKeys: String, CodingKey {
-//        case location
-//        case attractionId = "attraction_id"
-//        case name
-//    }
-//}
-//
-//struct RefLocation: Codable {
-//    let ref: String
-//}
-//
-//// MARK: - Supplier
-//struct Supplier: Codable {
-//    let name, reference: String
-//}
-//
-//// MARK: - Reviews
-//struct Reviews: Codable {
-//    let reviewCountTotals: [ReviewCountTotal]
-//    let totalReviews, combinedAverageRating: Int
-//
-//    enum CodingKeys: String, CodingKey {
-//        case reviewCountTotals = "review_count_totals"
-//        case totalReviews = "total_reviews"
-//        case combinedAverageRating = "combined_average_rating"
-//    }
-//}
-//
-//struct ReviewCountTotal: Codable {
-//    let rating, count: Int
-//}
-//
-//// MARK: - Tour Option
-//struct TourOption: Codable {
-//    let availabilityId, supplierCode: String
-//    let priceSummary: TourPriceSummary
-//    let rates: [TourRate]
-//
-//    enum CodingKeys: String, CodingKey {
-//        case availabilityId = "availability_id"
-//        case supplierCode = "supplier_code"
-//        case priceSummary = "price_summary"
-//        case rates
-//    }
-//}
-//
-//// MARK: - Price Summary
-//struct TourPriceSummary: Codable {
-//    let baseRate, taxes, totalAmount: Double
-//    let currency: String
-//    let roeBase: Double?
-//
-//    enum CodingKeys: String, CodingKey {
-//        case baseRate = "base_rate"
-//        case taxes
-//        case totalAmount = "total_amount"
-//        case currency
-//        case roeBase = "roe_base"
-//    }
-//}
-//
-//// MARK: - Tour Rate
-//struct TourRate: Codable {
-//    let description: String
-//    let time, rateCode: String
-//    let available: Bool
-//    let price: TourPriceModel
-//    let labels: [String]
-//
-//    enum CodingKeys: String, CodingKey {
-//        case description, time
-//        case rateCode = "rate_code"
-//        case available, price, labels
-//    }
-//}
-//
-//// MARK: - Tour Price
-//struct TourPriceModel: Codable {
-//    let baseRate, taxes, commissionAmount, totalAmount: Double
-//    let currency: String
-//    let pricePerAgeBand: [TourPricePerAgeBand]
-//    let supplierPriceDetails: SupplierPriceDetailsModel
-//
-//    enum CodingKeys: String, CodingKey {
-//        case baseRate = "base_rate"
-//        case taxes
-//        case commissionAmount = "commission_amount"
-//        case totalAmount = "total_amount"
-//        case currency
-//        case pricePerAgeBand = "price_per_age_band"
-//        case supplierPriceDetails = "supplier_price_details"
-//    }
-//}
-//
-//// MARK: - Price Per Age Band
-//struct TourPricePerAgeBand: Codable {
-//    let ageBand: String
-//    let travelerCount: Int
-//    let pricePerTraveler, totalBandPrice: Double
-//
-//    enum CodingKeys: String, CodingKey {
-//        case ageBand = "age_band"
-//        case travelerCount = "traveler_count"
-//        case pricePerTraveler = "price_per_traveler"
-//        case totalBandPrice = "total_band_price"
-//    }
-//}
-//
-//// MARK: - Supplier Price Details
-//struct SupplierPriceDetailsModel: Codable {
-//    let currency: String
-//    let totalPrice, netPrice, partnerNetPrice, bookingFee, partnerTotalPrice: Double
-//    let pricePerAgeBand: [TourPricePerAgeBand]
-//
-//    enum CodingKeys: String, CodingKey {
-//        case currency
-//        case totalPrice = "total_price"
-//        case netPrice = "net_price"
-//        case partnerNetPrice = "partner_net_price"
-//        case bookingFee = "booking_fee"
-//        case partnerTotalPrice = "partner_total_price"
-//        case pricePerAgeBand = "price_per_age_band"
-//    }
-//}
-//
-//// MARK: - Root
-//struct TourOptionApiResponse: Codable {
-//    let status: Bool
-//    let statusCode: Int
-//    var data: TravelResponseData?
-//
-//    enum CodingKeys: String, CodingKey {
-//        case status
-//        case statusCode = "status_code"
-//        case data
-//    }
-//}
-//
-//// MARK: - ResponseData
-//struct TravelResponseData: Codable {
-//    let trackId, uid: String
-//    let info: Info
-//    let price: Price
-//    let tourOption: TourOption?
-//    let priceSummary: Price?           // root level price_summary
-//
-//    enum CodingKeys: String, CodingKey {
-//        case trackId = "track_id"
-//        case uid
-//        case info
-//        case price
-//        case tourOption = "tour_option"
-//        case priceSummary = "price_summary"
-//    }
-//}
-//
-//// MARK: - TourOption
-//struct TourOption: Codable {
-//    let availabilityId: String
-//    let supplierCode: String
-//    let priceSummary: Price
-//    let rates: [TourRate]
-//
-//    enum CodingKeys: String, CodingKey {
-//        case availabilityId = "availability_id"
-//        case supplierCode = "supplier_code"
-//        case priceSummary = "price_summary"
-//        case rates
-//    }
-//}
-//
-//// MARK: - TourRate
-//struct TourRate: Codable {
-//    let description: String
-//    let time, rateCode: String
-//    let available: Bool
-//    let price: TourPrice
-//    let labels: [String]
-//
-//    enum CodingKeys: String, CodingKey {
-//        case description, time
-//        case rateCode = "rate_code"
-//        case available, price, labels
-//    }
-//}
-//
-//// MARK: - TourPrice
-//struct TourPrice: Codable {
-//    let baseRate, taxes, commissionAmount, totalAmount: Double
-//    let currency: String
-//    let pricePerAgeBand: [TourPricePerAgeBand]
-//    let supplierPriceDetails: SupplierPriceDetails
-//
-//    enum CodingKeys: String, CodingKey {
-//        case baseRate = "base_rate"
-//        case taxes
-//        case commissionAmount = "commission_amount"
-//        case totalAmount = "total_amount"
-//        case currency
-//        case pricePerAgeBand = "price_per_age_band"
-//        case supplierPriceDetails = "supplier_price_details"
-//    }
-//}
-//
-//// MARK: - TourPricePerAgeBand
-//struct TourPricePerAgeBand: Codable {
-//    let ageBand: String
-//    let travelerCount: Int
-//    let pricePerTraveler, totalBandPrice: Double
-//
-//    enum CodingKeys: String, CodingKey {
-//        case ageBand = "age_band"
-//        case travelerCount = "traveler_count"
-//        case pricePerTraveler = "price_per_traveler"
-//        case totalBandPrice = "total_band_price"
-//    }
-//}
+// MARK: - ReviewCommunicationChannel
+struct ReviewCommunicationChannel: Codable {}

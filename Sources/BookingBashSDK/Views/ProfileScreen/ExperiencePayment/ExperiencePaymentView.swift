@@ -26,7 +26,7 @@ struct WebView: UIViewRepresentable {
 // Main view that uses WebView
 struct ExperiencePaymentView: View {
     var body: some View {
-        WebView(url: URL(string: "https://test-payment.bookingbash.com")!)
+        WebView(url: URL(string: "https://payment.bookingbash.com")!)
             .ignoresSafeArea()
     }
 }

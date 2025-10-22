@@ -15,18 +15,18 @@ struct AvailabilitySelectionView: View {
     
     var productCode: String?
     var currency: String?
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text(Constants.AvailabilityScreenConstants.availability)
                 .font(.custom(Constants.Font.openSansBold, size: 14))
                 .foregroundStyle(.white)
-
+            
             Text(Constants.AvailabilityScreenConstants.select)
                 .font(.custom(Constants.Font.openSansBold, size: 14))
                 .foregroundStyle(Color(hex: Constants.HexColors.surfaceWeakest))
                 .padding(.bottom, -6)
-
+            
             VStack(spacing: 0) {
                 AvailabilitySelectionRowView(
                     iconName: Constants.Icons.calendar,
@@ -34,10 +34,10 @@ struct AvailabilitySelectionView: View {
                     value: viewModel.selectedDate,
                     onTap: onDateTap
                 )
-
+                
                 SeparatorLine(color: Color(hex: Constants.HexColors.neutral))
                     .padding(.horizontal)
-
+                
                 AvailabilitySelectionRowView(
                     iconName: Constants.Icons.user,
                     title: Constants.AvailabilityScreenConstants.participants,
@@ -52,8 +52,7 @@ struct AvailabilitySelectionView: View {
         }
         .background(Color.clear)
         .onAppear {
-            viewModel
-                .fetchAvailabilities(
+            viewModel.fetchAvailabilities(
                     productCode: productCode ?? "",
                     currencyCode: currency ?? ""
                 )

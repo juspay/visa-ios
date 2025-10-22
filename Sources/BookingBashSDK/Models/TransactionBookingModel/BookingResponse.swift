@@ -1,9 +1,3 @@
-//
-//  BookingResponse.swift
-//  VisaActivity
-//
-//  Created by praveen on 04/09/25.
-//
 import Foundation
 
 // MARK: - Response
@@ -17,6 +11,7 @@ struct BookingResponse: Codable {
 struct BookingListRequest: Codable {
     let email: String
     let site_id: String
+    let type: String
 }
 
 struct BookingData: Codable {
@@ -37,7 +32,7 @@ struct BookingData: Codable {
 
 // MARK: - Booking
 struct Booking: Codable, Identifiable {
-    var id: String { orderNo }  // for SwiftUI List / Identifiable
+    var id: String { orderNo }
     let orderNo: String
     let bookingRef: String
     let status: TransactionStatus
@@ -48,8 +43,9 @@ struct Booking: Codable, Identifiable {
     let createdDate: Date
     let travellers: TransactionTravellerInfo
     let price: TransactionPriceDetails
-    let supplierName: String? // Add supplierName property
-    let bookingDate: Date  // alias for createdDate
+    let thumbnail: String
+    let time: String
+    let bookingDate: Date
     
     enum CodingKeys: String, CodingKey {
         case orderNo = "order_no"
@@ -62,7 +58,8 @@ struct Booking: Codable, Identifiable {
         case createdDate = "created_date"
         case travellers
         case price
-        case supplierName = "supplier_name" // Add supplierName coding key
+        case thumbnail
+        case time
     }
     
     // MARK: - Decoding
@@ -73,6 +70,8 @@ struct Booking: Codable, Identifiable {
         productTitle = try container.decode(String.self, forKey: .productTitle)
         productCode = try container.decode(String.self, forKey: .productCode)
         currency = try container.decode(String.self, forKey: .currency)
+        thumbnail = try container.decode(String.self, forKey: .thumbnail)
+        time = try container.decode(String.self, forKey: .time)
         let statusString = try container.decode(String.self, forKey: .status)
         status = TransactionStatus(rawValue: statusString.uppercased()) ?? .pending
         let travelDateString = try container.decode(String.self, forKey: .travelDate)
@@ -84,15 +83,11 @@ struct Booking: Codable, Identifiable {
         travelDateFormatter.timeZone = TimeZone.current
         travelDate = travelDateFormatter.date(from: travelDateString) ?? Date()
         
-        // Parse created date (ISO 8601 format with time)
-        let createdDateFormatter = ISO8601DateFormatter()
-        createdDateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        createdDate = createdDateFormatter.date(from: createdDateString) ?? Date()
+        // Parse created date (simple date format "2025-10-17")
+        createdDate = travelDateFormatter.date(from: createdDateString) ?? Date()
         bookingDate = createdDate
         travellers = try container.decode(TransactionTravellerInfo.self, forKey: .travellers)
         price = try container.decode(TransactionPriceDetails.self, forKey: .price)
-        // Decode supplierName if present
-        supplierName = try container.decodeIfPresent(String.self, forKey: .supplierName)
     }
     
     // MARK: - Encoding
@@ -134,6 +129,8 @@ struct TransactionPriceDetails: Codable {
     let strikeout: TransactionStrikeoutPrice?
     let currency: String
     let roeBase: Double
+    let priceType: String
+    let pricePerAge: [TransactionPricePerAge]
     
     enum CodingKeys: String, CodingKey {
         case baseRate = "base_rate"
@@ -142,6 +139,23 @@ struct TransactionPriceDetails: Codable {
         case strikeout
         case currency
         case roeBase = "roe_base"
+        case priceType = "price_type"
+        case pricePerAge = "price_per_age"
+    }
+}
+
+// MARK: - Transaction Price Per Age
+struct TransactionPricePerAge: Codable {
+    let bandId: String
+    let perPriceTraveller: Double
+    let count: Int
+    let bandTotal: Double
+    
+    enum CodingKeys: String, CodingKey {
+        case bandId = "band_id"
+        case perPriceTraveller = "per_price_traveller"
+        case count
+        case bandTotal = "band_total"
     }
 }
 
@@ -151,12 +165,14 @@ struct TransactionStrikeoutPrice: Codable {
     let taxes: Double
     let totalAmount: Double
     let savingPercentage: Double
+    let savingAmount: Double
     
     enum CodingKeys: String, CodingKey {
         case baseRate = "base_rate"
         case taxes
         case totalAmount = "total_amount"
         case savingPercentage = "saving_percentage"
+        case savingAmount = "saving_amount"
     }
 }
 
@@ -166,6 +182,7 @@ enum TransactionStatus: String, Codable {
     case pending = "PENDING"
     case cancelled = "CANCELLED"
     case completed = "COMPLETED"
+    case failed = "FAILED"
 }
 
 // MARK: - Tabs
@@ -197,8 +214,14 @@ extension Booking {
     var children: Int { travellers.children }
     var totalTravellers: Int { travellers.total }
     
-    // Savings calculation from price data
+    // Savings amount from price data
     var savings: Decimal? {
+        guard let strikeout = price.strikeout else { return nil }
+        return Decimal(strikeout.savingAmount)
+    }
+    
+    // Savings percentage from price data
+    var savingsPercentage: Decimal? {
         guard let strikeout = price.strikeout else { return nil }
         return Decimal(strikeout.savingPercentage)
     }

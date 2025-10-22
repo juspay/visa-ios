@@ -20,25 +20,20 @@ struct BookedExperienceDetailInfoTopLocationView: View {
                 .font(.custom(Constants.Font.openSansBold, size: 14))
                 .foregroundStyle(titleTextColor)
             
-            HStack(spacing: 2) {
-//                Image(Constants.Icons.map)
-//                    .frame(width: 18, height: 18)
-//                    .foregroundStyle(locationTextColor)
-                if let mapIcon = bundleImage(named: Constants.Icons.map) {
-                    mapIcon
-                        .resizable()
-                        .frame(width: 18, height: 18)
-                        .foregroundStyle(locationTextColor)
-                } else {
-                    Image(Constants.Icons.map)
-                        .resizable()
-                        .frame(width: 18, height: 18)
-                        .foregroundStyle(locationTextColor)
-                }
-                Text(location)
-                    .foregroundStyle(locationTextColor)
-                    .font(.custom(Constants.Font.openSansSemiBold, size: 12))
-            }
+            // Location hidden as per requirement
+            // HStack(spacing: 2) {
+            //
+            //     if let mapIcon = ImageLoader.bundleImage(named: Constants.Icons.map) {
+            //         mapIcon
+            //             .resizable()
+            //             .renderingMode(.template)
+            //             .frame(width: 18, height: 18)
+            //             .foregroundStyle(locationTextColor)
+            //     }
+            //     Text(location)
+            //         .foregroundStyle(locationTextColor)
+            //         .font(.custom(Constants.Font.openSansSemiBold, size: 12))
+            // }
         }
     }
 }

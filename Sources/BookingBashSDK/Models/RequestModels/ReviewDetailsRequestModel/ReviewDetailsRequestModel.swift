@@ -1,15 +1,17 @@
-//
-//  ReviewDetailsRequestModel.swift
-//  VisaActivity
-//
-//  Created by Rohit Sankpal on 21/08/25.
-//
-
 struct ReviewDetailsRequestModel: Codable {
     let uid: String
-    let availability_id: String
-    let quote_id: String
-    let enquiry_id: String
-    let product_id: String
+    let availabilityId: String
+    let quoteId: String
+    let enquiryId: String
+    let activityCode: String
+    let rateCode: String
     
+    enum CodingKeys: String, CodingKey {
+        case uid
+        case availabilityId = "availability_id"
+        case quoteId = "quote_id"
+        case enquiryId = "enquiry_id"
+        case activityCode = "activity_code"
+        case rateCode = "rate_code"
+    }
 }

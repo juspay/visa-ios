@@ -8,6 +8,6 @@
 import SwiftUI
 
 struct ExperienceRequest: Codable {
-    let product_code: String
+    let activity_code: String
     let currency: String
 }

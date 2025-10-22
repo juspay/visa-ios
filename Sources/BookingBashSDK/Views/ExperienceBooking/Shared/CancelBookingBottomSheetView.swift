@@ -1,10 +1,3 @@
-//
-//  CancelBookingBottomSheet.swift
-//  VisaActivity
-//
-//  Created by Apple on 06/08/25.
-//
-
 import Foundation
 import SwiftUI
 
@@ -26,20 +19,20 @@ struct CancelBookingBottomSheetView: View {
                 HStack {
                     ProgressView()
                         .scaleEffect(0.8)
-                    Text("Loading cancellation reasons...")
+                    Text(Constants.BookingStatusScreenConstants.loadingCancellationReasons)
                         .font(.custom(Constants.Font.openSansSemiBold, size: 12))
                         .foregroundStyle(Color(hex: Constants.HexColors.neutral))
                 }
                 .padding(.vertical, 8)
             } else if let fetchError = fetchReasonsError {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Failed to load cancellation reasons: \(fetchError)")
+                    Text(String(format: Constants.BookingStatusScreenConstants.failedToLoadCancellationReasons, fetchError))
                         .font(.custom(Constants.Font.openSansSemiBold, size: 12))
                         .foregroundStyle(.red)
-                    Button("Retry") {
+                    Button(Constants.BookingStatusScreenConstants.retry) {
                         fetchReasonsError = nil
                         isFetchingReasons = true
-                        let orderNo = viewModel.bookingBasicDetails.first(where: { $0.key == "Booking ID" })?.value ?? ""
+                        let orderNo = viewModel.bookingBasicDetails.first(where: { $0.key == Constants.BookingStatusScreenConstants.bookingIdKey })?.value ?? ""
                         viewModel.fetchCancellationReasons(orderNo: orderNo) {
                             isFetchingReasons = false
                             if let error = viewModel.errorMessage, !error.isEmpty {
@@ -52,7 +45,7 @@ struct CancelBookingBottomSheetView: View {
                 }
                 .padding(.vertical, 8)
             } else if viewModel.reasons.isEmpty {
-                Text("No cancellation reasons available")
+                Text(Constants.BookingStatusScreenConstants.noCancellationReasonsAvailable)
                     .font(.custom(Constants.Font.openSansSemiBold, size: 12))
                     .foregroundStyle(Color(hex: Constants.HexColors.neutral))
                     .padding(.vertical, 8)
@@ -86,14 +79,14 @@ struct CancelBookingBottomSheetView: View {
                 guard let selectedReason = viewModel.selectedReason else { return }
                 isCancelling = true
                 cancelError = nil
-                let orderNo = viewModel.bookingBasicDetails.first(where: { $0.key == "Booking ID" })?.value ?? ""
-                viewModel.cancelBooking(orderNoo: orderNo, siteId: "68b585760e65320801973737", reasonCode: selectedReason.code) { success in
+                let orderNo = viewModel.bookingBasicDetails.first(where: { $0.key == Constants.BookingStatusScreenConstants.bookingIdKey })?.value ?? ""
+                viewModel.cancelBooking(orderNoo: orderNo, siteId: Constants.SharedConstants.siteId, reasonCode: selectedReason.code) { success in
                     isCancelling = false
                     if success {
                         cancellationSheetState = .none
                         onCancelled?()
                     } else {
-                        cancelError = viewModel.errorMessage ?? "Failed to cancel booking."
+                        cancelError = viewModel.errorMessage ?? Constants.BookingStatusScreenConstants.cancelBookingFailed
                     }
                 }
             }) {
@@ -124,7 +117,7 @@ struct CancelBookingBottomSheetView: View {
         .background(Color.white)
         .onAppear {
             isFetchingReasons = true
-            let orderNo = viewModel.bookingBasicDetails.first(where: { $0.key == "Booking ID" })?.value ?? ""
+            let orderNo = viewModel.bookingBasicDetails.first(where: { $0.key == Constants.BookingStatusScreenConstants.bookingIdKey })?.value ?? ""
             viewModel.fetchCancellationReasons(orderNo: orderNo) {
                 isFetchingReasons = false
                 if let error = viewModel.errorMessage, !error.isEmpty {

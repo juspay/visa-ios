@@ -10,7 +10,7 @@ import SwiftUI
 struct ExperienceExitView: View {
     var body: some View {
         VStack(spacing: 30) {
-            if let activityImage = bundleImage(named: Constants.Icons.activity) {
+            if let activityImage = ImageLoader.bundleImage(named: Constants.Icons.activity) {
                 activityImage
                     .resizable()
                     .scaledToFit()

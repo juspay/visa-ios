@@ -19,7 +19,7 @@ struct ContactDetailsCardView: View {
             VStack(alignment: .leading, spacing: 6) {
                 ForEach(contactDetailsModel) { item in
                     HStack(spacing: 4) {
-                        if let icon = bundleImage(named: item.keyIcon) {
+                        if let icon = ImageLoader.bundleImage(named: item.keyIcon) {
                             icon
                                 .resizable()
                                 .frame(width: 20, height: 20)

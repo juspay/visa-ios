@@ -16,18 +16,13 @@ struct IconTextRow: View {
 
     var body: some View {
         HStack(spacing: 6) {
-            if let icon = bundleImage(named: imageName) {
+            if let icon = ImageLoader.bundleImage(named: imageName) {
                 icon
                     .resizable()
-                    .frame(width: 20, height: 20)
-                    .foregroundStyle(color)
-            } else {
-                Image(imageName)
-                    .resizable()
+                    .renderingMode(.template)
                     .frame(width: 20, height: 20)
                     .foregroundStyle(color)
             }
-
             Text(text)
                 .font(.custom(Constants.Font.openSansSemiBold, size: 12))
                 .foregroundStyle(color)

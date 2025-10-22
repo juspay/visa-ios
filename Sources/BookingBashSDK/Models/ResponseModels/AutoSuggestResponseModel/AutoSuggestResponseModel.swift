@@ -23,11 +23,11 @@ struct AutoSuggestDestinationApiResponse: Codable {
 // MARK: - Destination
 struct DestinationModel: Codable {
     let title: String
-    let destinationType: String
+    let destinationType: Int
     let destinationId: String
     let locationName: String
     let city, state, region: String
-    let latLong: LatLong
+//    let latLong: LatLong
     let image: String
 
     enum CodingKeys: String, CodingKey {
@@ -36,12 +36,12 @@ struct DestinationModel: Codable {
         case destinationId = "destination_id"
         case locationName = "location_name"
         case city, state, region
-        case latLong = "lat_long"
+//        case latLong = "lat_long"
         case image
     }
 }
 
 // MARK: - LatLong
-struct LatLong: Codable {
-    let lat, lng: Double
-}
+//struct LatLong: Codable {
+//    let lat, lng: Double
+//}

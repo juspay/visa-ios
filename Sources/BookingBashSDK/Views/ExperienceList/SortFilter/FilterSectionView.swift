@@ -24,7 +24,7 @@ struct FilterSectionView: View {
                     viewModel.toggleOption(option.id)
                 }) {
                     HStack {
-                        if let checkboxImage = bundleImage(named: viewModel.isSelected(option.id)
+                        if let checkboxImage = ImageLoader.bundleImage(named: viewModel.isSelected(option.id)
                               ? Constants.Icons.checkBoxFilled
                               : Constants.Icons.checkBox) {
                             checkboxImage

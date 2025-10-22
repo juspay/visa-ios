@@ -1,10 +1,3 @@
-//
-//  TopBarView.swift
-//  VisaActivity
-//
-//  Created by Apple on 29/07/25.
-//
-
 import Foundation
 import SwiftUI
 
@@ -17,7 +10,7 @@ struct TopBarView: View {
                 Circle()
                     .stroke(Color.gray.opacity(0.4), lineWidth: 1)
                     .frame(width: 44, height: 44)
-                if let hamburgerImage = bundleImage(named: Constants.Icons.hamburger) {
+                if let hamburgerImage = ImageLoader.bundleImage(named: Constants.Icons.hamburger) {
                     hamburgerImage
                         .frame(width: 24, height: 24)
                         .foregroundStyle(Color(hex: Constants.HexColors.neutral))
@@ -28,7 +21,7 @@ struct TopBarView: View {
             }
             
             HStack(spacing: 8) {
-                if let searchImage = bundleImage(named: Constants.Icons.searchIcon) {
+                if let searchImage = ImageLoader.bundleImage(named: Constants.Icons.searchIcon) {
                     searchImage
                         .frame(width: 15, height: 15)
                         .foregroundStyle(Color(hex: Constants.HexColors.primaryStrong))

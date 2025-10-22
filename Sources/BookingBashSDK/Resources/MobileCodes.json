@@ -1,0 +1,1780 @@
+[
+  {
+    "name": "Afghanistan",
+    "max_char_limit": 9,
+    "country_code": 6,
+    "dial_code": "+93",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/af.svg"
+  },
+  {
+    "name": "Åland Islands",
+    "max_char_limit": 9,
+    "country_code": 7,
+    "dial_code": "+358",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ax.svg"
+  },
+  {
+    "name": "Albania",
+    "max_char_limit": 9,
+    "country_code": 8,
+    "dial_code": "+355",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/al.svg"
+  },
+  {
+    "name": "Algeria",
+    "max_char_limit": 9,
+    "country_code": 9,
+    "dial_code": "+213",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/dz.svg"
+  },
+  {
+    "name": "American Samoa",
+    "max_char_limit": 10,
+    "country_code": 10,
+    "dial_code": "+1684",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/as.svg"
+  },
+  {
+    "name": "Andorra",
+    "max_char_limit": 8,
+    "country_code": 11,
+    "dial_code": "+376",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ad.svg"
+  },
+  {
+    "name": "Angola",
+    "max_char_limit": 9,
+    "country_code": 12,
+    "dial_code": "+244",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ao.svg"
+  },
+  {
+    "name": "Anguilla",
+    "max_char_limit": 10,
+    "country_code": 13,
+    "dial_code": "+1264",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ai.svg"
+  },
+  {
+    "name": "Antarctica",
+    "max_char_limit": 10,
+    "country_code": 14,
+    "dial_code": "+672",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/aq.svg"
+  },
+  {
+    "name": "Antigua and Barbuda",
+    "max_char_limit": 10,
+    "country_code": 15,
+    "dial_code": "+1268",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ag.svg"
+  },
+  {
+    "name": "Argentina",
+    "max_char_limit": 11,
+    "country_code": 16,
+    "dial_code": "+54",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ar.svg"
+  },
+  {
+    "name": "Armenia",
+    "max_char_limit": 8,
+    "country_code": 17,
+    "dial_code": "+374",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/am.svg"
+  },
+  {
+    "name": "Aruba",
+    "max_char_limit": 7,
+    "country_code": 18,
+    "dial_code": "+297",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/aw.svg"
+  },
+  {
+    "name": "Australia",
+    "max_char_limit": 10,
+    "country_code": 19,
+    "dial_code": "+61",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/au.svg"
+  },
+  {
+    "name": "Austria",
+    "max_char_limit": 10,
+    "country_code": 20,
+    "dial_code": "+43",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/at.svg"
+  },
+  {
+    "name": "Azerbaijan",
+    "max_char_limit": 9,
+    "country_code": 21,
+    "dial_code": "+994",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/az.svg"
+  },
+  {
+    "name": "Bahamas",
+    "max_char_limit": 10,
+    "country_code": 22,
+    "dial_code": "+1242",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/bs.svg"
+  },
+  {
+    "name": "Bahrain",
+    "max_char_limit": 8,
+    "country_code": 23,
+    "dial_code": "+973",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/bh.svg"
+  },
+  {
+    "name": "Bangladesh",
+    "max_char_limit": 10,
+    "country_code": 24,
+    "dial_code": "+880",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/bd.svg"
+  },
+  {
+    "name": "Barbados",
+    "max_char_limit": 10,
+    "country_code": 25,
+    "dial_code": "+1246",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/bb.svg"
+  },
+  {
+    "name": "Belarus",
+    "max_char_limit": 10,
+    "country_code": 26,
+    "dial_code": "+375",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/by.svg"
+  },
+  {
+    "name": "Belgium",
+    "max_char_limit": 9,
+    "country_code": 27,
+    "dial_code": "+32",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/be.svg"
+  },
+  {
+    "name": "Belize",
+    "max_char_limit": 10,
+    "country_code": 28,
+    "dial_code": "+501",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/bz.svg"
+  },
+  {
+    "name": "Benin",
+    "max_char_limit": 9,
+    "country_code": 29,
+    "dial_code": "+229",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/bj.svg"
+  },
+  {
+    "name": "Bermuda",
+    "max_char_limit": 10,
+    "country_code": 30,
+    "dial_code": "+1441",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/bm.svg"
+  },
+  {
+    "name": "Bhutan",
+    "max_char_limit": 8,
+    "country_code": 31,
+    "dial_code": "+975",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/bt.svg"
+  },
+  {
+    "name": "Bolivia, Plurinational State of",
+    "max_char_limit": 9,
+    "country_code": 32,
+    "dial_code": "+591",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/bo.svg"
+  },
+  {
+    "name": "Bosnia and Herzegovina",
+    "max_char_limit": 8,
+    "country_code": 33,
+    "dial_code": "+387",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ba.svg"
+  },
+  {
+    "name": "Botswana",
+    "max_char_limit": 9,
+    "country_code": 34,
+    "dial_code": "+267",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/bw.svg"
+  },
+  {
+    "name": "Brazil",
+    "max_char_limit": 11,
+    "country_code": 35,
+    "dial_code": "+55",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/br.svg"
+  },
+  {
+    "name": "British Indian Ocean Territory",
+    "max_char_limit": 7,
+    "country_code": 36,
+    "dial_code": "+246",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/io.svg"
+  },
+  {
+    "name": "Brunei Darussalam",
+    "max_char_limit": 7,
+    "country_code": 37,
+    "dial_code": "+673",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/bn.svg"
+  },
+  {
+    "name": "Bulgaria",
+    "max_char_limit": 8,
+    "country_code": 38,
+    "dial_code": "+359",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/bg.svg"
+  },
+  {
+    "name": "Burkina Faso",
+    "max_char_limit": 8,
+    "country_code": 39,
+    "dial_code": "+226",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/bf.svg"
+  },
+  {
+    "name": "Burundi",
+    "max_char_limit": 8,
+    "country_code": 40,
+    "dial_code": "+257",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/bi.svg"
+  },
+  {
+    "name": "Cambodia",
+    "max_char_limit": 10,
+    "country_code": 41,
+    "dial_code": "+855",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/kh.svg"
+  },
+  {
+    "name": "Cameroon",
+    "max_char_limit": 9,
+    "country_code": 42,
+    "dial_code": "+237",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/cm.svg"
+  },
+  {
+    "name": "Canada",
+    "max_char_limit": 10,
+    "country_code": 43,
+    "dial_code": "+1",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ca.svg"
+  },
+  {
+    "name": "Canary Islands",
+    "max_char_limit": 10,
+    "country_code": 44,
+    "dial_code": "+34",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ic.svg"
+  },
+  {
+    "name": "Cape Verde",
+    "max_char_limit": 7,
+    "country_code": 45,
+    "dial_code": "+238",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/cv.svg"
+  },
+  {
+    "name": "Caribbean Netherlands",
+    "max_char_limit": 7,
+    "country_code": 46,
+    "dial_code": "+599",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/bq.svg"
+  },
+  {
+    "name": "Cayman Islands",
+    "max_char_limit": 10,
+    "country_code": 47,
+    "dial_code": "+1345",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ky.svg"
+  },
+  {
+    "name": "Central African Republic",
+    "max_char_limit": 8,
+    "country_code": 48,
+    "dial_code": "+236",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/cf.svg"
+  },
+  {
+    "name": "Chad",
+    "max_char_limit": 8,
+    "country_code": 49,
+    "dial_code": "+235",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/td.svg"
+  },
+  {
+    "name": "Chile",
+    "max_char_limit": 10,
+    "country_code": 50,
+    "dial_code": "+56",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/cl.svg"
+  },
+  {
+    "name": "China",
+    "max_char_limit": 11,
+    "country_code": 51,
+    "dial_code": "+86",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/cn.svg"
+  },
+  {
+    "name": "Christmas Island",
+    "max_char_limit": 10,
+    "country_code": 52,
+    "dial_code": "+61",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/cx.svg"
+  },
+  {
+    "name": "Cocos (Keeling) Islands",
+    "max_char_limit": 10,
+    "country_code": 53,
+    "dial_code": "+61",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/cc.svg"
+  },
+  {
+    "name": "Colombia",
+    "max_char_limit": 11,
+    "country_code": 54,
+    "dial_code": "+57",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/co.svg"
+  },
+  {
+    "name": "Comoros",
+    "max_char_limit": 7,
+    "country_code": 55,
+    "dial_code": "+269",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/km.svg"
+  },
+  {
+    "name": "Congo",
+    "max_char_limit": 9,
+    "country_code": 56,
+    "dial_code": "+242",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/cg.svg"
+  },
+  {
+    "name": "Congo, The Democratic Republic of the",
+    "max_char_limit": 9,
+    "country_code": 57,
+    "dial_code": "+243",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/cd.svg"
+  },
+  {
+    "name": "Cook Islands",
+    "max_char_limit": 5,
+    "country_code": 58,
+    "dial_code": "+682",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ck.svg"
+  },
+  {
+    "name": "Costa Rica",
+    "max_char_limit": 10,
+    "country_code": 59,
+    "dial_code": "+506",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/cr.svg"
+  },
+  {
+    "name": "Cote d'Ivoire",
+    "max_char_limit": 10,
+    "country_code": 60,
+    "dial_code": "+225",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ci.svg"
+  },
+  {
+    "name": "Croatia",
+    "max_char_limit": 9,
+    "country_code": 61,
+    "dial_code": "+385",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/hr.svg"
+  },
+  {
+    "name": "Cuba",
+    "max_char_limit": 10,
+    "country_code": 62,
+    "dial_code": "+53",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/cu.svg"
+  },
+  {
+    "name": "Curaçao",
+    "max_char_limit": 8,
+    "country_code": 63,
+    "dial_code": "+599",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/cw.svg"
+  },
+  {
+    "name": "Cyprus",
+    "max_char_limit": 8,
+    "country_code": 64,
+    "dial_code": "+357",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/cy.svg"
+  },
+  {
+    "name": "Czechia",
+    "max_char_limit": 11,
+    "country_code": 65,
+    "dial_code": "+420",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/cz.svg"
+  },
+  {
+    "name": "Denmark",
+    "max_char_limit": 8,
+    "country_code": 66,
+    "dial_code": "+45",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/dk.svg"
+  },
+  {
+    "name": "Djibouti",
+    "max_char_limit": 8,
+    "country_code": 67,
+    "dial_code": "+253",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/dj.svg"
+  },
+  {
+    "name": "Dominica",
+    "max_char_limit": 10,
+    "country_code": 68,
+    "dial_code": "+1767",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/dm.svg"
+  },
+  {
+    "name": "Dominican Republic",
+    "max_char_limit": 10,
+    "country_code": 69,
+    "dial_code": "+1849",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/do.svg"
+  },
+  {
+    "name": "Dominican Republic",
+    "max_char_limit": 10,
+    "country_code": 70,
+    "dial_code": "+1829",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/do.svg"
+  },
+  {
+    "name": "Dominican Republic",
+    "max_char_limit": 10,
+    "country_code": 71,
+    "dial_code": "+1809",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/do.svg"
+  },
+  {
+    "name": "Ecuador",
+    "max_char_limit": 11,
+    "country_code": 72,
+    "dial_code": "+593",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ec.svg"
+  },
+  {
+    "name": "Egypt",
+    "max_char_limit": 10,
+    "country_code": 73,
+    "dial_code": "+20",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/eg.svg"
+  },
+  {
+    "name": "El Salvador",
+    "max_char_limit": 8,
+    "country_code": 74,
+    "dial_code": "+503",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/sv.svg"
+  },
+  {
+    "name": "Equatorial Guinea",
+    "max_char_limit": 9,
+    "country_code": 75,
+    "dial_code": "+240",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/gq.svg"
+  },
+  {
+    "name": "Eritrea",
+    "max_char_limit": 7,
+    "country_code": 76,
+    "dial_code": "+291",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/er.svg"
+  },
+  {
+    "name": "Estonia",
+    "max_char_limit": 8,
+    "country_code": 77,
+    "dial_code": "+372",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ee.svg"
+  },
+  {
+    "name": "Eswatini",
+    "max_char_limit": 9,
+    "country_code": 78,
+    "dial_code": "+268",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/sz.svg"
+  },
+  {
+    "name": "Ethiopia",
+    "max_char_limit": 9,
+    "country_code": 79,
+    "dial_code": "+251",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/et.svg"
+  },
+  {
+    "name": "Falkland Islands (Malvinas)",
+    "max_char_limit": 5,
+    "country_code": 80,
+    "dial_code": "+500",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/fk.svg"
+  },
+  {
+    "name": "Faroe Islands",
+    "max_char_limit": 6,
+    "country_code": 81,
+    "dial_code": "+298",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/fo.svg"
+  },
+  {
+    "name": "Fiji",
+    "max_char_limit": 10,
+    "country_code": 82,
+    "dial_code": "+679",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/fj.svg"
+  },
+  {
+    "name": "Finland",
+    "max_char_limit": 9,
+    "country_code": 83,
+    "dial_code": "+358",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/fi.svg"
+  },
+  {
+    "name": "France",
+    "max_char_limit": 9,
+    "country_code": 84,
+    "dial_code": "+33",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/fr.svg"
+  },
+  {
+    "name": "French Guiana",
+    "max_char_limit": 9,
+    "country_code": 85,
+    "dial_code": "+594",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/gf.svg"
+  },
+  {
+    "name": "French Polynesia",
+    "max_char_limit": 9,
+    "country_code": 86,
+    "dial_code": "+689",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/pf.svg"
+  },
+  {
+    "name": "French Southern Territories",
+    "max_char_limit": 10,
+    "country_code": 87,
+    "dial_code": "+262",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/tf.svg"
+  },
+  {
+    "name": "Gabon",
+    "max_char_limit": 7,
+    "country_code": 88,
+    "dial_code": "+241",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ga.svg"
+  },
+  {
+    "name": "Gambia",
+    "max_char_limit": 7,
+    "country_code": 89,
+    "dial_code": "+220",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/gm.svg"
+  },
+  {
+    "name": "Georgia",
+    "max_char_limit": 9,
+    "country_code": 90,
+    "dial_code": "+995",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ge.svg"
+  },
+  {
+    "name": "Germany",
+    "max_char_limit": 13,
+    "country_code": 91,
+    "dial_code": "+49",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/de.svg"
+  },
+  {
+    "name": "Ghana",
+    "max_char_limit": 9,
+    "country_code": 92,
+    "dial_code": "+233",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/gh.svg"
+  },
+  {
+    "name": "Gibraltar",
+    "max_char_limit": 8,
+    "country_code": 93,
+    "dial_code": "+350",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/gi.svg"
+  },
+  {
+    "name": "Greece",
+    "max_char_limit": 10,
+    "country_code": 94,
+    "dial_code": "+30",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/gr.svg"
+  },
+  {
+    "name": "Greenland",
+    "max_char_limit": 6,
+    "country_code": 95,
+    "dial_code": "+299",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/gl.svg"
+  },
+  {
+    "name": "Grenada",
+    "max_char_limit": 10,
+    "country_code": 96,
+    "dial_code": "+1473",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/gd.svg"
+  },
+  {
+    "name": "Guadeloupe",
+    "max_char_limit": 9,
+    "country_code": 97,
+    "dial_code": "+590",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/gp.svg"
+  },
+  {
+    "name": "Guam",
+    "max_char_limit": 10,
+    "country_code": 98,
+    "dial_code": "+1671",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/gu.svg"
+  },
+  {
+    "name": "Guatemala",
+    "max_char_limit": 11,
+    "country_code": 99,
+    "dial_code": "+502",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/gt.svg"
+  },
+  {
+    "name": "Guernsey",
+    "max_char_limit": 10,
+    "country_code": 100,
+    "dial_code": "+44",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/gg.svg"
+  },
+  {
+    "name": "Guinea",
+    "max_char_limit": 9,
+    "country_code": 101,
+    "dial_code": "+224",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/gn.svg"
+  },
+  {
+    "name": "Guinea-Bissau",
+    "max_char_limit": 9,
+    "country_code": 102,
+    "dial_code": "+245",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/gw.svg"
+  },
+  {
+    "name": "Guyana",
+    "max_char_limit": 7,
+    "country_code": 103,
+    "dial_code": "+592",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/gy.svg"
+  },
+  {
+    "name": "Haiti",
+    "max_char_limit": 8,
+    "country_code": 104,
+    "dial_code": "+509",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ht.svg"
+  },
+  {
+    "name": "Heard & McDonald Islands",
+    "max_char_limit": 10,
+    "country_code": 105,
+    "dial_code": "+672",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/hm.svg"
+  },
+  {
+    "name": "Holy See (Vatican City State)",
+    "max_char_limit": 11,
+    "country_code": 106,
+    "dial_code": "+379",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/va.svg"
+  },
+  {
+    "name": "Honduras",
+    "max_char_limit": 11,
+    "country_code": 107,
+    "dial_code": "+504",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/hn.svg"
+  },
+  {
+    "name": "Hong Kong",
+    "max_char_limit": 11,
+    "country_code": 108,
+    "dial_code": "+852",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/hk.svg"
+  },
+  {
+    "name": "Hungary",
+    "max_char_limit": 9,
+    "country_code": 109,
+    "dial_code": "+36",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/hu.svg"
+  },
+  {
+    "name": "Iceland",
+    "max_char_limit": 7,
+    "country_code": 110,
+    "dial_code": "+354",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/is.svg"
+  },
+  {
+    "name": "India",
+    "max_char_limit": 10,
+    "country_code": 111,
+    "dial_code": "+91",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/in.svg"
+  },
+  {
+    "name": "Indonesia",
+    "max_char_limit": 10,
+    "country_code": 112,
+    "dial_code": "+62",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/id.svg"
+  },
+  {
+    "name": "Iran, Islamic Republic of",
+    "max_char_limit": 10,
+    "country_code": 113,
+    "dial_code": "+98",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ir.svg"
+  },
+  {
+    "name": "Iraq",
+    "max_char_limit": 10,
+    "country_code": 114,
+    "dial_code": "+964",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/iq.svg"
+  },
+  {
+    "name": "Ireland",
+    "max_char_limit": 10,
+    "country_code": 115,
+    "dial_code": "+353",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ie.svg"
+  },
+  {
+    "name": "Isle of Man",
+    "max_char_limit": 10,
+    "country_code": 116,
+    "dial_code": "+44",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/im.svg"
+  },
+  {
+    "name": "Israel",
+    "max_char_limit": 11,
+    "country_code": 117,
+    "dial_code": "+972",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/il.svg"
+  },
+  {
+    "name": "Italy",
+    "max_char_limit": 11,
+    "country_code": 118,
+    "dial_code": "+39",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/it.svg"
+  },
+  {
+    "name": "Jamaica",
+    "max_char_limit": 10,
+    "country_code": 119,
+    "dial_code": "+1876",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/jm.svg"
+  },
+  {
+    "name": "Jamaica",
+    "max_char_limit": 10,
+    "country_code": 120,
+    "dial_code": "+1658",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/jm.svg"
+  },
+  {
+    "name": "Japan",
+    "max_char_limit": 10,
+    "country_code": 121,
+    "dial_code": "+81",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/jp.svg"
+  },
+  {
+    "name": "Jersey",
+    "max_char_limit": 10,
+    "country_code": 122,
+    "dial_code": "+44",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/je.svg"
+  },
+  {
+    "name": "Jordan",
+    "max_char_limit": 9,
+    "country_code": 123,
+    "dial_code": "+962",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/jo.svg"
+  },
+  {
+    "name": "Kazakhstan",
+    "max_char_limit": 10,
+    "country_code": 124,
+    "dial_code": "+77",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/kz.svg"
+  },
+  {
+    "name": "Kenya",
+    "max_char_limit": 9,
+    "country_code": 125,
+    "dial_code": "+254",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ke.svg"
+  },
+  {
+    "name": "Kiribati",
+    "max_char_limit": 8,
+    "country_code": 126,
+    "dial_code": "+686",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ki.svg"
+  },
+  {
+    "name": "Korea, Democratic People's Republic of",
+    "max_char_limit": 10,
+    "country_code": 127,
+    "dial_code": "+850",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/kp.svg"
+  },
+  {
+    "name": "Korea, Republic of",
+    "max_char_limit": 10,
+    "country_code": 128,
+    "dial_code": "+82",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/kr.svg"
+  },
+  {
+    "name": "Kosovo",
+    "max_char_limit": 8,
+    "country_code": 129,
+    "dial_code": "+383",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/xk.svg"
+  },
+  {
+    "name": "Kuwait",
+    "max_char_limit": 8,
+    "country_code": 130,
+    "dial_code": "+965",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/kw.svg"
+  },
+  {
+    "name": "Kyrgyzstan",
+    "max_char_limit": 9,
+    "country_code": 131,
+    "dial_code": "+996",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/kg.svg"
+  },
+  {
+    "name": "Lao People's Democratic Republic",
+    "max_char_limit": 10,
+    "country_code": 132,
+    "dial_code": "+856",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/la.svg"
+  },
+  {
+    "name": "Latvia",
+    "max_char_limit": 8,
+    "country_code": 133,
+    "dial_code": "+371",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/lv.svg"
+  },
+  {
+    "name": "Lebanon",
+    "max_char_limit": 8,
+    "country_code": 134,
+    "dial_code": "+961",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/lb.svg"
+  },
+  {
+    "name": "Lesotho",
+    "max_char_limit": 8,
+    "country_code": 135,
+    "dial_code": "+266",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ls.svg"
+  },
+  {
+    "name": "Liberia",
+    "max_char_limit": 9,
+    "country_code": 136,
+    "dial_code": "+231",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/lr.svg"
+  },
+  {
+    "name": "Libya",
+    "max_char_limit": 9,
+    "country_code": 137,
+    "dial_code": "+218",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ly.svg"
+  },
+  {
+    "name": "Liechtenstein",
+    "max_char_limit": 9,
+    "country_code": 138,
+    "dial_code": "+423",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/li.svg"
+  },
+  {
+    "name": "Lithuania",
+    "max_char_limit": 8,
+    "country_code": 139,
+    "dial_code": "+370",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/lt.svg"
+  },
+  {
+    "name": "Luxembourg",
+    "max_char_limit": 9,
+    "country_code": 140,
+    "dial_code": "+352",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/lu.svg"
+  },
+  {
+    "name": "Macao",
+    "max_char_limit": 8,
+    "country_code": 141,
+    "dial_code": "+853",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/mo.svg"
+  },
+  {
+    "name": "Madagascar",
+    "max_char_limit": 9,
+    "country_code": 142,
+    "dial_code": "+261",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/mg.svg"
+  },
+  {
+    "name": "Malawi",
+    "max_char_limit": 9,
+    "country_code": 143,
+    "dial_code": "+265",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/mw.svg"
+  },
+  {
+    "name": "Malaysia",
+    "max_char_limit": 10,
+    "country_code": 144,
+    "dial_code": "+60",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/my.svg"
+  },
+  {
+    "name": "Maldives",
+    "max_char_limit": 10,
+    "country_code": 145,
+    "dial_code": "+960",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/mv.svg"
+  },
+  {
+    "name": "Mali",
+    "max_char_limit": 8,
+    "country_code": 146,
+    "dial_code": "+223",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ml.svg"
+  },
+  {
+    "name": "Malta",
+    "max_char_limit": 8,
+    "country_code": 147,
+    "dial_code": "+356",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/mt.svg"
+  },
+  {
+    "name": "Marshall Islands",
+    "max_char_limit": 7,
+    "country_code": 148,
+    "dial_code": "+692",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/mh.svg"
+  },
+  {
+    "name": "Martinique",
+    "max_char_limit": 9,
+    "country_code": 149,
+    "dial_code": "+596",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/mq.svg"
+  },
+  {
+    "name": "Mauritania",
+    "max_char_limit": 8,
+    "country_code": 150,
+    "dial_code": "+222",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/mr.svg"
+  },
+  {
+    "name": "Mauritius",
+    "max_char_limit": 8,
+    "country_code": 151,
+    "dial_code": "+230",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/mu.svg"
+  },
+  {
+    "name": "Mayotte",
+    "max_char_limit": 9,
+    "country_code": 152,
+    "dial_code": "+262",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/yt.svg"
+  },
+  {
+    "name": "Mexico",
+    "max_char_limit": 10,
+    "country_code": 153,
+    "dial_code": "+52",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/mx.svg"
+  },
+  {
+    "name": "Micronesia, Federated States of",
+    "max_char_limit": 7,
+    "country_code": 154,
+    "dial_code": "+691",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/fm.svg"
+  },
+  {
+    "name": "Moldova, Republic of",
+    "max_char_limit": 8,
+    "country_code": 155,
+    "dial_code": "+373",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/md.svg"
+  },
+  {
+    "name": "Monaco",
+    "max_char_limit": 9,
+    "country_code": 156,
+    "dial_code": "+377",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/mc.svg"
+  },
+  {
+    "name": "Mongolia",
+    "max_char_limit": 8,
+    "country_code": 157,
+    "dial_code": "+976",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/mn.svg"
+  },
+  {
+    "name": "Montenegro",
+    "max_char_limit": 8,
+    "country_code": 158,
+    "dial_code": "+382",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/me.svg"
+  },
+  {
+    "name": "Montserrat",
+    "max_char_limit": 10,
+    "country_code": 159,
+    "dial_code": "+1664",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ms.svg"
+  },
+  {
+    "name": "Morocco",
+    "max_char_limit": 9,
+    "country_code": 160,
+    "dial_code": "+212",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ma.svg"
+  },
+  {
+    "name": "Mozambique",
+    "max_char_limit": 9,
+    "country_code": 161,
+    "dial_code": "+258",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/mz.svg"
+  },
+  {
+    "name": "Myanmar",
+    "max_char_limit": 10,
+    "country_code": 162,
+    "dial_code": "+95",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/mm.svg"
+  },
+  {
+    "name": "Namibia",
+    "max_char_limit": 9,
+    "country_code": 163,
+    "dial_code": "+264",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/na.svg"
+  },
+  {
+    "name": "Nauru",
+    "max_char_limit": 7,
+    "country_code": 164,
+    "dial_code": "+674",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/nr.svg"
+  },
+  {
+    "name": "Nepal",
+    "max_char_limit": 11,
+    "country_code": 165,
+    "dial_code": "+977",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/np.svg"
+  },
+  {
+    "name": "Netherlands",
+    "max_char_limit": 9,
+    "country_code": 166,
+    "dial_code": "+31",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/nl.svg"
+  },
+  {
+    "name": "New Caledonia",
+    "max_char_limit": 6,
+    "country_code": 167,
+    "dial_code": "+687",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/nc.svg"
+  },
+  {
+    "name": "New Zealand",
+    "max_char_limit": 9,
+    "country_code": 168,
+    "dial_code": "+64",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/nz.svg"
+  },
+  {
+    "name": "Nicaragua",
+    "max_char_limit": 8,
+    "country_code": 169,
+    "dial_code": "+505",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ni.svg"
+  },
+  {
+    "name": "Niger",
+    "max_char_limit": 8,
+    "country_code": 170,
+    "dial_code": "+227",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ne.svg"
+  },
+  {
+    "name": "Nigeria",
+    "max_char_limit": 11,
+    "country_code": 171,
+    "dial_code": "+234",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ng.svg"
+  },
+  {
+    "name": "Niue",
+    "max_char_limit": 7,
+    "country_code": 172,
+    "dial_code": "+683",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/nu.svg"
+  },
+  {
+    "name": "Norfolk Island",
+    "max_char_limit": 6,
+    "country_code": 173,
+    "dial_code": "+672",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/nf.svg"
+  },
+  {
+    "name": "North Macedonia",
+    "max_char_limit": 8,
+    "country_code": 174,
+    "dial_code": "+389",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/mk.svg"
+  },
+  {
+    "name": "Northern Mariana Islands",
+    "max_char_limit": 10,
+    "country_code": 175,
+    "dial_code": "+1670",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/mp.svg"
+  },
+  {
+    "name": "Norway",
+    "max_char_limit": 8,
+    "country_code": 176,
+    "dial_code": "+47",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/no.svg"
+  },
+  {
+    "name": "Oman",
+    "max_char_limit": 8,
+    "country_code": 177,
+    "dial_code": "+968",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/om.svg"
+  },
+  {
+    "name": "Pakistan",
+    "max_char_limit": 11,
+    "country_code": 178,
+    "dial_code": "+92",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/pk.svg"
+  },
+  {
+    "name": "Palau",
+    "max_char_limit": 7,
+    "country_code": 179,
+    "dial_code": "+680",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/pw.svg"
+  },
+  {
+    "name": "Palestine, State of",
+    "max_char_limit": 10,
+    "country_code": 180,
+    "dial_code": "+970",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ps.svg"
+  },
+  {
+    "name": "Panama",
+    "max_char_limit": 8,
+    "country_code": 181,
+    "dial_code": "+507",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/pa.svg"
+  },
+  {
+    "name": "Papua New Guinea",
+    "max_char_limit": 8,
+    "country_code": 182,
+    "dial_code": "+675",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/pg.svg"
+  },
+  {
+    "name": "Paraguay",
+    "max_char_limit": 11,
+    "country_code": 183,
+    "dial_code": "+595",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/py.svg"
+  },
+  {
+    "name": "Peru",
+    "max_char_limit": 9,
+    "country_code": 184,
+    "dial_code": "+51",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/pe.svg"
+  },
+  {
+    "name": "Philippines",
+    "max_char_limit": 12,
+    "country_code": 185,
+    "dial_code": "+63",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ph.svg"
+  },
+  {
+    "name": "Pitcairn",
+    "max_char_limit": 10,
+    "country_code": 186,
+    "dial_code": "+872",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/pn.svg"
+  },
+  {
+    "name": "Poland",
+    "max_char_limit": 9,
+    "country_code": 187,
+    "dial_code": "+48",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/pl.svg"
+  },
+  {
+    "name": "Portugal",
+    "max_char_limit": 9,
+    "country_code": 188,
+    "dial_code": "+351",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/pt.svg"
+  },
+  {
+    "name": "Puerto Rico",
+    "max_char_limit": 10,
+    "country_code": 189,
+    "dial_code": "+1939",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/pr.svg"
+  },
+  {
+    "name": "Puerto Rico",
+    "max_char_limit": 10,
+    "country_code": 190,
+    "dial_code": "+1787",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/pr.svg"
+  },
+  {
+    "name": "Qatar",
+    "max_char_limit": 8,
+    "country_code": 191,
+    "dial_code": "+974",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/qa.svg"
+  },
+  {
+    "name": "Réunion",
+    "max_char_limit": 9,
+    "country_code": 192,
+    "dial_code": "+262",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/re.svg"
+  },
+  {
+    "name": "Romania",
+    "max_char_limit": 9,
+    "country_code": 193,
+    "dial_code": "+40",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ro.svg"
+  },
+  {
+    "name": "Russia",
+    "max_char_limit": 10,
+    "country_code": 194,
+    "dial_code": "+7",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ru.svg"
+  },
+  {
+    "name": "Rwanda",
+    "max_char_limit": 9,
+    "country_code": 195,
+    "dial_code": "+250",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/rw.svg"
+  },
+  {
+    "name": "Saint Barthélemy",
+    "max_char_limit": 9,
+    "country_code": 196,
+    "dial_code": "+590",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/bl.svg"
+  },
+  {
+    "name": "Saint Helena, Ascension and Tristan Da Cunha",
+    "max_char_limit": 5,
+    "country_code": 197,
+    "dial_code": "+290",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/sh.svg"
+  },
+  {
+    "name": "Saint Kitts and Nevis",
+    "max_char_limit": 10,
+    "country_code": 198,
+    "dial_code": "+1869",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/kn.svg"
+  },
+  {
+    "name": "Saint Lucia",
+    "max_char_limit": 10,
+    "country_code": 199,
+    "dial_code": "+1758",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/lc.svg"
+  },
+  {
+    "name": "Saint Martin",
+    "max_char_limit": 9,
+    "country_code": 200,
+    "dial_code": "+590",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/mf.svg"
+  },
+  {
+    "name": "Saint Pierre and Miquelon",
+    "max_char_limit": 9,
+    "country_code": 201,
+    "dial_code": "+508",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/pm.svg"
+  },
+  {
+    "name": "Saint Vincent and the Grenadines",
+    "max_char_limit": 10,
+    "country_code": 202,
+    "dial_code": "+1784",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/vc.svg"
+  },
+  {
+    "name": "Samoa",
+    "max_char_limit": 7,
+    "country_code": 203,
+    "dial_code": "+685",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ws.svg"
+  },
+  {
+    "name": "San Marino",
+    "max_char_limit": 9,
+    "country_code": 204,
+    "dial_code": "+378",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/sm.svg"
+  },
+  {
+    "name": "Sao Tome and Principe",
+    "max_char_limit": 7,
+    "country_code": 205,
+    "dial_code": "+239",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/st.svg"
+  },
+  {
+    "name": "Saudi Arabia",
+    "max_char_limit": 10,
+    "country_code": 206,
+    "dial_code": "+966",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/sa.svg"
+  },
+  {
+    "name": "Senegal",
+    "max_char_limit": 9,
+    "country_code": 207,
+    "dial_code": "+221",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/sn.svg"
+  },
+  {
+    "name": "Serbia",
+    "max_char_limit": 9,
+    "country_code": 208,
+    "dial_code": "+381",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/rs.svg"
+  },
+  {
+    "name": "Seychelles",
+    "max_char_limit": 7,
+    "country_code": 209,
+    "dial_code": "+248",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/sc.svg"
+  },
+  {
+    "name": "Sierra Leone",
+    "max_char_limit": 8,
+    "country_code": 210,
+    "dial_code": "+232",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/sl.svg"
+  },
+  {
+    "name": "Singapore",
+    "max_char_limit": 11,
+    "country_code": 211,
+    "dial_code": "+65",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/sg.svg"
+  },
+  {
+    "name": "Sint Maarten",
+    "max_char_limit": 10,
+    "country_code": 212,
+    "dial_code": "+1721",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/sx.svg"
+  },
+  {
+    "name": "Slovakia",
+    "max_char_limit": 9,
+    "country_code": 213,
+    "dial_code": "+421",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/sk.svg"
+  },
+  {
+    "name": "Slovenia",
+    "max_char_limit": 8,
+    "country_code": 214,
+    "dial_code": "+386",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/si.svg"
+  },
+  {
+    "name": "Solomon Islands",
+    "max_char_limit": 7,
+    "country_code": 215,
+    "dial_code": "+677",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/sb.svg"
+  },
+  {
+    "name": "Somalia",
+    "max_char_limit": 8,
+    "country_code": 216,
+    "dial_code": "+252",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/so.svg"
+  },
+  {
+    "name": "South Africa",
+    "max_char_limit": 9,
+    "country_code": 217,
+    "dial_code": "+27",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/za.svg"
+  },
+  {
+    "name": "South Georgia and the South Sandwich Islands",
+    "max_char_limit": 10,
+    "country_code": 218,
+    "dial_code": "+500",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/gs.svg"
+  },
+  {
+    "name": "South Sudan",
+    "max_char_limit": 9,
+    "country_code": 219,
+    "dial_code": "+211",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ss.svg"
+  },
+  {
+    "name": "Spain",
+    "max_char_limit": 9,
+    "country_code": 220,
+    "dial_code": "+34",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/es.svg"
+  },
+  {
+    "name": "Sri Lanka",
+    "max_char_limit": 9,
+    "country_code": 221,
+    "dial_code": "+94",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/lk.svg"
+  },
+  {
+    "name": "Sudan",
+    "max_char_limit": 9,
+    "country_code": 222,
+    "dial_code": "+249",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/sd.svg"
+  },
+  {
+    "name": "Suriname",
+    "max_char_limit": 7,
+    "country_code": 223,
+    "dial_code": "+597",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/sr.svg"
+  },
+  {
+    "name": "Svalbard and Jan Mayen",
+    "max_char_limit": 8,
+    "country_code": 224,
+    "dial_code": "+47",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/sj.svg"
+  },
+  {
+    "name": "Sweden",
+    "max_char_limit": 12,
+    "country_code": 225,
+    "dial_code": "+46",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/se.svg"
+  },
+  {
+    "name": "Switzerland",
+    "max_char_limit": 12,
+    "country_code": 226,
+    "dial_code": "+41",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ch.svg"
+  },
+  {
+    "name": "Syrian Arab Republic",
+    "max_char_limit": 9,
+    "country_code": 227,
+    "dial_code": "+963",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/sy.svg"
+  },
+  {
+    "name": "Taiwan, Province of China",
+    "max_char_limit": 10,
+    "country_code": 228,
+    "dial_code": "+886",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/tw.svg"
+  },
+  {
+    "name": "Tajikistan",
+    "max_char_limit": 9,
+    "country_code": 229,
+    "dial_code": "+992",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/tj.svg"
+  },
+  {
+    "name": "Tanzania, United Republic of",
+    "max_char_limit": 9,
+    "country_code": 230,
+    "dial_code": "+255",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/tz.svg"
+  },
+  {
+    "name": "Thailand",
+    "max_char_limit": 10,
+    "country_code": 231,
+    "dial_code": "+66",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/th.svg"
+  },
+  {
+    "name": "Timor-Leste",
+    "max_char_limit": 8,
+    "country_code": 232,
+    "dial_code": "+670",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/tl.svg"
+  },
+  {
+    "name": "Togo",
+    "max_char_limit": 8,
+    "country_code": 233,
+    "dial_code": "+228",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/tg.svg"
+  },
+  {
+    "name": "Tokelau",
+    "max_char_limit": 4,
+    "country_code": 234,
+    "dial_code": "+690",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/tk.svg"
+  },
+  {
+    "name": "Tonga",
+    "max_char_limit": 7,
+    "country_code": 235,
+    "dial_code": "+676",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/to.svg"
+  },
+  {
+    "name": "Trinidad and Tobago",
+    "max_char_limit": 10,
+    "country_code": 236,
+    "dial_code": "+1868",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/tt.svg"
+  },
+  {
+    "name": "Tunisia",
+    "max_char_limit": 8,
+    "country_code": 237,
+    "dial_code": "+216",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/tn.svg"
+  },
+  {
+    "name": "Turkey",
+    "max_char_limit": 10,
+    "country_code": 238,
+    "dial_code": "+90",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/tr.svg"
+  },
+  {
+    "name": "Türkiye",
+    "max_char_limit": 10,
+    "country_code": 239,
+    "dial_code": "+90",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/tr.svg"
+  },
+  {
+    "name": "Turkmenistan",
+    "max_char_limit": 8,
+    "country_code": 240,
+    "dial_code": "+993",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/tm.svg"
+  },
+  {
+    "name": "Turks and Caicos Islands",
+    "max_char_limit": 10,
+    "country_code": 241,
+    "dial_code": "+1649",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/tc.svg"
+  },
+  {
+    "name": "Tuvalu",
+    "max_char_limit": 6,
+    "country_code": 242,
+    "dial_code": "+688",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/tv.svg"
+  },
+  {
+    "name": "Uganda",
+    "max_char_limit": 9,
+    "country_code": 243,
+    "dial_code": "+256",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ug.svg"
+  },
+  {
+    "name": "Ukraine",
+    "max_char_limit": 9,
+    "country_code": 244,
+    "dial_code": "+380",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ua.svg"
+  },
+  {
+    "name": "United Arab Emirates",
+    "max_char_limit": 9,
+    "country_code": 245,
+    "dial_code": "+971",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ae.svg"
+  },
+  {
+    "name": "United Kingdom",
+    "max_char_limit": 10,
+    "country_code": 246,
+    "dial_code": "+44",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/gb.svg"
+  },
+  {
+    "name": "United States",
+    "max_char_limit": 10,
+    "country_code": 247,
+    "dial_code": "+1",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/us.svg"
+  },
+  {
+    "name": "Uruguay",
+    "max_char_limit": 8,
+    "country_code": 248,
+    "dial_code": "+598",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/uy.svg"
+  },
+  {
+    "name": "Uzbekistan",
+    "max_char_limit": 9,
+    "country_code": 249,
+    "dial_code": "+998",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/uz.svg"
+  },
+  {
+    "name": "Vanuatu",
+    "max_char_limit": 7,
+    "country_code": 250,
+    "dial_code": "+678",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/vu.svg"
+  },
+  {
+    "name": "Venezuela, Bolivarian Republic of",
+    "max_char_limit": 10,
+    "country_code": 251,
+    "dial_code": "+58",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ve.svg"
+  },
+  {
+    "name": "Vietnam",
+    "max_char_limit": 10,
+    "country_code": 252,
+    "dial_code": "+84",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/vn.svg"
+  },
+  {
+    "name": "Virgin Islands, British",
+    "max_char_limit": 10,
+    "country_code": 253,
+    "dial_code": "+1284",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/vg.svg"
+  },
+  {
+    "name": "Virgin Islands, U.S.",
+    "max_char_limit": 10,
+    "country_code": 254,
+    "dial_code": "+1340",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/vi.svg"
+  },
+  {
+    "name": "Wallis and Futuna",
+    "max_char_limit": 9,
+    "country_code": 255,
+    "dial_code": "+681",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/wf.svg"
+  },
+  {
+    "name": "Western Sahara",
+    "max_char_limit": 9,
+    "country_code": 256,
+    "dial_code": "+212",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/eh.svg"
+  },
+  {
+    "name": "Yemen",
+    "max_char_limit": 9,
+    "country_code": 257,
+    "dial_code": "+967",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/ye.svg"
+  },
+  {
+    "name": "Zambia",
+    "max_char_limit": 9,
+    "country_code": 258,
+    "dial_code": "+260",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/zm.svg"
+  },
+  {
+    "name": "Zimbabwe",
+    "max_char_limit": 10,
+    "country_code": 259,
+    "dial_code": "+263",
+    "image": "https://d33mtyizv24ggq.cloudfront.net/assets/zw.svg"
+  }
+]

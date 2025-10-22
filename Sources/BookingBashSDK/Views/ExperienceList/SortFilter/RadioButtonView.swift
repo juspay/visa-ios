@@ -16,7 +16,7 @@ struct RadioButtonView: View {
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: 8) {
-                if let radioImage = bundleImage(named: isSelected
+                if let radioImage = ImageLoader.bundleImage(named: isSelected
                       ? Constants.Icons.radioButtonChecked
                       : Constants.Icons.radioButtonUnchecked) {
                     radioImage

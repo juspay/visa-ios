@@ -17,9 +17,10 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(name: "HyperSDK", url: "https://github.com/namitgoel/hypersdk-ios.git", .exact("1.0.1")),
+        .package(name: "HyperSDK", url: "https://github.com/namitgoel/hypersdk-ios.git", .exact("1.0.2")),
         .package(url: "https://github.com/ozontech/SUINavigation.git", from: "1.11.0"),
         .package(name: "SwiftUIIntrospect", url: "https://github.com/siteline/swiftui-introspect.git", from: "1.3.0"),
+        .package(name: "SVGKit", url: "https://github.com/SVGKit/SVGKit.git", from: "3.0.0"),
     ],
     targets: [
         .target(
@@ -32,10 +33,12 @@ let package = Package(
             publicHeadersPath: "."
         ),
         .target(
-            name: "BookingBashSDK",
+            name
+            : "BookingBashSDK",
             dependencies: [
                 .product(name: "SUINavigation", package: "SUINavigation"),
-                .product(name: "SwiftUIIntrospect", package: "SwiftUIIntrospect")
+                .product(name: "SwiftUIIntrospect", package: "SwiftUIIntrospect"),
+                .product(name: "SVGKit", package: "SVGKit")
             ],
             path: "Sources/BookingBashSDK",
             resources: [

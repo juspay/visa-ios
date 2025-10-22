@@ -1,25 +1,16 @@
-//
-//  TransactionRow.swift
-//  VisaActivity
-//
-//  Created by praveen on 04/09/25.
-//
 import SwiftUI
-
-// MARK: - Row (card)
 
 struct TransactionRow: View {
     let item: Booking
     
     // MARK: - Savings Text Function
-    private func createSavingsText(originalPrice: Double, discountedPrice: Double, currency: String) -> AttributedString {
-        let savingsAmount = originalPrice - discountedPrice
-        var text = AttributedString("You are saving ")
-        text.foregroundColor = .gray  //  normal text in black
+    private func createSavingsText(savingAmount: Double, currency: String) -> AttributedString {
+        var text = AttributedString(Constants.TransactionRowConstants.youAreSaving)
+        text.foregroundColor = .gray
         
-        var value = AttributedString("\(Int(savingsAmount)) \(currency)")
-        value.foregroundColor = .green
-        value.font = .system(size: 14, weight: .bold) //  bold green
+        var value = AttributedString("\(Int(savingAmount)) \(currency)")
+        value.foregroundColor = Color(hex: Constants.HexColors.greenShade)
+        value.font = .system(size: 14, weight: .bold)
         text.append(value)
         return text
     }
@@ -30,98 +21,118 @@ struct TransactionRow: View {
             // Top: image + title + booking details
             HStack(alignment: .top, spacing: 12) {
                 
-                if let uiImage = UIImage(named: "PlaceHolderImage") {
-                                   Image(uiImage: uiImage)
-                                       .resizable()
-                                       .scaledToFill()
-                                       .frame(width: 76, height: 76)
-                                       .clipShape(RoundedRectangle(cornerRadius: 10))
-                               } else {
-                                   // Fallback if image not found
-                                   RoundedRectangle(cornerRadius: 10)
-                                       .fill(Color.gray.opacity(0.2))
-                                       .frame(width: 76, height: 76)
-                                       .overlay(
-                                           Image(systemName: "photo")
-                                               .font(.system(size: 24))
-                                               .foregroundColor(.gray)
-                                       )
-                               }
-                               
+                if let uiImage = UIImage(named: Constants.TransactionRowConstants.placeHolderImage) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 76, height: 76)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                } else {
+                    // Fallback if image not found
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Color.gray.opacity(0.2))
+                        .frame(width: 76, height: 76)
+                        .overlay(
+                            Image(systemName: Constants.TransactionRowConstants.systemPhoto)
+                                .font(.system(size: 24))
+                                .foregroundColor(.gray)
+                        )
+                }
                 
                 VStack(alignment: .leading, spacing: 6) {
                     Text(item.productTitle)
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.custom("OpenSans-SemiBold", size: 14))
                         .foregroundColor(.black)
                         .lineLimit(2)
                         .multilineTextAlignment(.leading)
                     
                     HStack(spacing: 4) {
-                        Text("Booking ID:")
+                        Text(Constants.TransactionRowConstants.bookingId)
                             .foregroundColor(.black)
+                            .font(.custom("OpenSans-SemiBold", size: 12))
                         Text(item.bookingRef)
                             .foregroundColor(.gray)
+                            .font(.custom("OpenSans-SemiBold", size: 12))
+                        
                         Spacer()
                     }
                     .font(.subheadline)
                     
                     HStack(spacing: 4) {
-                        Text("Booking Date:")
+                        Text(Constants.TransactionRowConstants.bookingDate)
+                            .font(.custom("OpenSans-SemiBold", size: 12))
                             .foregroundColor(.black)
                         Text(DateFormatter.shortDate.string(from: item.bookingDate))
+                            .font(.custom("OpenSans-SemiBold", size: 12))
                             .foregroundColor(.gray)
                     }
                     .font(.subheadline)
                 }
+                
             }
             
             Divider()
             
-            // Middle: travel date, participants, time, savings
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
-                    Label(DateFormatter.shortDate.string(from: item.travelDate), systemImage: "calendar")
+                    Label(DateFormatter.shortDate.string(from: item.travelDate), systemImage: Constants.TransactionRowConstants.calendar)
+                        .font(.custom("OpenSans-SemiBold", size: 12))
                     Spacer()
-                    Label(item.travellerText, image : "User")
+                    if let icon = ImageLoader.bundleImage(named: Constants.Icons.usergray) {
+                        HStack(spacing: 6) {
+                            icon
+                                .resizable()
+                                .frame(width: 20, height: 20)
+                                .foregroundStyle(.secondary)
+                            Text(item.travellerText)
+                                .font(.custom("OpenSans-SemiBold", size: 12))
+                                .foregroundColor(.secondary)
+                        }
+                    } else {
+                        Label(item.travellerText, image: Constants.Icons.usergray)
+                            .font(.custom("OpenSans-SemiBold", size: 12))
+                    }
                 }
                 
                 .font(.subheadline)
                 .foregroundColor(.secondary)
                 
-                Label(item.timeText, systemImage: "clock")
-                    .font(.subheadline)
+                Label(item.timeText, systemImage: Constants.TransactionRowConstants.clock)
+                    .font(.custom("OpenSans-SemiBold", size: 12))
                     .foregroundColor(.secondary)
                 
                 if let strikeout = item.price.strikeout {
                     Label {
                         Text(createSavingsText(
-                            originalPrice: strikeout.totalAmount,
-                            discountedPrice: item.price.totalAmount,
+                            savingAmount: strikeout.savingAmount,
                             currency: item.price.currency
                         ))
+                        .font(.custom("OpenSans-SemiBold", size: 12))
                     } icon: {
-                        Image("SavingIcon") // 💰 style icon
-                            .resizable()
-                            .frame(width: 27, height: 27)
+                        if let savingIcon = ImageLoader.bundleImage(named: Constants.Icons.savingGray) {
+                                                    savingIcon
+                                                        .resizable()
+                                                        .frame(width: 20, height: 20)
+                                                        .colorMultiply(.gray)
+                                                }
                     }
-                    
                 }
             }
             
             // Bottom: Status
             HStack {
                 Spacer()
-                Text("Status")
-                    .font(.subheadline)
-                    .foregroundColor(.gray) // 🔹 black, not gray
+                Text(Constants.TransactionRowConstants.status)
+                    .font(.custom("OpenSans-SemiBold", size: 12))
+                    .foregroundColor(.gray)
                 
                 Text(item.status.rawValue.capitalized)
-                    .font(.subheadline).bold()
+                    .font(.custom("OpenSans-SemiBold", size: 12))
                     .padding(.vertical, 4)
                     .padding(.horizontal, 10)
                     .background(item.status.color)
                     .foregroundColor(.white)
-                    .cornerRadius(6)  // 🔹 compact like reference
+                    .cornerRadius(6)
             }
         }
         .padding(10)
@@ -132,115 +143,6 @@ struct TransactionRow: View {
                     RoundedRectangle(cornerRadius: 12)
                         .stroke(Color(.systemGray4), lineWidth: 1)
                 )
-                .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
         )
     }
 }
-
-
-
-//struct TransactionRow: View {
-//    let item: Booking
-//
-//    // MARK: - Savings Text Function
-//    private func createSavingsText(originalPrice: Double, discountedPrice: Double, currency: String) -> String {
-//        let savingsAmount = originalPrice - discountedPrice
-//
-//        return "You are saving \(savingsAmount) \(currency)"
-//    }
-//
-//    var body: some View {
-//        VStack(alignment: .leading, spacing: 12) {
-//            // Top: image + title + ids
-//            HStack(alignment: .top, spacing: 12) {
-//                Image("dubaiParks")
-//                    .resizable()
-//                    .scaledToFill()
-//                    .frame(width: 76, height: 76)
-//                    .clipShape(RoundedRectangle(cornerRadius: 10))
-//
-//                VStack(alignment: .leading, spacing: 6) {
-//                    Text(item.productTitle)
-//                        .font(.system(size: 18, weight: .semibold))
-//                        .foregroundColor(.primary)
-//                        .lineLimit(2)
-//                        .multilineTextAlignment(.leading)
-//
-//                    HStack(spacing: 4) {
-//                        Text("Booking ID:")
-//                            .foregroundColor(.secondary)
-//                        Text(item.id)
-//                            .foregroundColor(.secondary)
-//                        Spacer()
-//                    }
-//                    .font(.subheadline)
-//
-//                    Text("Booking Date: \(DateFormatter.shortDate.string(from: item.bookingDate))")
-//                        .font(.subheadline)
-//                        .foregroundColor(.secondary)
-//                }
-//            }
-//
-//            Divider()
-//
-//            // Middle: date/time + travellers + (optional savings)
-//            VStack(alignment: .leading, spacing: 10) {
-//                HStack {
-//                    Label(DateFormatter.shortDate.string(from: item.travelDate), systemImage: "calendar")
-//                    Spacer(minLength: 12)
-//                    Label(item.travellerText, systemImage: "person.2")
-//                        .frame(maxWidth: .infinity, alignment: .trailing)
-//                }
-//                .font(.subheadline)
-//                .foregroundColor(.secondary)
-//
-//                HStack {
-//                    Label(item.timeText, systemImage: "clock")
-//                        .font(.subheadline)
-//                        .foregroundColor(.secondary)
-//                    Spacer()
-//                }
-//
-//                // Show savings text using real price data when available
-//                if let strikeout = item.price.strikeout {
-//                    HStack {
-//                        Label(createSavingsText(originalPrice: strikeout.totalAmount, discountedPrice: item.price.totalAmount, currency: item.price.currency), systemImage: "tag")
-//                            .foregroundColor(.green)
-//                            .font(.subheadline)
-//
-//                        Spacer()
-//                    }
-//                }
-//
-//            }
-//
-//            // Bottom:
-//            HStack {
-//                Spacer()
-//                Text("Status")
-//                    .font(.subheadline)
-//                    .foregroundColor(.secondary)
-//
-//                Text(item.status.rawValue)
-//                    .font(.subheadline).bold()
-//                    .padding(.vertical, 6)
-//                    .padding(.horizontal, 14)
-//                    .background(item.status.color)
-//                    .foregroundColor(.white)
-//                    .cornerRadius(10)
-//
-//            }
-//        }
-//        .padding(14)
-//        .background(
-//            RoundedRectangle(cornerRadius: 14)
-//                .fill(Color.white)
-//                .overlay(
-//                    RoundedRectangle(cornerRadius: 14)
-//                        .stroke(Color(.systemGray4), lineWidth: 1)
-//                )
-//                .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
-//        )
-//        .contentShape(Rectangle())
-//    }
-//}

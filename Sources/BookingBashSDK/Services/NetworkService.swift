@@ -11,6 +11,18 @@ final class NetworkManager {
     static let shared = NetworkManager()
     private init() {}
     
+    // MARK: - Configured JSON Decoder
+    private var jsonDecoder: JSONDecoder {
+        let decoder = JSONDecoder()
+        // Handle problematic floating-point numbers
+        decoder.nonConformingFloatDecodingStrategy = .convertFromString(
+            positiveInfinity: "Infinity",
+            negativeInfinity: "-Infinity",
+            nan: "NaN"
+        )
+        return decoder
+    }
+    
     // MARK: - GET Request
     func get<T: Codable>(url: URL, headers: [String: String]? = nil, completion: @escaping (Result<T, Error>) -> Void) {
         var request = URLRequest(url: url)
@@ -32,11 +44,15 @@ final class NetworkManager {
                 return
             }
             do {
-                print("Raw Data: \(String(data: data, encoding: .utf8) ?? "N/A")")
-                let decodedData = try JSONDecoder().decode(T.self, from: data)
+                let decodedData = try self.jsonDecoder.decode(T.self, from: data)
                 print("Decoded Data: \(decodedData)")
                 completion(.success(decodedData))
             } catch {
+                print("Decoding Error: \(error)")
+                // Log the raw JSON for debugging
+                if let jsonString = String(data: data, encoding: .utf8) {
+                    print("Raw JSON: \(jsonString)")
+                }
                 completion(.failure(error))
             }
         }
@@ -73,9 +89,15 @@ final class NetworkManager {
                 return
             }
             do {
-                let decodedResponse = try JSONDecoder().decode(U.self, from: data)
+                let decodedResponse = try self.jsonDecoder.decode(U.self, from: data)
                 completion(.success(decodedResponse))
+                print("Decoded Response: \(decodedResponse)")
             } catch {
+                print("Decoding Error: \(error)")
+                // Log the raw JSON for debugging
+                if let jsonString = String(data: data, encoding: .utf8) {
+                    print("Raw JSON: \(jsonString)")
+                }
                 completion(.failure(error))
             }
         }

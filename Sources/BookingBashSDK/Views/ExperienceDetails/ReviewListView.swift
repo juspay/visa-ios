@@ -21,7 +21,7 @@ struct ReviewListView: View {
         }, content: {
             VStack(alignment: .leading, spacing: 16) {
                 HStack(spacing: 4) {
-                    if let starImage = bundleImage(named: Constants.Icons.star) {
+                    if let starImage = ImageLoader.bundleImage(named: Constants.Icons.star) {
                         starImage
                             .resizable()
                             .frame(width: 28, height: 28)
@@ -50,7 +50,7 @@ struct ReviewListView: View {
                         Text(Constants.DetailScreenConstants.mostRelevant)
                             .font(.custom(Constants.Font.openSansSemiBold, size: 12))
                             .foregroundStyle(Color(hex: Constants.HexColors.blackStrong))
-                        if let arrowImage = bundleImage(named: Constants.Icons.arrowDown) {
+                        if let arrowImage = ImageLoader.bundleImage(named: Constants.Icons.arrowDown) {
                             arrowImage
                                 .frame(width: 20, height: 20)
                                 .foregroundStyle(Color(hex: Constants.HexColors.primary))

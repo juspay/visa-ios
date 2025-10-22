@@ -13,6 +13,15 @@ struct ExperienceBottomPaymentBarView: View {
     let payNowButtonTapped: (() -> Void)
     let infoButtontapped: () -> Void
     let price : String
+    let isLoading: Bool
+    
+    init(buttonText: String, payNowButtonTapped: @escaping (() -> Void), infoButtontapped: @escaping () -> Void, price: String, isLoading: Bool = false) {
+        self.buttonText = buttonText
+        self.payNowButtonTapped = payNowButtonTapped
+        self.infoButtontapped = infoButtontapped
+        self.price = price
+        self.isLoading = isLoading
+    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -39,23 +48,23 @@ struct ExperienceBottomPaymentBarView: View {
                             .font(.custom(Constants.Font.openSansBold, size: 16))
                             .foregroundStyle(Color(hex: Constants.HexColors.secondary))
                         
-                        if let icon = bundleImage(named: Constants.Icons.info) {
-                            icon
-                                .resizable()
-                                .frame(width: 20, height: 20)
-                                .foregroundStyle(Color(hex: Constants.HexColors.primary))
-                                .onTapGesture {
-                                    infoButtontapped()
-                                }
-                        } else {
-                            Image(Constants.Icons.info)
-                                .resizable()
-                                .frame(width: 20, height: 20)
-                                .foregroundStyle(Color(hex: Constants.HexColors.primary))
-                                .onTapGesture {
-                                    infoButtontapped()
-                                }
-                        }
+//                        if let icon = ImageLoader.bundleImage(named: Constants.Icons.info) {
+//                            icon
+//                                .resizable()
+//                                .frame(width: 20, height: 20)
+//                                .foregroundStyle(Color(hex: Constants.HexColors.primary))
+//                                .onTapGesture {
+//                                    infoButtontapped()
+//                                }
+//                        } else {
+//                            Image(Constants.Icons.info)
+//                                .resizable()
+//                                .frame(width: 20, height: 20)
+//                                .foregroundStyle(Color(hex: Constants.HexColors.primary))
+//                                .onTapGesture {
+//                                    infoButtontapped()
+//                                }
+//                        }
                     }
                 }
                 Spacer()
@@ -70,11 +79,10 @@ struct ExperienceBottomPaymentBarView: View {
                         .cornerRadius(4)
                 }
                 .buttonStyle(.plain)
+                .disabled(isLoading)
             }
             .padding()
         }
        
     }
 }
-
-

@@ -1,16 +1,9 @@
-//
-//  PaymentWebView.swift
-//  VisaActivity
-//
-//  Created by GitHub Copilot on 24/08/25.
-//
-
 import SwiftUI
-import WebKit
+@preconcurrency import WebKit
 
 struct PaymentWebView: UIViewRepresentable {
     var orderId: String
-    let baseUrl: String = "https://test-payment.bookingbash.com/?order_no="
+    var paymentUrl: String
     @Binding var shouldNavigateToConfirmation: Bool
     
     func makeUIView(context: Context) -> WKWebView {
@@ -22,13 +15,15 @@ struct PaymentWebView: UIViewRepresentable {
     }
     
     func updateUIView(_ webView: WKWebView, context: Context) {
-        let fullURL = "\(baseUrl)\(orderId)"
-        print("Loading payment URL: \(fullURL)")
+        // Use paymentUrl if available, otherwise fall back to orderId
+        let fullURL = !paymentUrl.isEmpty ? paymentUrl : orderId
         
         guard let url = URL(string: fullURL) else {
-            print("❌ Invalid URL: \(fullURL)")
+            print("❌ [PAYMENT WEBVIEW] Invalid URL: \(fullURL)")
             return
         }
+        
+        print("🔍 [PAYMENT WEBVIEW] Loading payment URL: \(fullURL)")
         
         // Only load if not already loading the same URL
         if webView.url?.absoluteString != fullURL {
@@ -57,7 +52,6 @@ struct PaymentWebView: UIViewRepresentable {
         }
         
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-            print("Web view navigation failed: \(error.localizedDescription)")
         }
         
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
@@ -65,19 +59,18 @@ struct PaymentWebView: UIViewRepresentable {
                 decisionHandler(.cancel)
                 return
             }
-            print("url\(url)")
             let urlString = url.absoluteString.lowercased()
-            print("urlString\(urlString)\n")
-            if urlString.contains("succeeded") {
-                print("✅ Success URL detected, triggering navigation")
-                decisionHandler(.allow)
-                // Trigger navigation immediately without delay
-                DispatchQueue.main.async {
+            if urlString.contains("success") {
+                print("✅ [PAYMENT WEBVIEW] Success URL detected: \(urlString)")
+                // Cancel the WebView navigation to prevent race condition
+                decisionHandler(.cancel)
+                // Navigate to confirmation with a delay to ensure WebView state settles
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    print("✅ [PAYMENT WEBVIEW] Navigating to confirmation")
                     self.parent.shouldNavigateToConfirmation = true
                 }
                 return
             }
-            
             decisionHandler(.allow)
         }
     }

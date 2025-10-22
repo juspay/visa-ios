@@ -20,7 +20,8 @@ class ProfileViewModel: ObservableObject {
             mobileNumber: mobileNumber.isEmpty ? "" : mobileNumber,
             mobileCountryCode: mobileCountryCode.isEmpty ? "+971" : mobileCountryCode, // Always provide valid country code
             firstName: firstName.isEmpty ? "" : firstName,
-            lastName: lastName.isEmpty ? "" : lastName
+            lastName: lastName.isEmpty ? "" : lastName,
+            passPort: "" // Passport can be optional
         )
         
         self.savedTravelers = [

@@ -18,11 +18,7 @@ private struct ExperienceHomeWrapper: View {
     var body: some View {
         NavigationStorageView {
             NavigationLink(
-                destination: ExperienceHomeView(
-                    encryptPayLoad: encryptPayLoad,
-                    isActive: $isActive,
-                    onFinish: onFinish
-                ),
+                destination: ExperienceHomeView(encryptPayLoadMainapp: encryptPayLoad, isActive: $isActive, onFinish: onFinish),
                 isActive: $isActive
             ) {
                 EmptyView()

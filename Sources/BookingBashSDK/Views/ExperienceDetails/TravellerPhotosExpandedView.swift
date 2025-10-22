@@ -11,7 +11,7 @@ import SwiftUI
 struct TravellerPhotosExpandedView: View {
     var body: some View {
         VStack(spacing: 16) {
-            if let shrekImage = bundleImage(named: Constants.Icons.shrek) {
+            if let shrekImage = ImageLoader.bundleImage(named: Constants.Icons.shrek) {
                 shrekImage
                     .resizable()
                     .scaledToFill()

@@ -43,17 +43,19 @@ struct InfoListView: View {
     
     @ViewBuilder
     private func destinationView(for type: InfoType?) -> some View {
+        let experienceName = viewModel.experienceDetail?.title ?? ""
         switch type {
         case .highlights:
-            InfoDetailListView(sections: viewModel.highlights, showBullets: true)
+            InfoDetailListView(sections: viewModel.highlights, showBullets: true, experienceName: experienceName)
         case .included:
-            InfoDetailListView(sections: viewModel.inclusionExclusionData, showBullets: true)
+            InfoDetailListView(sections: viewModel.inclusions, showBullets: true, experienceName: experienceName)
         case .excluded:
-            InfoDetailListView(sections: viewModel.inclusionExclusionData, showBullets: true)
+            InfoDetailListView(sections: viewModel.exclusions, showBullets: true, experienceName: experienceName)
         case .cancellation:
-            InfoDetailListView(sections: viewModel.cancellationPolicyData, showBullets: false)
+            InfoDetailListView(sections: viewModel.cancellationPolicyData, showBullets: false, experienceName: experienceName)
         case .know:
-            InfoDetailListView(sections: viewModel.knowBeforeGo, showBullets: true)
+//            InfoDetailListView(sections: viewModel.knowBeforeGo, showBullets: true, experienceName: experienceName)
+            Text("")
         case .where_:
             Text("Where View")
         case .reviews:

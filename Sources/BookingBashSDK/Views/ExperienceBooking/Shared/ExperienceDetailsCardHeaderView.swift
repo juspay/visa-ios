@@ -15,21 +15,22 @@ struct ExperienceDetailsCardHeaderView: View {
                 .font(.custom(Constants.Font.openSansSemiBold, size: 12))
                 .foregroundStyle(Color(hex: Constants.HexColors.neutral))
             Spacer()
-            HStack(spacing: 10) {
-                ForEach(images, id: \.self) { image in
-                    if let icon = bundleImage(named: image) {
-                        icon
-                            .resizable()
-                            .frame(width: 24, height: 24)
-                            .foregroundStyle(Color(hex: Constants.HexColors.primary))
-                    } else {
-                        Image(image)
-                            .resizable()
-                            .frame(width: 24, height: 24)
-                            .foregroundStyle(Color(hex: Constants.HexColors.primary))
-                    }
-                }
-            }
+            // Print, share, and download icons hidden as per requirement
+            // HStack(spacing: 10) {
+            //     ForEach(images, id: \.self) { image in
+            //         if let icon = ImageLoader.bundleImage(named: image) {
+            //             icon
+            //                 .resizable()
+            //                 .frame(width: 24, height: 24)
+            //                 .foregroundStyle(Color(hex: Constants.HexColors.primary))
+            //         } else {
+            //             Image(image)
+            //                 .resizable()
+            //                 .frame(width: 24, height: 24)
+            //                 .foregroundStyle(Color(hex: Constants.HexColors.primary))
+            //         }
+            //     }
+            // }
         }
     }
 }

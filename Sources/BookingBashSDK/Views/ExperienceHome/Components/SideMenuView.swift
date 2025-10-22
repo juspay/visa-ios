@@ -1,10 +1,3 @@
-//
-//  SideMenuView.swift
-//  VisaActivity
-//
-//  Created by praveen on 04/09/25.
-//
-
 import SwiftUI
 
 struct SideMenuView: View {
@@ -14,17 +7,17 @@ struct SideMenuView: View {
                 
                 // Profile Section
                 HStack(spacing: 12) {
-                    Circle()
-                        .stroke(Color.gray.opacity(0.4), lineWidth: 1)
-                        .frame(width: 50, height: 50)
-                        .overlay(
-                            Image(systemName: "person")
-                                .font(.system(size: 20))
-                                .foregroundColor(.gray)
-                        )
                     
-                    Text("Hi \(firstName)!")
-                        .font(.system(size: 18, weight: .semibold))
+                    Group {
+                        if let profileImage = ImageLoader.bundleImage(named: Constants.SideMenuConstants.iconProfile) {
+                            profileImage
+                                .resizable()
+                                .frame(width: 40, height: 40)
+                        }
+                    }
+                    
+                    Text(String(format: Constants.SideMenuConstants.greetingText, firstName))
+                        .font(.custom(Constants.Font.lexendBold, size: 14))
                         .foregroundColor(.black)
                 }
                 .padding(.top, 40)
@@ -34,14 +27,14 @@ struct SideMenuView: View {
                 VStack(spacing: 16) {
                     //  Navigate to MyTransactionView
                     NavigationLink(destination: MyTransactionView()) {
-                        MenuRow(icon: "ticket", title: "My Transactions")
+                        MenuRow(icon: Constants.Icons.activity, title: Constants.SideMenuConstants.myTransactions)
                     }
                     
-                    MenuRow(icon: "bag", title: "My BB-Pro Savings")
-                    MenuRow(icon: "heart", title: "My Favorites")
-//                    MenuRow(icon: "person", title: "My Profile")
+//                    MenuRow(icon: Constants.Icons.savingGray, title: Constants.SideMenuConstants.myBBProSavings )
+//                    
+//                    MenuRow(icon: Constants.Icons.wishlist, title: Constants.SideMenuConstants.myFavorites)
                     NavigationLink(destination: ProfileView()) {
-                        MenuRow(icon: "person", title: "My Profile")
+                        MenuRow(icon: Constants.Icons.usergray, title: Constants.SideMenuConstants.myProfile)
                     }
                 }
                 .padding(.horizontal, 20)
@@ -55,27 +48,37 @@ struct SideMenuView: View {
     }
 }
 
-
 struct MenuRow: View {
     let icon: String
     let title: String
     
     var body: some View {
         HStack {
-            Image(systemName: icon)
-                .font(.system(size: 18))
-                .foregroundColor(.gray)
-                .frame(width: 24, alignment: .center)
+            Group {
+                if let iconImage = ImageLoader.bundleImage(named: icon) {
+                    iconImage
+                        .renderingMode(.template)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 18, height: 18)
+                        .foregroundColor(Color(hex: Constants.HexColors.neutral))
+                }
+            }
             
             Text(title)
-                .font(.system(size: 16, weight: .medium))
+                .font(.custom(Constants.Font.openSansSemiBold, size: 14))
                 .foregroundColor(.black)
             
             Spacer()
             
-            Image(systemName: "chevron.right")
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundColor(.gray)
+            Group {
+                if let chevronImage = ImageLoader.bundleImage(named: Constants.Icons.arrowRight) {
+                    chevronImage
+                        .resizable()
+                        .frame(width: 20, height: 20)
+                        .foregroundColor(Color(hex: Constants.HexColors.neutral))
+                }
+            }
         }
         .padding()
         .background(Color.gray.opacity(0.08))

@@ -9,46 +9,16 @@ import Foundation
 import SwiftUI
 @_spi(Advanced) import SwiftUIIntrospect
 
-//struct InfoDetailListView: View {
-//    let sections: [InfoDetailModel]
-//    let showBullets: Bool
-//
-//    var body: some View {
-//        ThemeTemplateView(header: {
-//            EmptyView()
-//        }, content: {
-//            VStack(alignment: .leading, spacing: 24) {
-//                ForEach(sections) { section in
-//                    VStack(alignment: .leading, spacing: 8) {
-//                       
-//                        Text(section.title)
-//                            .font(.custom(Constants.Font.openSansBold, size: 18))
-//                            .foregroundStyle(.white)
-//                        
-//                        InfoDetailView(section: section, showBullets: showBullets)
-//                    }
-//                    .onAppear {
-//                        print("Section title:", section.title) 
-//                       
-//                }
-//            }
-//                
-//        }
-//           
-//                
-//            .padding()
-//        })
-//    }
-//}
 
 struct InfoDetailListView: View {
     let sections: [InfoDetailModel]
     let showBullets: Bool
+    let experienceName: String
 
     var body: some View {
         ThemeTemplateView(header: {
             HStack {
-                Text(/*"Dubai Parks And Resorts"*/"")
+                Text(experienceName)
                     .font(.custom(Constants.Font.openSansBold, size: 18))
                     .foregroundStyle(.white)
                 Spacer()

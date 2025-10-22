@@ -17,7 +17,7 @@
 
 @implementation VisaBenefitsBridge
 
-- (NSString *)launchBookingBash:(NSString *)encryptedPayload {
+- (NSString *)launchBookingBash:(NSString *)encryptedPayload :(NSString *)callback {
     // Get the base view controller from bridge component
     UIViewController *baseViewController = [self.bridgeComponent getBaseViewController];
     

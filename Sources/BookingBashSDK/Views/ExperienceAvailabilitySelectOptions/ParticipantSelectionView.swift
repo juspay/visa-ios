@@ -1,9 +1,3 @@
-//
-//  ParticipantSelectionView.swift
-//  VisaActivity
-//
-//  Created by Apple on 04/08/25.
-//
 
 import Foundation
 import SwiftUI
@@ -39,22 +33,27 @@ struct ParticipantSelectionView: View {
                         
                         Spacer()
                         
-                        Text("\(Constants.AvailabilityScreenConstants.aed) \(category.price)")
-                            .font(.custom(Constants.Font.openSansSemiBold, size: 12))
-                            .foregroundStyle(Color(hex: Constants.HexColors.secondary))
+                        if category.price > 0 {
+                            Text("\(Constants.AvailabilityScreenConstants.aed) \(category.price)")
+                                .font(.custom(Constants.Font.openSansSemiBold, size: 12))
+                                .foregroundStyle(Color(hex: Constants.HexColors.secondary))
+                        }
                         
                         HStack(spacing: 12) {
                             Button(action: {
                                 viewModel.decrement(for: category)
                             }) {
-                                if let minusImage = bundleImage(named: Constants.Icons.minus) {
+                                if let minusImage = ImageLoader.bundleImage(named: Constants.Icons.minus) {
                                     minusImage
                                         .resizable()
+                                        .renderingMode(.template)
                                         .frame(width: 24, height: 24)
                                         .foregroundStyle(Color(hex: Constants.HexColors.primary))
                                 }
                             }
-                            
+//                            .disabled(category.isAdult && category.count == 1)
+                            .disabled(category.count <= category.minLimit)
+
                             Text("\(category.count)")
                                 .font(.custom(Constants.Font.openSansBold, size: 14))
                                 .foregroundStyle(Color(hex: Constants.HexColors.blackStrong))
@@ -62,13 +61,21 @@ struct ParticipantSelectionView: View {
                             Button(action: {
                                 viewModel.increment(for: category)
                             }) {
-                                if let plusImage = bundleImage(named: Constants.Icons.plus) {
+                                if let plusImage = ImageLoader.bundleImage(named: Constants.Icons.plus) {
                                     plusImage
                                         .resizable()
+                                        .renderingMode(.template)
                                         .frame(width: 24, height: 24)
-                                        .foregroundStyle(Color(hex: Constants.HexColors.primary))
+                                        .tint(Color(hex: Constants.HexColors.primary))
+                                        .opacity(
+                                            (category.count >= category.maxLimit)
+                                            ? 0.4 : 1.0
+                                        )
                                 }
                             }
+                            .disabled(
+                                (category.count >= category.maxLimit)
+                            )
                         }
                     }
                 }
@@ -77,6 +84,7 @@ struct ParticipantSelectionView: View {
             
             Button(action: {
                 print("\(Constants.AvailabilityScreenConstants.selectedParticipants) \(viewModel.categories)")
+                viewModel.selectParticipants()
                 onSelect?() // Call the closure when select is tapped
             }) {
                 Text(Constants.AvailabilityScreenConstants.select)
@@ -91,5 +99,9 @@ struct ParticipantSelectionView: View {
             .padding(.bottom)
         }
         .padding(.horizontal)
+        .onAppear {
+            // Load dynamic age bands when participant selection sheet appears
+            viewModel.loadDynamicAgeBands()
+        }
     }
 }

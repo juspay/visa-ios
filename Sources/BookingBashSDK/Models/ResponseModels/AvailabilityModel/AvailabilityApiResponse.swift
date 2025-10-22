@@ -1,13 +1,5 @@
-//
-//  AvailabilityApiResponse.swift
-//  VisaActivity
-//
-//  Created by Rohit Sankpal on 21/08/25.
-//
-
 import Foundation
 
-// MARK: - Root
 struct AvailabilityApiResponse: Codable {
     let status: Bool
     let statusCode: Int
@@ -20,109 +12,92 @@ struct AvailabilityApiResponse: Codable {
     }
 }
 
-// MARK: - Data
 struct AvailabilityData: Codable {
-    let trackId: String
-    let availabilities: [AvailabilityModel]
+    let trackId: String?  // Made optional to handle failed responses with empty data
+    let uid: String?      // Made optional to handle failed responses with empty data
+    let count: Int?       // Made optional to handle failed responses with empty data
+    let result: [AvailabilityItem]?  // Made optional to handle failed responses with empty data
 
     enum CodingKeys: String, CodingKey {
         case trackId = "track_id"
-        case availabilities
+        case uid
+        case count
+        case result
     }
 }
 
-// MARK: - Availability
-struct AvailabilityModel: Codable {
+struct AvailabilityItem: Codable {
     let availabilityId: String
-    let supplierCode: String
-    let priceSummary: PriceSummary
-    
-    let rates: [Rate]
+    let availabilityKey: String
+    let subActivityName: String
+    let subActivityDescription: String
+    let rates: [AvailabilityRate]
 
     enum CodingKeys: String, CodingKey {
         case availabilityId = "availability_id"
-        case supplierCode = "supplier_code"
-        case priceSummary = "price_summary"
+        case availabilityKey = "availability_key"
+        case subActivityName = "sub_activity_name"
+        case subActivityDescription = "sub_activity_description"
         case rates
     }
 }
 
-// MARK: - Price Summary
-struct PriceSummary: Codable {
-    let baseRate, taxes, commissionAmount, totalAmount: Double
-    let currency: String
-
-    enum CodingKeys: String, CodingKey {
-        case baseRate = "base_rate"
-        case taxes
-        case commissionAmount = "commission_amount"
-        case totalAmount = "total_amount"
-        case currency
-    }
-}
-
-// MARK: - Rate
-struct Rate: Codable {
-    let description: String
-    let time: String
-    let rateCode: String
+struct AvailabilityRate: Codable {
     let available: Bool
-    let price: AvailibilityPrice
-    let labels: [String]
+    let time: String
+    let commission: Double
+    let subActivityCode: String?
+    let price: AvailabilityPrice
 
     enum CodingKeys: String, CodingKey {
-        case description, time
-        case rateCode = "rate_code"
-        case available, price, labels
+        case available, time, commission
+        case subActivityCode = "sub_activity_code"
+        case price
     }
 }
 
-// MARK: - Price
-struct AvailibilityPrice: Codable {
-    let baseRate, taxes, commissionAmount, totalAmount: Double
+struct AvailabilityPrice: Codable {
+    let baseRate: Double
+    let taxes: Double
+    let totalAmount: Double
     let currency: String
-    let pricePerAgeBand: [PricePerAgeBand]
-    let supplierPriceDetails: SupplierPriceDetails
+    let priceType: String
+    let strikeout: StrikeoutPrice?
+    let pricePerAge: [PricePerAge]
 
     enum CodingKeys: String, CodingKey {
         case baseRate = "base_rate"
         case taxes
-        case commissionAmount = "commission_amount"
         case totalAmount = "total_amount"
         case currency
-        case pricePerAgeBand = "price_per_age_band"
-        case supplierPriceDetails = "supplier_price_details"
+        case priceType = "price_type"
+        case strikeout
+        case pricePerAge = "price_per_age"
     }
 }
 
-// MARK: - Price Per Age Band
-struct PricePerAgeBand: Codable {
-    let ageBand: String
-    let travelerCount: Int
-    let pricePerTraveler, totalBandPrice: Double
+struct StrikeoutPrice: Codable {
+    let baseRate: Double
+    let taxes: Double
+    let totalAmount: Double
 
     enum CodingKeys: String, CodingKey {
-        case ageBand = "age_band"
-        case travelerCount = "traveler_count"
-        case pricePerTraveler = "price_per_traveler"
-        case totalBandPrice = "total_band_price"
+        case baseRate = "base_rate"
+        case taxes
+        case totalAmount = "total_amount"
     }
 }
 
-// MARK: - Supplier Price Details
-struct SupplierPriceDetails: Codable {
-    let currency: String
-    let totalPrice, netPrice, partnerNetPrice, bookingFee, partnerTotalPrice: Double
-    let pricePerAgeBand: [PricePerAgeBand]
+struct PricePerAge: Codable {
+    let bandId: String
+    let perPriceTraveller: Double
+    let count: Int
+    let bandTotal: Double
 
     enum CodingKeys: String, CodingKey {
-        case currency
-        case totalPrice = "total_price"
-        case netPrice = "net_price"
-        case partnerNetPrice = "partner_net_price"
-        case bookingFee = "booking_fee"
-        case partnerTotalPrice = "partner_total_price"
-        case pricePerAgeBand = "price_per_age_band"
+        case bandId = "band_id"
+        case perPriceTraveller = "per_price_traveller"
+        case count
+        case bandTotal = "band_total"
     }
 }
-

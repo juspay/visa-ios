@@ -1,10 +1,3 @@
-//
-//  FilterViewModel.swift
-//  VisaActivity
-//
-//  Created by Apple on 31/07/25.
-//
-
 import Foundation
 import SwiftUI
 
@@ -12,12 +5,22 @@ class FilterViewModel: ObservableObject {
     @Published var filterGroups: [FilterGroup] = []
     @Published var selectedOptionIDs: Set<String> = []
     
-    @Published var minPrice: Double = 100.0
-    @Published var maxPrice: Double = 1000.0
-    
-    @Published var maxLimit: Double = 1000.0
-    @Published var minLimit: Double = 100.0
+    @Published var minPrice: Double = 0.0
+    @Published var maxPrice: Double = 0.0
+        
+    @Published var minLimit: Double = 0.0
+    @Published var maxLimit: Double = 0.0
 
+    func setPriceRange(from priceRange: PriceRange?) {
+           guard let priceRange = priceRange else { return }
+           
+           self.minPrice = priceRange.min
+           self.maxPrice = priceRange.max
+           
+           self.minLimit = priceRange.min
+           self.maxLimit = priceRange.max
+       }
+    
     func fetchOptions() {
         self.filterGroups = [
             FilterGroup(

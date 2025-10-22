@@ -18,7 +18,7 @@ struct CheckboxTermsView: View {
                 isAgreed.toggle()
             }){
                 
-                if let icon = bundleImage(named: isAgreed ? Constants.Icons.checkBoxFilled : Constants.Icons.checkBox) {
+                if let icon = ImageLoader.bundleImage(named: isAgreed ? Constants.Icons.checkBoxFilled : Constants.Icons.checkBox) {
                     icon
                         .resizable()
                         .frame(width: 24, height: 24)

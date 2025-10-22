@@ -1,45 +1,176 @@
-//
-//  ExperienceBookingConfirmationViewModel.swift
-//  VisaActivity
-//
-//  Created by Apple on 06/08/25.
-//
-
 import Foundation
 
+// MARK: - Simple model to hold booking price data from JSON
+struct BookingPriceData {
+    var totalAmount: Double
+    var currency: String
+    var taxes: Double
+    var baseRate: Double
+    var pricePerAge: [[String: Any]]
+    var strikeout: [String: Any]?
+    
+    init(from priceDict: [String: Any]) {
+        self.totalAmount = priceDict["total_amount"] as? Double ?? 0.0
+        self.currency = priceDict["currency"] as? String ?? "AED"
+        self.taxes = priceDict["taxes"] as? Double ?? 0.0
+        self.baseRate = priceDict["base_rate"] as? Double ?? 0.0
+        self.pricePerAge = priceDict["price_per_age"] as? [[String: Any]] ?? []
+        self.strikeout = priceDict["strikeout"] as? [String: Any]
+    }
+}
+
 class ExperienceBookingConfirmationViewModel: ObservableObject {
-    @Published var title : String?
-    @Published var location : String?
+    // MARK: - Basic booking info
+    @Published var title: String?
+    @Published var location: String?
     @Published var bookingStatus: BookingStatus = .confirmed
     @Published var errorMessage: String?
-    @Published var supplierName: String? {
-        didSet {
-            updateContactDetails()
-        }
+    @Published var isLoading: Bool = false
+    var booking: Booking?
+    
+    // MARK: - Cancellation / Sheet state
+    @Published var cancellationSheetState: CancellationSheetState = .none
+    @Published var isFetchingReasons: Bool = false
+    @Published var fetchReasonsError: String? = nil
+    @Published var navigateToCancellationView: Bool = false
+    
+    var shouldShowCancellationOverlay: Bool {
+        cancellationSheetState != .none || isFetchingReasons || fetchReasonsError != nil
     }
     
-    // New dynamic properties based on API response
-    @Published var trackId: String?
+    // MARK: - Top info models
+    @Published var bookingTopInfo = BookingConfirmationTopInfoModel(
+        image: "CheckFill",
+        bookingStatus: "Booking Confirmed!",
+        bookingMessage: "Congratulations! Your booking has been confirmed. You will receive your voucher shortly via email."
+    )
+    @Published var bookingCancelledInfo = BookingConfirmationTopInfoModel(
+        image: "CheckFill",
+        bookingStatus: "Cancellation Confirmed",
+        bookingMessage: "Your booking is cancelled, you will receive your refund in your payment source in 2-5 working days."
+    )
+    @Published var bookingPendingInfo = BookingConfirmationTopInfoModel(
+        image: "Pending",
+        bookingStatus: "Booking Pending",
+        bookingMessage: "Your experience booking is currently pending for approval. Once confirmed, you will receive further details via email. Thank you for your patience."
+    )
+    @Published var paymentFailedInfo = BookingConfirmationTopInfoModel(
+        image: "Failed",
+        bookingStatus: "Payment Failed",
+        bookingMessage: "Oops! Your payment didn't go through. It looks like there was an issue during the payment process."
+    )
+    @Published var bookingFailedInfo = BookingConfirmationTopInfoModel(
+        image: "Failed",
+        bookingStatus: "Booking Failed",
+        bookingMessage: "Oops, your booking failed. It seems something went wrong during the booking process."
+    )
+    
+    // MARK: - Supplier / contact
+    @Published var supplierName: String? {
+        didSet { updateContactDetails() }
+    }
+    @Published var supplierEmail: String = "support@supplier.com"
+    @Published var supplierPhone: String = "+971 41234567"
+    @Published var orderNumberForCancel: String = ""
+    @Published var contactDetails: [ContactDetailsModel] = []
+    
+    // MARK: - Pricing / fare
     @Published var currency: String = "AED"
     @Published var totalAmount: Double = 0.0
     @Published var baseRate: Double = 0.0
     @Published var taxes: Double = 0.0
     @Published var strikeoutAmount: Double = 0.0
-    @Published var savingPercentage: Int = 0
+    @Published var savingPercentage: Double = 0
+    @Published var fairSummaryData: [FareItem] = []
+    @Published var savingsTextforFareBreakup: String = ""
+    
+    // Cancellation numeric values
+    @Published var amountPaid: Int = 0
+    @Published var cancellationFee: Int = 0
+    var totalRefunded: Int { amountPaid - cancellationFee }
+    
+    // Booking / traveler details
+    @Published var trackId: String?
     @Published var supplierTransactionId: String?
     @Published var bookingRef: String?
+    @Published var bookingDate: String?
     @Published var travelDate: String?
     @Published var totalTravellers: Int = 0
     @Published var totalAdults: Int = 0
     @Published var totalChildren: Int = 0
-    @Published var exclusions: ConfirmationReusableInfoModel = ConfirmationReusableInfoModel(title: "What's Not Included?", points: ["-"])
     @Published var duration: String?
     @Published var activityCode: String?
-    @Published var supplierEmail: String = "support@supplier.com"
-    @Published var supplierPhone: String = "+971 4 123 4567"
-    @Published var orderNumberForCancel: String = ""
-
     
+    // Sections (confirmation cards)
+    @Published var bookingBasicDetails: [BasicBookingDetailsModel] = []
+    @Published var cancellationPolicy = ConfirmationReusableInfoModel(title: "Cancellation refund policy", points: ["-"])
+    @Published var leadTraveller = ConfirmationReusableInfoModel(title: "Lead Traveler", points: ["-"])
+    @Published var inclusions = ConfirmationReusableInfoModel(title: "What includes?", points: ["-"])
+    @Published var OtherDetails = ConfirmationReusableInfoModel(title: "Other Details", points: ["-"])
+    @Published var personContactDetails: [ContactDetailsModel] = []
+    @Published var additionalInformation = ConfirmationReusableInfoModel(title: "Additional Information", points: ["-"])
+    @Published var exclusions = ConfirmationReusableInfoModel(title: "What's Not Included?", points: ["-"])
+    
+    // MARK: - Cancellation reasons
+    struct CancellationReasonsAPIResponse: Codable {
+        let status: Bool
+        let status_code: Int
+        let data: [CancellationReason]
+    }
+    @Published var reasons: [CancellationReason] = []
+    @Published var selectedReason: CancellationReason?
+    
+    // MARK: - Init
+    init(booking: Booking? = nil) {
+        self.booking = booking
+        print("BookingConfirmationVM init booking:", booking?.bookingRef ?? "nil")
+        
+        // Call fetchBookingAsJSON if we have a booking reference
+        if let bookingRef = booking?.bookingRef {
+            fetchBookingAsJSON(orderNo: bookingRef, isFromBookingJourney: false) { [weak self] result in
+                switch result {
+                case .success(let json):
+                    print("✅ Raw JSON received in init:", json)
+                    // Extract and set price data for confirmation page using BookingPriceData model
+                    if let data = json["data"] as? [String: Any],
+                       let bookingDetails = data["booking_details"] as? [String: Any],
+                       let price = bookingDetails["price"] as? [String: Any] {
+                        
+                        // Use the BookingPriceData model to cleanly extract all price info
+                        let priceData = BookingPriceData(from: price)
+                        
+                        DispatchQueue.main.async {
+                            // Update all price-related properties for confirmation page
+                            self?.totalAmount = priceData.totalAmount
+                            self?.currency = priceData.currency
+                            self?.taxes = priceData.taxes
+                            self?.baseRate = priceData.baseRate
+                            self?.amountPaid = Int(round(priceData.totalAmount))
+                            
+                            // Update strikeout if available
+                            if let strikeout = priceData.strikeout,
+                               let strikeoutTotal = strikeout["total_amount"] as? Double {
+                                self?.strikeoutAmount = strikeoutTotal
+                                self?.savingPercentage = strikeout["saving_percentage"] as? Double ?? 0.0
+                            }
+                            
+                            print("💰 [INIT] BookingPriceData applied successfully:")
+                            print("   - Total Amount: \(priceData.totalAmount)")
+                            print("   - Currency: \(priceData.currency)")
+                            print("   - Taxes: \(priceData.taxes)")
+                            print("   - Amount Paid: \(self?.amountPaid ?? 0)")
+                        }
+                    } else {
+                        print("⚠️ [INIT] Could not extract price data from JSON")
+                    }
+                case .failure(let error):
+                    print("❌ Error fetching JSON in init:", error.localizedDescription)
+                }
+            }
+        }
+    }
+    
+    // MARK: - Internal helpers
     private func updateContactDetails() {
         let supplier = supplierName ?? "Unknown Supplier"
         contactDetails = [
@@ -49,557 +180,404 @@ class ExperienceBookingConfirmationViewModel: ObservableObject {
         ]
     }
     
-    @Published var bookingTopInfo = BookingConfirmationTopInfoModel(
-        image: "CheckFill",
-        bookingStatus: "Booking Confirmed!",
-        bookingMessage: "Congratulations! Your booking has been confirmed. You will receive your voucher shortly via email."
-    )
-    
-    @Published var bookingCancelledInfo = BookingConfirmationTopInfoModel(
-        image: "CheckFill",
-        bookingStatus: "Cancellation Confirmed",
-        bookingMessage: "Your booking is cancelled, you will receive your refund in your payment source in 2-5 working days."
-    )
-    
-    @Published var bookingPendingInfo = BookingConfirmationTopInfoModel(
-        image: "Pending",
-        bookingStatus: "Booking Pending",
-        bookingMessage: "Your experience booking is currently pending for approval. Once confirmed, you will receive further details via email. Thank you for your patience."
-    )
-    
-    @Published var paymentFailedInfo = BookingConfirmationTopInfoModel(
-        image: "Failed",
-        bookingStatus: "Payment Failed",
-        bookingMessage: "Oops! Your payment didn't go through. It looks like there was an issue during the payment process."
-    )
-    
-    @Published var bookingFailedInfo = BookingConfirmationTopInfoModel(
-        image: "Failed",
-        bookingStatus: "Booking Failed",
-        bookingMessage: "Oops, your booking failed. It seems something went wrong during the booking process."
-    )
-    
-    // Initialize with empty arrays - will be populated dynamically from API
-    @Published var bookingBasicDetails: [BasicBookingDetailsModel] = []
-    @Published var contactDetails: [ContactDetailsModel] = []
-    @Published var cancellationPolicy = ConfirmationReusableInfoModel(title: "Cancellation refund policy", points: ["-"])
-    @Published var leadTraveller = ConfirmationReusableInfoModel(title: "Lead Traveler", points: ["-"])
-    @Published var specialRequest = ConfirmationReusableInfoModel(title: "Special Request", points: ["-"])
-    @Published var meetingPickup = ConfirmationReusableInfoModel(title: "Meeting and Pickup", points: ["-"])
-    @Published var inclusions = ConfirmationReusableInfoModel(title: "What includes?", points: ["-"])
-    @Published var OtherDetails = ConfirmationReusableInfoModel(title: "Other Details", points: ["-"])
-    @Published var personContactDetails: [ContactDetailsModel] = []
-    @Published var additionalInformation = ConfirmationReusableInfoModel(title: "Additional Information", points: ["-"])
-    
-    // MARK: - Cancellation Reasons API Response Model
-    struct CancellationReasonsAPIResponse: Codable {
-        let status: Bool
-        let status_code: Int
-        let data: [CancellationReason]
-    }
-    
-    @Published var reasons: [CancellationReason] = []
-    @Published var selectedReason: CancellationReason?
-    @Published var amountPaid: Int = 0
-    @Published var cancellationFee: Int = 0
-    
-    var totalRefunded: Int {
-        amountPaid - cancellationFee
-    }
-    
-    @Published var fairSummaryData: [FareItem] = []
-    
+    // MARK: - Fetch booking status
     func fetchBookingStatus(orderNo: String, siteId: String, isFromBookingJourney: Bool = true) {
-        print("🔍 fetchBookingStatus called with orderNo: '\(orderNo)', siteId: '\(siteId)', isFromBookingJourney: \(isFromBookingJourney)")
+        print("fetchBookingStatus called. VM booking:", booking?.bookingRef ?? "nil")
         orderNumberForCancel = orderNo
-        // If orderNo is empty, add some fallback test data for UI testing
-        if orderNo.isEmpty {
-            print("⚠️ OrderNo is empty, setting up fallback test data")
-            self.setupFallbackData()
+        print(isFromBookingJourney)
+        
+        guard !orderNo.isEmpty else {
+            print(" Order number is empty — skipping API call.")
             return
         }
         
-        guard let url = URL(string: "https://travelapi-sandbox.bookingbash.com/services/api/activities/2.0/book") else {
-            print("❌ Invalid URL for booking status")
+        // Set loading state to true
+        self.isLoading = true
+        
+        // Choose URL based on isFromBookingJourney parameter
+        let urlString = isFromBookingJourney ? Constants.APIURLs.bookStatusURL : Constants.APIURLs.bookingDetailsURL
+        guard let url = URL(string: urlString) else {
+            print(" Invalid URL for booking status")
             return
         }
         
-        // Prepare request body with dynamic updateFlag based on navigation source
-        let updateFlag = isFromBookingJourney ? true : false
-        let requestBody = ConfirmationRequest(orderNo: orderNo, siteId: siteId, updateFlag: updateFlag)
-        print("📤 Request body: \(requestBody)")
-        print("🔄 updateFlag set to: \(updateFlag) (isFromBookingJourney: \(isFromBookingJourney))")
+        // Choose request body based on isFromBookingJourney parameter
+        let requestBody: Codable
+        if isFromBookingJourney {
+            requestBody = ConfirmationRequest(orderNo: orderNo)
+        } else {
+            requestBody = BookingDetailsRequest(bookingId: orderNo)
+        }
+        
         let headers = [
-            "Content-Type": "application/json",
-            "Authorization": TokenProvider.getAuthHeader() ?? "",
-            "token": encryptedPayload
+            Constants.APIHeaders.contentTypeKey: Constants.APIHeaders.contentTypeValue,
+           Constants.APIHeaders.authorizationKey: TokenProvider.getAuthHeader() ?? "",
+           Constants.APIHeaders.siteId: ssoSiteIdGlobal,
+           Constants.APIHeaders.tokenKey: ssoTokenGlobal
         ]
-        print("📤 Headers: \(headers)")
         
         NetworkManager.shared.post(url: url, body: requestBody, headers: headers) { (result: Result<SuccessPageResponse, Error>) in
             DispatchQueue.main.async {
+                // Set loading to false when API call completes
+                self.isLoading = false
+                
                 switch result {
                 case .success(let response):
-                    print("✅ API Response received - status: \(response)")
-                    if response.status{
-                        print("📊 Processing response data...")
-                        print("================")
-                        
-                        // Update basic product info
-                        self.title = response.data.productInfo?.title
-                        self.location = "\(response.data.productInfo?.city ?? "") - \(response.data.productInfo?.country ?? "")"
-                        self.trackId = response.data.trackId
-                        self.activityCode = response.data.productInfo?.activityCode
-                        
-                        print("🏷️ Title: \(self.title ?? "nil")")
-                        print("📍 Location: \(self.location ?? "nil")")
-                        
-                        // Update pricing information
-                        if let priceInfo = response.data.productInfo?.price {
-                            self.currency = priceInfo.currency
-                            self.baseRate = priceInfo.baseRate
-                            self.taxes = priceInfo.taxes
-                            self.totalAmount = priceInfo.totalAmount
-                            
-                            print("💰 Pricing - Currency: \(self.currency), Base: \(self.baseRate), Taxes: \(self.taxes), Total: \(self.totalAmount)")
-                            
-                            // Handle strikeout pricing (check if it exists in the model)
-                            if response.data.productInfo?.price.strikeout != nil {
-                                let strikeout = priceInfo.strikeout
-                                self.strikeoutAmount = strikeout.totalAmount
-                                self.savingPercentage = strikeout.savingPercentage
-                                print("🏷️ Strikeout: \(self.strikeoutAmount), Savings: \(self.savingPercentage)%")
-                            }
-                        } else {
-                            print("❌ No pricing info found in response")
-                        }
-                        
-                        // Update booking details
-                        let bookingDetails = response.data.bookingDetails
-                        self.bookingRef = bookingDetails.bookingRef
-                        self.supplierTransactionId = bookingDetails.supplierTransactionId
-                        
-                        // Update traveller information
-                      
-                        let travellerInfo = response.data.travellerInfo
-                        print(bookingDetails.createdAt)
-                        print(travellerInfo.travelDate)
-                        self.travelDate = self.formatTravelDate(from: travellerInfo.travelDate)
-                        
-                        self.totalTravellers = travellerInfo.totalTraveller
-                        self.totalAdults = travellerInfo.totalAdult
-                        self.totalChildren = travellerInfo.totalChild
-                        
-                        print("👥 Travellers - Total: \(self.totalTravellers), Adults: \(self.totalAdults), Children: \(self.totalChildren)")
-                        
-                        // Update booking basic details with actual order information
-                        let bookingId = response.data.bookingDetails.bookingRef
-                        
-                        let voucherId = "ABCDLHRS31117"
-                        var bookingDate = "-"
-                        if let bookingResponse = response.data.bookingResponse.first {
-                            bookingDate = self.formatBookingDate(from: bookingResponse.timestamp)
-                        }
-                        
-                        self.bookingBasicDetails = [
-                            BasicBookingDetailsModel(key: "Booking ID", value: bookingId),
-                            BasicBookingDetailsModel(key: "Voucher ID", value: voucherId),
-                            BasicBookingDetailsModel(key: "Booking Date", value: bookingDate)
-                        ]
-                        
-                        // Update supplier information
-                        let supplierValue = response.data.productInfo?.supplier?.name ??
-                        response.data.productInfo?.supplierName ??
-                        response.data.productInfo?.providerSupplierName ??
-                        "Digital Connect Singapore"
-                        self.supplierName = supplierValue
-                        
-                        // Update contact details with dynamic supplier info
-                        self.contactDetails = [
-                            ContactDetailsModel(keyIcon: "UserGray", value: supplierValue),
-                            ContactDetailsModel(keyIcon: "Frame", value: self.supplierEmail),
-                            ContactDetailsModel(keyIcon: "Mobile", value: self.supplierPhone)
-                        ]
-                        
-                        // Set leadTraveller dynamically
-                        let leadName = "\(travellerInfo.title) \(travellerInfo.firstName) \(travellerInfo.lastName)".trimmingCharacters(in: .whitespaces)
-                        self.leadTraveller = ConfirmationReusableInfoModel(
-                            title: "Lead Traveler",
-                            points: [leadName.isEmpty ? "-" : leadName]
-                        )
-                        
-                        // Set person contact details
-                        self.personContactDetails = [
-                            ContactDetailsModel(keyIcon: "UserGray", value: leadName.isEmpty ? "-" : leadName),
-                            ContactDetailsModel(keyIcon: "Mobile", value: "+\(travellerInfo.code) \(travellerInfo.mobile)")
-                        ]
-                        
-                        // Set specialRequest dynamically
-                        let specialRequestValue = travellerInfo.specialRequest.trimmingCharacters(in: .whitespacesAndNewlines)
-                        self.specialRequest = ConfirmationReusableInfoModel(
-                            title: "Special Request",
-                            points: [specialRequestValue.isEmpty ? "-" : specialRequestValue]
-                        )
-                        
-                        // Set inclusions dynamically
-                        let inclusionsArray = response.data.productInfo?.inclusions ?? []
-                        self.inclusions = ConfirmationReusableInfoModel(
-                            title: "What includes?",
-                            points: inclusionsArray.isEmpty ? ["-"] : inclusionsArray
-                        )
-                        
-                        // Set exclusions dynamically
-                        let exclusionsArray = response.data.productInfo?.exclusions ?? []
-                        self.exclusions = ConfirmationReusableInfoModel(
-                            title: "What's Not Included?",
-                            points: exclusionsArray.isEmpty ? ["-"] : exclusionsArray
-                        )
-                        
-                        // Set additionalInformation dynamically
-                        let additionalInfoArray = response.data.productInfo?.additionalInfo ?? []
-                        self.additionalInformation = ConfirmationReusableInfoModel(
-                            title: "Additional Information",
-                            points: additionalInfoArray.isEmpty ? ["-"] : additionalInfoArray
-                        )
-                        
-                        // Set cancellation policy dynamically
-                        let cancellationPolicyText = response.data.productInfo?.cancellationPolicyString ??
-                                                   response.data.productInfo?.cancellationPolicy.description ??
-                                                   "Tickets are non-cancellable, non-refundable and non-transferable."
-                        self.cancellationPolicy = ConfirmationReusableInfoModel(
-                            title: "Cancellation refund policy",
-                            points: [cancellationPolicyText]
-                        )
-                        
-                        // Set duration information
-                        if let supplierDuration = response.data.productInfo?.supplierDuration {
-                            let minHours = supplierDuration.variableDurationFromMinutes / 60
-                            let maxHours = supplierDuration.variableDurationToMinutes / 60
-                            self.duration = "\(minHours)-\(maxHours) hours"
-                        } else {
-                            self.duration = response.data.productInfo?.duration ?? "-"
-                        }
-                        
-                        // Set other details with language information
-                        let languageName = response.data.productInfo?.languageDtl.name ??
-                                          response.data.productInfo?.languageName ??
-                                          "English"
-                        self.OtherDetails = ConfirmationReusableInfoModel(
-                            title: "Other Details",
-                            points: [
-                                "Tour language: \(languageName)",
-                                "Duration: \(self.duration ?? "-")",
-                                "Region: \(response.data.productInfo?.region ?? "-")"
-                            ]
-                        )
-                        
-                        // Set meeting and pickup information
-                        if let pickupInfo = response.data.productInfo?.pickupDtl {
-                            let pickupDetails = [
-                                "Location: \(pickupInfo.name)",
-                                "Address: \(pickupInfo.address)",
-                                "City: \(pickupInfo.city), \(pickupInfo.country)",
-                                "Type: \(pickupInfo.pickupType)"
-                            ]
-                            self.meetingPickup = ConfirmationReusableInfoModel(
-                                title: "Meeting and Pickup",
-                                points: pickupDetails
-                            )
-                        }
-                        
-                        // Update fare summary with dynamic pricing from API response
-                        var fareItems: [FareItem] = []
-                        
-                        // Use traveller info and pricing data from API response
-                        let apiTotalAmount = self.totalAmount
-                        let apiStrikeoutAmount = self.strikeoutAmount
-                        let apiCurrency = self.currency
-                        
-                        print("🧮 Building fare items with - Total: \(apiTotalAmount), Strikeout: \(apiStrikeoutAmount), Currency: \(apiCurrency)")
-                        
-                        // Add adult fare with strikeout price as per new logic
-                        if self.totalAdults > 0 {
-                            let adultTitle = "\(self.totalAdults) Adult\(self.totalAdults > 1 ? "s" : "") x \(apiCurrency) \(String(format: "%.1f", apiStrikeoutAmount))"
-                            let adultValue = "\(apiCurrency) \(String(format: "%.1f", apiStrikeoutAmount))"
-                            let fareItem = FareItem(
-                                title: adultTitle,
-                                value: adultValue,
-                                isDiscount: false
-                            )
-                            fareItems.append(fareItem)
-                            print("➕ Added adult fare: \(fareItem.title) - \(fareItem.value)")
-                        }
-                        
-                        // Add children fare if any (using strikeout price logic)
-                        if self.totalChildren > 0 {
-                            let childStrikeoutPrice = apiStrikeoutAmount * Double(self.totalChildren) / Double(max(self.totalAdults, 1))
-                            let childTitle = "\(self.totalChildren) Child\(self.totalChildren > 1 ? "ren" : "") x \(apiCurrency) \(String(format: "%.1f", childStrikeoutPrice))"
-                            let childValue = "\(apiCurrency) \(String(format: "%.1f", childStrikeoutPrice))"
-                            let fareItem = FareItem(
-                                title: childTitle,
-                                value: childValue,
-                                isDiscount: false
-                            )
-                            fareItems.append(fareItem)
-                            print("➕ Added children fare: \(fareItem.title) - \(fareItem.value)")
-                        }
-                        
-                        // Add discount: strikeout.totalAmount - price.totalAmount
-                        if apiStrikeoutAmount > 0 && apiStrikeoutAmount > apiTotalAmount {
-                            let discount = apiStrikeoutAmount - apiTotalAmount
-                            let fareItem = FareItem(
-                                title: "Discount",
-                                value: "- \(apiCurrency) \(String(format: "%.1f", discount))",
-                                isDiscount: true
-                            )
-                            fareItems.append(fareItem)
-                            print("➕ Added discount: \(fareItem.title) - \(fareItem.value)")
-                        }
-                        
-                        // If no strikeout amount or no discount, show base fare
-                        if fareItems.isEmpty || apiStrikeoutAmount <= apiTotalAmount {
-                            // Clear existing items and add simple fare structure
-                            fareItems.removeAll()
-                            
-                            if self.totalAdults > 0 {
-                                let adultTitle = "\(self.totalAdults) Adult\(self.totalAdults > 1 ? "s" : "") x \(apiCurrency) \(String(format: "%.1f", apiTotalAmount))"
-                                let adultValue = "\(apiCurrency) \(String(format: "%.1f", apiTotalAmount))"
-                                let fareItem = FareItem(
-                                    title: adultTitle,
-                                    value: adultValue,
-                                    isDiscount: false
-                                )
-                                fareItems.append(fareItem)
-                                print("➕ Added simple adult fare: \(fareItem.title) - \(fareItem.value)")
-                            }
-                        }
-                        
-                        print("📝 Final fare items count: \(fareItems.count)")
-                        for (index, item) in fareItems.enumerated() {
-                            print("   \(index + 1). \(item.title): \(item.value)")
-                        }
-                        
-                        self.fairSummaryData = fareItems
-                        
-                        // Update amount paid for cancellation calculations from API
-                        self.amountPaid = Int(round(apiTotalAmount))
-                        
-                        // Set cancellation fee to 0 for full refund scenario
-                        // Total Amount → whatever was originally paid (totalAmount)
-                        // Deduction → 0 (since you're refunding fully)
-                        // Total Amount Processed → same as totalAmount
-                        self.cancellationFee = 0
-                        
-                        print("💰 Cancellation Details - API Total: \(apiTotalAmount), Amount Paid: \(self.amountPaid), Fee: \(self.cancellationFee), Refund: \(self.totalRefunded)")
-                        
-                        print("✅ Successfully updated all dynamic fields from API response")
-                        print("🎯 fairSummaryData updated with \(self.fairSummaryData.count) items")
-                        
-                    } else {
-                        print("❌ API response status is false")
-                        self.errorMessage = "Invalid response"
+                    guard response.status else {
+                        self.errorMessage = " Invalid response: Status = false"
+                        print("Booking response status false:", response)
+                        return
                     }
+                    
+                    // PRODUCT INFO
+                    if let product = response.data?.bookingDetails?.productInfo {
+                        self.processProductInfo(product: product, bookingDetails: response.data?.bookingDetails)
+                    } else {
+                        print(" No product info found in response")
+                    }
+                    
+                    // TRAVELLER INFO
+                    if let traveller = response.data?.bookingDetails?.travellerInfo ?? response.data?.travellerInfo {
+                        self.processTravellerInfo(traveller: traveller)
+                    } else {
+                        print("⚠️ No traveller info found in response")
+                    }
+                    
+                    // BOOKING DETAILS
+                    if let bookingDetails = response.data?.bookingDetails {
+                        self.processBookingDetails(bookingDetails: bookingDetails)
+                    }
+                    
+                    // FARE SUMMARY
+                    self.updateFareSummary()
+                    
+                    // Note: amountPaid and totalAmount are set inside updateFareSummary()
+                    // Don't set them here to avoid overwriting with old values
+                    self.cancellationFee = 0
+                    
+                    print(" Booking data updated successfully")
+                    
                 case .failure(let error):
-                    print("❌ API call failed: \(error.localizedDescription)")
                     self.errorMessage = error.localizedDescription
-                    print("Failed to load booking status:", error)
+                    print(" Booking status fetch failed:", error.localizedDescription)
                 }
             }
         }
     }
     
-    private func setupFallbackData() {
-        print("🧪 Setting up comprehensive fallback test data for UI")
+    // MARK: - Product processing
+    private func processProductInfo(product: SuccessProductInfo, bookingDetails: SuccessBookingDetails?) {
+        // Basic fields
+        self.title = product.title ?? "-"
+        self.location = "\(product.city ?? "-") - \(product.country ?? "-")"
+        self.trackId = bookingDetails?.trackId ?? "-"
+        self.activityCode = product.activityCode ?? "-"
         
-        // Set basic properties from your API response example
-        self.title = "Singapore Data eSIM - High-Speed Connectivity"
-        self.location = "Singapore - Singapore"
-        self.currency = "AED"
-        self.baseRate = 315.0
-        self.taxes = 15.0
-        self.totalAmount = 333.0
-        self.strikeoutAmount = 370.0
-        self.savingPercentage = 10
-        self.totalAdults = 1
-        self.totalTravellers = 1
-        self.totalChildren = 0
-        self.trackId = "72ab950e-bd51-4768-a110-26f793ed9c64"
-        self.activityCode = "5549862P28"
-        self.duration = "7-30 days"
+        // Price info
+        if let price = product.price {
+            self.currency = price.currency ?? ""
+            self.baseRate = price.baseRate ?? 0
+            self.taxes = price.taxes ?? 0
+            self.totalAmount = price.totalAmount ?? 0
+            
+            if let strikeout = price.strikeout {
+                self.strikeoutAmount = strikeout.totalAmount ?? 0
+                self.savingPercentage = strikeout.savingPercentage ?? 0
+            } else {
+                self.strikeoutAmount = 0
+                self.savingPercentage = 0
+            }
+        } else {
+            print("⚠️ No pricing info found in response")
+        }
         
-        // Set travel date to a specific future date instead of current date
-        self.travelDate = "Sat, 22 Jun 2025"
-        
-        // Set booking basic details
-        self.bookingBasicDetails = [
-            BasicBookingDetailsModel(key: "Booking ID", value: "68b82d4256bcac8e9b36eb7c"),
-            BasicBookingDetailsModel(key: "Voucher ID", value: "ACT24596"),
-            BasicBookingDetailsModel(key: "Booking Date", value: "Tue, 12 Sep 2025")
-        ]
-        
-        // Set supplier contact details
-        self.supplierName = "Digital Connect Singapore"
-        self.supplierEmail = "support@digitalconnect.sg"
-        self.supplierPhone = "+65 6789 1234"
+        // Supplier info
+        let supplierValue = product.providerSupplierName ?? "Unknown Supplier"
+        self.supplierName = supplierValue
+        // keep at least one contact detail as in original code (didSet on supplierName also updates contactDetails)
         self.contactDetails = [
-            ContactDetailsModel(keyIcon: "UserGray", value: "Digital Connect Singapore"),
-            ContactDetailsModel(keyIcon: "Frame", value: "support@digitalconnect.sg"),
-            ContactDetailsModel(keyIcon: "Mobile", value: "+65 6789 1234")
+            ContactDetailsModel(keyIcon: "UserGray", value: supplierValue),
         ]
         
-        // Set lead traveller details
-        self.leadTraveller = ConfirmationReusableInfoModel(
-            title: "Lead Traveler",
-            points: ["Mr Shaheryar Shaikh"]
-        )
+        // INCLUSIONS
+        if let inclusionsArray = product.inclusions {
+            let points = inclusionsArray.map { $0.otherDescription ?? "-" }
+            self.inclusions = ConfirmationReusableInfoModel(
+                title: "What includes?",
+                points: points.isEmpty ? ["Not available"] : points
+            )
+        } else {
+            self.inclusions = ConfirmationReusableInfoModel(
+                title: "What includes?",
+                points: ["-"]
+            )
+        }
         
-        // Set person contact details
-        self.personContactDetails = [
-            ContactDetailsModel(keyIcon: "UserGray", value: "Mr Shaheryar Shaikh"),
-            ContactDetailsModel(keyIcon: "Mobile", value: "+91 8412921601")
-        ]
+        // EXCLUSIONS
+        if let exclusionsArray = product.exclusions {
+            let points = exclusionsArray.map { $0.otherDescription ?? "-" }
+            self.exclusions = ConfirmationReusableInfoModel(
+                title: "What's Not Included?",
+                points: points.isEmpty ? ["Not available"] : points
+            )
+        } else {
+            self.exclusions = ConfirmationReusableInfoModel(
+                title: "What's Not Included?",
+                points: ["-"]
+            )
+        }
         
-        // Set special request
-        self.specialRequest = ConfirmationReusableInfoModel(
-            title: "Special Request",
-            points: ["-"]
-        )
-        
-        // Set inclusions from API response
-        self.inclusions = ConfirmationReusableInfoModel(
-            title: "What includes?",
-            points: [
-                "eSIM activation QR code",
-                "Installation instructions",
-                "Customer support",
-                "Data allowance as per plan",
-                "Setup guide",
-                "Troubleshooting assistance",
-                "Multiple device support"
-            ]
-        )
-        
-        // Set exclusions from API response
-        self.exclusions = ConfirmationReusableInfoModel(
-            title: "What's Not Included?",
-            points: [
-                "Voice calls",
-                "SMS services",
-                "Device compatibility guarantee",
-                "Refund for unused data",
-                "Physical SIM card",
-                "Local phone number",
-                "International calls"
-            ]
-        )
-        
-        // Set additional information from API response
+        // ADDITIONAL INFORMATION (display type values)
         self.additionalInformation = ConfirmationReusableInfoModel(
             title: "Additional Information",
-            points: [
-                "Instant activation via QR code",
-                "No physical SIM required",
-                "High-speed 4G/5G data",
-                "Compatible with most devices",
-                "24/7 customer support",
-                "Multiple data plans available",
-                "Works across Singapore",
-                "Easy installation process",
-                "No roaming charges",
-                "Environmentally friendly",
-                "Immediate email delivery",
-                "Device must be unlocked",
-                "iOS 12.1+ or Android 9+ required",
-                "Data sharing/hotspot available"
-            ]
+            points: product.additionalInfo?.isEmpty == false
+            ? product.additionalInfo!.compactMap { $0.type ?? "-" }
+            : ["-"]
         )
         
-        // Set cancellation policy
+        // Cancellation Policy
+        let cancellationPolicyText = product.cancellationPolicy?.description ??
+        "Tickets are non-cancellable, non-refundable and non-transferable."
         self.cancellationPolicy = ConfirmationReusableInfoModel(
             title: "Cancellation refund policy",
-            points: ["Non-refundable. No cancellation allowed once QR code is delivered."]
+            points: [cancellationPolicyText]
         )
         
-        // Set meeting and pickup information
-        self.meetingPickup = ConfirmationReusableInfoModel(
-            title: "Meeting and Pickup",
-            points: [
-                "Location: Digital Service",
-                "Address: Instant activation via email",
-                "City: Singapore, Singapore",
-                "Type: Digital Delivery"
-            ]
-        )
-        
-        // Set other details
+        // Other details: language
+        let languageName = product.languageDetails?.name ?? "English"
         self.OtherDetails = ConfirmationReusableInfoModel(
             title: "Other Details",
             points: [
-                "Tour language: English",
-                "Duration: 7-30 days",
-                "Region: Asia/Singapore",
-                "Service Type: Digital eSIM"
+                "Tour language: \(languageName)"
             ]
         )
-        
-        // Create fare summary data matching screenshot format
-        var fareItems: [FareItem] = []
-        
-        // Format: "1 Adult x AED strikeoutAmount" with "AED strikeoutAmount" on right
-        fareItems.append(FareItem(
-            title: "1 Adult x AED \(String(format: "%.1f", self.strikeoutAmount))",
-            value: "AED \(String(format: "%.1f", self.strikeoutAmount))",
-            isDiscount: false
-        ))
-        
-        // Format: "Discount" with "- AED discount_amount" on right
-        let discount = self.strikeoutAmount - self.totalAmount
-        fareItems.append(FareItem(
-            title: "Discount",
-            value: "- AED \(String(format: "%.1f", discount))",
-            isDiscount: true
-        ))
-        
-        self.fairSummaryData = fareItems
-        self.amountPaid = Int(round(self.totalAmount))
-        
-        print("✅ Comprehensive fallback data setup complete with all dynamic fields populated")
-        print("📊 Fare items: \(fareItems.count), Inclusions: \(self.inclusions.points.count), Exclusions: \(self.exclusions.points.count)")
-        print("💰 Fallback - Amount Paid: \(self.amountPaid), Total Amount: \(self.totalAmount)")
     }
     
+    // MARK: - Traveller processing
+    private func processTravellerInfo(traveller: SuccessTravellerInfo) {
+        self.travelDate = self.formatTravelDate(from: traveller.travelDate ?? "")
+        self.totalTravellers = traveller.totalTraveller ?? 0
+        self.totalAdults = traveller.totalAdult ?? 0
+        self.totalChildren = traveller.totalChild ?? 0
+        
+        let leadName = [traveller.title, traveller.firstName, traveller.lastName]
+            .compactMap { $0 }
+            .joined(separator: " ")
+            .trimmingCharacters(in: .whitespaces)
+        
+        self.leadTraveller = ConfirmationReusableInfoModel(
+            title: "Lead Traveler",
+            points: [leadName.isEmpty ? "-" : leadName]
+        )
+        
+        let travellerNumber = traveller.mobile
+        self.personContactDetails = [
+            ContactDetailsModel(keyIcon: "UserGray", value: leadName),
+            ContactDetailsModel(keyIcon: "Mobile", value: travellerNumber ?? "Not available")
+        ]
+    }
+    
+    // MARK: - Booking details processing
+    private func processBookingDetails(bookingDetails: SuccessBookingDetails) {
+        let bookingDate = self.formatBookingDate(from: bookingDetails.createdAt ?? "")
+        let bookingref = bookingDetails.bookingRef ?? "-"
+        let bookingId = bookingDetails.orderNo ?? "-"
+        let voucherId = "ABCDLHRS31117"
+        
+        self.bookingBasicDetails = [
+            BasicBookingDetailsModel(key: "Booking ID", value: bookingId),
+            BasicBookingDetailsModel(key: "Voucher ID", value: bookingref),
+            BasicBookingDetailsModel(key: "Booking Date", value: bookingDate)
+        ]
+        
+        // Update booking status based on API response
+        if let status = bookingDetails.bookingStatus?.uppercased() {
+            switch status {
+            case "CONFIRMED":
+                self.bookingStatus = .confirmed
+            case "PENDING":
+                self.bookingStatus = .bookingPending
+            case "FAILED":
+                self.bookingStatus = .bookingFailed
+            case "CANCELLED":
+                self.bookingStatus = .cancelled
+            case "PAYMENT_FAILED":
+                self.bookingStatus = .paymentfailed
+            default:
+                print("⚠️ Unknown booking status: \(status)")
+                // Default to confirmed if status is unknown
+                self.bookingStatus = .confirmed
+            }
+            print("✅ Booking status set to: \(self.bookingStatus)")
+        }
+    }
+    
+    // MARK: - Fare summary update
+    private func updateFareSummary() {
+        fetchBookingAsJSON(orderNo: orderNumberForCancel, isFromBookingJourney: false) { [weak self] result in
+            guard let self = self else { return }
+            
+            switch result {
+            case .success(let json):
+                print("🔍 [CONFIRMATION] ========== Processing Fare Summary ==========")
+                
+                // Extract price data from JSON
+                guard let data = json["data"] as? [String: Any],
+                      let bookingDetails = data["booking_details"] as? [String: Any],
+                      let price = bookingDetails["price"] as? [String: Any] else {
+                    print("❌ [CONFIRMATION] Could not extract price data from JSON")
+                    return
+                }
+                
+                print("✅ [CONFIRMATION] Price data found")
+                
+                // Clear existing fare summary
+                DispatchQueue.main.async {
+                    self.fairSummaryData.removeAll()
+                    
+                    // Extract price components using BookingPriceData model
+                    let priceData = BookingPriceData(from: price)
+                    
+                    // Update all price properties for transaction flow
+                    self.totalAmount = priceData.totalAmount
+                    self.currency = priceData.currency
+                    self.taxes = priceData.taxes
+                    self.baseRate = priceData.baseRate
+                    self.amountPaid = Int(round(priceData.totalAmount))
+                    
+                    // Update strikeout if available
+                    if let strikeout = priceData.strikeout,
+                       let strikeoutTotal = strikeout["total_amount"] as? Double {
+                        self.strikeoutAmount = strikeoutTotal
+                        self.savingPercentage = strikeout["saving_percentage"] as? Double ?? 0.0
+                    }
+                    
+                    print("💰 [CONFIRMATION] BookingPriceData applied from transaction flow:")
+                    print("   - Total Amount: \(priceData.totalAmount)")
+                    print("   - Currency: \(priceData.currency)")
+                    print("   - Amount Paid: \(self.amountPaid)")
+                    
+                    // Process pricePerAge array
+                    if !priceData.pricePerAge.isEmpty {
+                        print("🔍 [CONFIRMATION] Found pricePerAge array with \(priceData.pricePerAge.count) items")
+                        
+                        for item in priceData.pricePerAge {
+                            if let bandId = item["band_id"] as? String,
+                               let count = item["count"] as? Int,
+                               let bandTotal = item["band_total"] as? Double,
+                               let perPriceTraveller = item["per_price_traveller"] as? Double {
+                                
+                                let descriptionText = count > 1
+                                    ? "\(bandId.capitalized)s"
+                                    : bandId.capitalized
+                                
+                                let leftText = "\(count) \(descriptionText) x \(priceData.currency) \(String(format: "%.1f", perPriceTraveller))"
+                                let rightText = "\(priceData.currency) \(String(format: "%.2f", bandTotal))"
+                                
+                                self.fairSummaryData.append(
+                                    FareItem(title: leftText, value: rightText, isDiscount: false)
+                                )
+                                
+                                print("✅ [CONFIRMATION] Added Fare Item → \(leftText) = \(rightText)")
+                            } else {
+                                print("⚠️ [CONFIRMATION] Skipped one price item because of missing data: \(item)")
+                            }
+                        }
+                    } else {
+                        print("⚠️ [CONFIRMATION] No pricePerAge data found, using fallback")
+                        // Fallback to base rate if pricePerAge is not available
+                        if priceData.baseRate > 0 {
+                            let leftText = "Base Rate"
+                            let rightText = "\(priceData.currency) \(String(format: "%.2f", priceData.baseRate))"
+                            self.fairSummaryData.append(
+                                FareItem(title: leftText, value: rightText, isDiscount: false)
+                            )
+                            print("✅ [CONFIRMATION] Added base rate fare item: \(leftText) = \(rightText)")
+                        }
+                    }
+                    
+                    // Add taxes if available and greater than 0
+                    if priceData.taxes > 0 {
+                        self.fairSummaryData.append(FareItem(
+                            title: "Taxes and fees",
+                            value: "\(priceData.currency) \(String(format: "%.2f", priceData.taxes))",
+                            isDiscount: false
+                        ))
+                        print("🔍 [CONFIRMATION] ✅ Added taxes fare item: \(priceData.currency) \(String(format: "%.2f", priceData.taxes))")
+                    }
+                    
+                    // Process discount if strikeout exists
+                    if let strikeout = priceData.strikeout,
+                       let originalAmount = strikeout["total_amount"] as? Double,
+                       originalAmount > priceData.totalAmount {
+                        
+                        let discountAmount = originalAmount - priceData.totalAmount
+                        self.fairSummaryData.append(FareItem(
+                            title: "Discount",
+                            value: "- \(priceData.currency) \(String(format: "%.2f", discountAmount))",
+                            isDiscount: true
+                        ))
+                        
+                        // Set the savings text
+                        self.savingsTextforFareBreakup = "You are saving \(priceData.currency) \(String(format: "%.2f", discountAmount))"
+                        print("🔍 [CONFIRMATION] ✅ Added discount fare item: - \(priceData.currency) \(String(format: "%.2f", discountAmount))")
+                        print("🔍 [CONFIRMATION] ✅ Savings text: \(self.savingsTextforFareBreakup)")
+                    } else {
+                        // No discount
+                        self.fairSummaryData.append(FareItem(
+                            title: "Discount",
+                            value: "- \(priceData.currency) 0.00",
+                            isDiscount: true
+                        ))
+                        
+                        // Set empty savings text
+                        self.savingsTextforFareBreakup = "You are saving \(priceData.currency) 0.00"
+                        print("🔍 [CONFIRMATION] ⚪ No strikeout price, added default discount item")
+                    }
+                    
+                    print("🔍 [CONFIRMATION] Final fairSummaryData count: \(self.fairSummaryData.count)")
+                    for (index, item) in self.fairSummaryData.enumerated() {
+                        print("🔍 [CONFIRMATION] Fare item [\(index)]: \(item.title) = \(item.value)")
+                    }
+                    print("🔍 [CONFIRMATION] ========================================")
+                }
+                
+            case .failure(let error):
+                print("❌ [CONFIRMATION] Error fetching fare summary JSON:", error.localizedDescription)
+            }
+        }
+    }
+    
+    // MARK: - Date formatting helpers
     func formatBookingDate(from timestamp: String) -> String {
         let isoFormatter = ISO8601DateFormatter()
         isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        guard let date = isoFormatter.date(from: timestamp) else {
-            // Try without fractional seconds if needed
-            isoFormatter.formatOptions = [.withInternetDateTime]
-            guard let fallbackDate = isoFormatter.date(from: timestamp) else {
-                return "-"
-            }
+        if let date = isoFormatter.date(from: timestamp) {
+            return formatDate(date: date)
+        }
+        // try fallback
+        isoFormatter.formatOptions = [.withInternetDateTime]
+        if let fallbackDate = isoFormatter.date(from: timestamp) {
             return formatDate(date: fallbackDate)
         }
-        return formatDate(date: date)
+        return "-"
     }
     
     private func formatDate(date: Date) -> String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.dateFormat = "EEE, dd MMM yyyy" // Sat, 22 Jun 2025
+        formatter.dateFormat = "EEE, dd MMM yyyy"
         return formatter.string(from: date)
     }
     
     func formatTravelDate(from dateString: String) -> String {
-        print("🗓️ Formatting travel date from: '\(dateString)'")
-        
-        // Try multiple date formats that might come from API
         let possibleFormats = [
-            "yyyy-MM-dd",           // 2025-09-15
-            "dd/MM/yyyy",           // 15/09/2025
-            "MM/dd/yyyy",           // 09/15/2025
-            "yyyy-MM-dd HH:mm:ss",  // 2025-09-15 00:00:00
-            "dd-MM-yyyy",           // 15-09-2025
-            "yyyy/MM/dd"            // 2025/09/15
+            "yyyy-MM-dd",
+            "dd/MM/yyyy",
+            "MM/dd/yyyy",
+            "yyyy-MM-dd HH:mm:ss",
+            "dd-MM-yyyy",
+            "yyyy/MM/dd"
         ]
         
         for format in possibleFormats {
@@ -611,41 +589,33 @@ class ExperienceBookingConfirmationViewModel: ObservableObject {
             if let date = formatter.date(from: dateString) {
                 let displayFormatter = DateFormatter()
                 displayFormatter.locale = Locale(identifier: "en_US_POSIX")
-                displayFormatter.dateFormat = "EEE, dd MMM yyyy" // Mon, 15 Sep 2025
-                let formattedDate = displayFormatter.string(from: date)
-                print("✅ Successfully formatted travel date: '\(formattedDate)'")
-                return formattedDate
+                displayFormatter.dateFormat = "EEE, dd MMM yyyy"
+                return displayFormatter.string(from: date)
             }
         }
-        
-        // If no format works, return the original string or a fallback
-        print("⚠️ Could not parse travel date, returning original string")
         return dateString.isEmpty ? "-" : dateString
     }
     
     // MARK: - Fetch Cancellation Reasons
     func fetchCancellationReasons(orderNo: String, completion: (() -> Void)? = nil) {
-        guard let url = URL(string: "https://travelapi-sandbox.bookingbash.com/services/api/activities/2.0/cancel-reason") else {
+        guard let url = URL(string: Constants.APIURLs.cancelReasonURL) else {
             self.errorMessage = "Invalid URL for cancellation reasons"
             completion?()
             return
         }
         let requestBody = ["order_no": orderNo]
         let headers = [
-            "Content-Type": "application/json",
-            "Authorization": TokenProvider.getAuthHeader() ?? "",
-            "token": encryptedPayload
+            Constants.APIHeaders.contentTypeKey: Constants.APIHeaders.contentTypeValue,
+            Constants.APIHeaders.authorizationKey: TokenProvider.getAuthHeader() ?? "",
+            Constants.APIHeaders.tokenKey: encryptedPayload
         ]
-        print("requestBody for cancel reasons \(requestBody)")
-        print("headers for cancel reasons \(headers)")
+        
         NetworkManager.shared.post(url: url, body: requestBody, headers: headers) { (result: Result<CancellationReasonsAPIResponse, Error>) in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let response):
                     if response.status {
                         self.reasons = response.data
-                        print("response from cancel booking---")
-                        print(self.reasons)
                     } else {
                         self.errorMessage = "Failed to fetch cancellation reasons."
                     }
@@ -657,7 +627,11 @@ class ExperienceBookingConfirmationViewModel: ObservableObject {
         }
     }
     
-    // MARK: - Cancel Booking API Response Model
+    func retryFetchingReasons(orderNo: String) {
+        fetchCancellationReasons(orderNo: orderNo, completion: nil)
+    }
+    
+    // MARK: - Cancel booking API
     struct CancelBookingAPIResponse: Codable {
         let status: Bool
         let status_code: Int
@@ -672,32 +646,30 @@ class ExperienceBookingConfirmationViewModel: ObservableObject {
         let updated_at: String?
     }
     
-    // MARK: - Cancel Booking
-    func cancelBooking(orderNoo: String, siteId : String, reasonCode: String, completion: @escaping (Bool) -> Void) {
-        guard let url = URL(string: "https://travelapi-sandbox.bookingbash.com/services/api/activities/2.0/cancel") else {
+    func cancelBooking(orderNoo: String, siteId: String, reasonCode: String, completion: @escaping (Bool) -> Void) {
+        guard let url = URL(string: Constants.APIURLs.cancelBookingURL) else {
             self.errorMessage = "Invalid URL for cancel booking"
             completion(false)
             return
         }
+        
         let requestBody = [
             "order_no": orderNumberForCancel,
-            "reason_code": reasonCode,
-           
+            "reason_code": reasonCode
         ]
+        
         let headers = [
-            "Content-Type": "application/json",
-            "Authorization": TokenProvider.getAuthHeader() ?? "",
-            "token": encryptedPayload,
-            "site_id": siteId
+            Constants.APIHeaders.contentTypeKey: Constants.APIHeaders.contentTypeValue,
+            Constants.APIHeaders.authorizationKey: TokenProvider.getAuthHeader() ?? "",
+            Constants.APIHeaders.tokenKey: encryptedPayload,
+            Constants.APIHeaders.siteId: siteId
         ]
-        print("requestbody for cancel - \(requestBody)")
-        print("headers for cancel - \(headers)")
+        
         NetworkManager.shared.post(url: url, body: requestBody, headers: headers) { (result: Result<CancelBookingAPIResponse, Error>) in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let response):
                     if response.status, let data = response.data, data.booking_status == "CANCELLED" {
-                        print("Booking cancelled successfully:", data)
                         self.bookingStatus = .cancelled
                         self.bookingCancelledInfo = BookingConfirmationTopInfoModel(
                             image: "CheckFill",
@@ -715,5 +687,112 @@ class ExperienceBookingConfirmationViewModel: ObservableObject {
                 }
             }
         }
+    }
+    
+    // MARK: - Helper methods used by the View
+    func proceedToCancelBooking() {
+        cancellationSheetState = .bottomSheet
+    }
+    
+    func confirmCancellation() {
+        navigateToCancellationView = true
+    }
+    
+    func resetCancellationState() {
+        cancellationSheetState = .none
+        isFetchingReasons = false
+        fetchReasonsError = nil
+    }
+    
+    // MARK: - Generic JSON Fetcher
+    /// Fetches booking data as raw JSON without any model mapping
+    /// - Parameters:
+    ///   - orderNo: The order number or booking ID
+    ///   - isFromBookingJourney: If true, uses book status URL, otherwise uses booking details URL
+    ///   - completion: Returns the raw JSON dictionary or an error
+    func fetchBookingAsJSON(orderNo: String, isFromBookingJourney: Bool = true, completion: @escaping (Result<[String: Any], Error>) -> Void) {
+        // Choose URL based on isFromBookingJourney parameter
+        let urlString = isFromBookingJourney ? Constants.APIURLs.bookStatusURL : Constants.APIURLs.bookingDetailsURL
+        guard let url = URL(string: urlString) else {
+            completion(.failure(NSError(domain: "Invalid URL", code: -1, userInfo: nil)))
+            return
+        }
+        
+        // Prepare request body
+        let requestBody: [String: String]
+        if isFromBookingJourney {
+            requestBody = ["order_no": orderNo]
+        } else {
+            requestBody = ["booking_id": orderNo]
+        }
+        
+        let headers = [
+            Constants.APIHeaders.contentTypeKey: Constants.APIHeaders.contentTypeValue,
+            Constants.APIHeaders.authorizationKey: TokenProvider.getAuthHeader() ?? "",
+            Constants.APIHeaders.siteId: ssoSiteIdGlobal,
+            Constants.APIHeaders.tokenKey: ssoTokenGlobal
+        ]
+        
+        // Create URLRequest
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.allHTTPHeaderFields = headers
+        
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: requestBody)
+        } catch {
+            completion(.failure(error))
+            return
+        }
+        
+        // Make the request
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                DispatchQueue.main.async {
+                    completion(.failure(error))
+                }
+                return
+            }
+            
+            guard let data = data else {
+                DispatchQueue.main.async {
+                    completion(.failure(NSError(domain: "No data received", code: -1, userInfo: nil)))
+                }
+                return
+            }
+            
+            do {
+                // Parse as raw JSON dictionary
+                if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                    // Print booking_details.price
+                    if let data = json["data"] as? [String: Any],
+                       let bookingDetails = data["booking_details"] as? [String: Any],
+                       let price = bookingDetails["price"] as? [String: Any] {
+                        print("📊 booking_details.price:")
+                        print(price)
+                        
+                        // Pretty print the price object
+                        if let priceData = try? JSONSerialization.data(withJSONObject: price, options: .prettyPrinted),
+                           let priceString = String(data: priceData, encoding: .utf8) {
+                            print("💰 Formatted price:\n\(priceString)")
+                        }
+                    } else {
+                        print("⚠️ Could not find booking_details.price in JSON response")
+                    }
+                    
+                    DispatchQueue.main.async {
+                        completion(.success(json))
+                    }
+                } else {
+                    DispatchQueue.main.async {
+                        completion(.failure(NSError(domain: "Invalid JSON format", code: -1, userInfo: nil)))
+                    }
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completion(.failure(error))
+                }
+            }
+        }.resume()
     }
 }

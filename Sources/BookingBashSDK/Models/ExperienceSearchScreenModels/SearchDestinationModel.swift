@@ -1,14 +1,11 @@
-//
-//  SearchDestinationModel.swift
-//  VisaActivity
-//
-//  Created by Apple on 29/07/25.
-//
 
 import Foundation
 
-struct SearchDestinationModel: Identifiable, Equatable {
-    let id = UUID()
+struct SearchDestinationModel: Identifiable, Codable, Equatable {
+    let id: String = UUID().uuidString
     let name: String
+    let destinationId: String?
+    let destinationType: Int?
     let isRecent: Bool
+    
 }

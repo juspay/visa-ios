@@ -13,7 +13,7 @@ struct AddItineraryButtonView: View {
             
         }) {
             HStack(spacing: 8) {
-                if let icon = bundleImage(named: Constants.BookingStatusScreenConstants.calendar) {
+                if let icon = ImageLoader.bundleImage(named: Constants.BookingStatusScreenConstants.calendar) {
                     icon
                         .resizable()
                         .frame(width: 20, height: 20)

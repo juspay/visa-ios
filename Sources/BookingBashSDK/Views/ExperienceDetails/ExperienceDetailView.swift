@@ -1,112 +1,27 @@
-//
-//  ExperienceDetailView.swift
-//  VisaActivity
-//
-//  Created by Apple on 01/08/25.
-//
-
 import SwiftUI
 import SUINavigation
 
 struct ExperienceDetailView: View {
     @StateObject private var experienceDetailViewModel = ExperienceDetailViewModel()
     @State private var shouldPresentCalenderView: Bool = false
-    @State var searchText: String = ""
-    @State var showAll: Bool = false
-    var productCode: String?
-    var currency: String?
+    @State private var showAll: Bool = false
     
-    init(
-        productCode: String? = nil,
-        currency: String? = nil
-    ) {
-        self.productCode = productCode
+    let productCode: String
+    let currency: String?
+    
+    init(productCode: String? = nil, currency: String? = nil) {
+        self.productCode = productCode ?? ""
         self.currency = currency
+        
     }
     
     var body: some View {
         ZStack {
-            // Main content structure with app bar always visible
             ZStack(alignment: .bottom) {
                 ThemeTemplateView(
-                    header: {
-                        VStack(spacing: 12) {
-                            ExperienceDetailsTopHeaderView()
-                            
-                            // Show loading or content based on loading state
-                            if experienceDetailViewModel.isLoading {
-                                // Loading state for header content
-                                VStack(spacing: 16) {
-                                    Rectangle()
-                                        .fill(Color.gray.opacity(0.3))
-                                        .frame(height: 200)
-                                        .cornerRadius(12)
-                                        .redacted(reason: .placeholder)
-                                    
-                                    VStack(spacing: 8) {
-                                        Rectangle()
-                                            .fill(Color.gray.opacity(0.3))
-                                            .frame(height: 24)
-                                            .cornerRadius(4)
-                                            .redacted(reason: .placeholder)
-                                        
-                                        Rectangle()
-                                            .fill(Color.gray.opacity(0.3))
-                                            .frame(height: 16)
-                                            .cornerRadius(4)
-                                            .redacted(reason: .placeholder)
-                                    }
-                                }
-                                .padding(.trailing, -15)
-                            } else {
-                                // Actual content when loaded
-                                ExperienceTopImageCarousalListView(experienceDetailCarousalModel: experienceDetailViewModel.carousalData)
-                                    .padding(.trailing, -15)
-                                if let model = experienceDetailViewModel.experienceDetail {
-                                    ExperienceDetailInfoTopView(
-                                        model: model
-                                    )
-                                }
-                            }
-                        }
-                        .padding(.bottom, 14)
-                        
-                    },
-                    content: {
-                        if experienceDetailViewModel.isLoading {
-                            // Loading content
-                            VStack(spacing: 16) {
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: .blue))
-                                    .scaleEffect(1.5)
-                                
-                                Text("Loading...")
-                                    .foregroundColor(.primary)
-                                    .font(.headline)
-                            }
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .padding()
-                        } else {
-                            // Actual content when loaded
-                            VStack(spacing: 16) {
-                                FeatureGridView(features: experienceDetailViewModel.allFeatures,
-                                                showAll: $showAll)
-                                if let aboutExperience = experienceDetailViewModel.aboutExperience {
-                                    AboutExperienceCardView(
-                                        aboutExperienceModel: aboutExperience,
-                                        isExpanded: $experienceDetailViewModel.isViewMoreExpanded
-                                    )
-                                }
-                                FreeCancellationView(cancellationPolicy: experienceDetailViewModel.cancellationPolicy)
-                                PopularDaysCardView(days: experienceDetailViewModel.popularDays)
-                                InfoListView(viewModel: experienceDetailViewModel)
-                                SimilarExperiencesView(experienceDetailCarousalModel: experienceDetailViewModel.carousalData)
-                                    .padding(.trailing, -16)
-                            }
-                            .padding()
-                        }
-                        
-                    })
+                    header: { headerContent },
+                    content: { mainContent }
+                )
                 .navigationBarBackButtonHidden(true)
                 .padding(.bottom, -8)
                 .safeAreaInset(edge: .bottom) {
@@ -118,32 +33,124 @@ struct ExperienceDetailView: View {
                 }
             }
         }
-
-        .overlay(content: {
-            let screenHeight = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?
-                .screen.bounds.height ?? 0
-            BottomSheetView(isPresented: $shouldPresentCalenderView, sheetHeight: screenHeight * 0.85) {
-                if let model = experienceDetailViewModel.experienceDetail {
-                    CustomCalendarView(model: model, productCode: productCode, currency: currency)
-                } else {
-                    // Optionally, show a placeholder or loading view
-                    Text("Loading...")
-                }
-            }
-            
-        })
-        
+        .overlay { calendarBottomSheet }
         .onAppear {
-            productIdG = productCode ?? ""
-            experienceDetailViewModel
-                .fetchReviewData(
-                    productCode: productCode ?? "",
-                    currency: currency ?? ""
-                )
+            experienceDetailViewModel.fetchReviewData(
+                activityCode: productCode,
+                currency: currency ?? ""
+            )
         }
     }
 }
 
-#Preview {
-    ExperienceDetailView()
+private extension ExperienceDetailView {
+    var headerContent: some View {
+        VStack(spacing: 12) {
+            ExperienceDetailsTopHeaderView()
+
+            if experienceDetailViewModel.isLoading {
+                headerLoadingPlaceholder
+            } else {
+                ExperienceTopImageCarousalListView(
+                    experienceDetailCarousalModel: experienceDetailViewModel.carousalData
+                )
+                .padding(.trailing, -15)
+
+                if let model = experienceDetailViewModel.experienceDetail {
+//                    if model.rating != 0.0 {
+                        ExperienceDetailInfoTopView(model: model)
+//                    }
+                }
+            }
+        }
+        .padding(.bottom, 14)
+    }
+    
+    var mainContent: some View {
+        VStack(spacing: 16) {
+            if experienceDetailViewModel.isLoading {
+                LoaderView(text: Constants.ExperienceListDetailViewConstants.loading)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                // Only show FeatureGridView if there are features
+                if !experienceDetailViewModel.allFeatures.isEmpty {
+                    FeatureGridView(
+                        features: experienceDetailViewModel.allFeatures,
+                        showAll: $showAll
+                    )
+                    .onAppear {
+                        print("DEBUG VIEW: FeatureGridView is VISIBLE with \(experienceDetailViewModel.allFeatures.count) features")
+                    }
+                } else {
+                    Color.clear
+                        .frame(height: 0)
+                        .onAppear {
+                            print("DEBUG VIEW: FeatureGridView is HIDDEN - allFeatures is empty")
+                        }
+                }
+                
+                if let aboutExperience = experienceDetailViewModel.aboutExperience {
+                    AboutExperienceCardView(
+                        aboutExperienceModel: aboutExperience,
+                        isExpanded: $experienceDetailViewModel.isViewMoreExpanded
+                    )
+                }
+                
+                FreeCancellationView(cancellationPolicy: experienceDetailViewModel.cancellationPolicy)
+                // PopularDaysCardView(days: experienceDetailViewModel.popularDays)
+                InfoListView(viewModel: experienceDetailViewModel)
+                
+//                SimilarExperiencesView(
+//                    experienceDetailCarousalModel: experienceDetailViewModel.carousalData
+//                )
+//                .padding(.trailing, -16)
+            }
+        }
+        .padding()
+    }
+    
+    var headerLoadingPlaceholder: some View {
+        VStack(spacing: 16) {
+            Rectangle()
+                .fill(Color.gray.opacity(0.3))
+                .frame(height: 200)
+                .cornerRadius(12)
+                .redacted(reason: .placeholder)
+            
+            VStack(spacing: 8) {
+                Rectangle()
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(height: 24)
+                    .cornerRadius(4)
+                    .redacted(reason: .placeholder)
+                
+                Rectangle()
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(height: 16)
+                    .cornerRadius(4)
+                    .redacted(reason: .placeholder)
+            }
+        }
+        .padding(.trailing, -15)
+    }
+    
+    var calendarBottomSheet: some View {
+        let screenHeight = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?
+            .screen.bounds.height ?? 0
+        
+        return BottomSheetView(
+            isPresented: $shouldPresentCalenderView,
+            sheetHeight: screenHeight * 0.85
+        ) {
+            if let model = experienceDetailViewModel.experienceDetail {
+                CustomCalendarView(
+                    model: model, experienceDetailViewModel: experienceDetailViewModel,
+                    productCode: productCode,
+                    currency: currency
+                )
+            } else {
+                LoaderView(text: Constants.ExperienceListDetailViewConstants.loading)
+            }
+        }
+    }
 }

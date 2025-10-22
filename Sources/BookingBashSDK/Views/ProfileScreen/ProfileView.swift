@@ -1,10 +1,4 @@
 //
-//  ProfileView.swift
-//  VisaActivity
-//
-//  Created by Prav on 04/09/25.
-//
-
 import SwiftUI
 import SUINavigation
 
@@ -18,15 +12,17 @@ struct ProfileView: View {
             VStack(alignment: .leading, spacing: 16) {
                 
                 HStack(spacing: 8) {
-                    Image(systemName: "person.circle")
-                        .resizable()
-                        .frame(width: 24, height: 24)
-                        .foregroundStyle(Color.white)
-                    
+                    if let icon = ImageLoader.bundleImage(named: Constants.Icons.user) {
+                        icon
+                            .resizable()
+                            .frame(width: 24, height: 24)
+                            .foregroundStyle(Color.white)
+                    }
                     Text("My Profile")
-                        .font(.custom(Constants.Font.openSansBold, size: 18))
+                        .font(.custom("Lexend-Bold", size: 16))
                         .foregroundStyle(Color.white)
                 }
+                .padding(.horizontal, 12)
             }
         }, content: {
             VStack(spacing: 20) {

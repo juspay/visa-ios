@@ -18,9 +18,10 @@ struct ExperienceDetailInfoTopLocationView: View {
                 .foregroundStyle(.white)
             
             HStack(spacing: 8) {
-                if let mapImage = bundleImage(named: Constants.Icons.map) {
+                if let mapImage = ImageLoader.bundleImage(named: Constants.Icons.map) {
                     mapImage
                         .resizable()
+                        .renderingMode(.template)
                         .frame(width: 16, height: 16)
                         .foregroundStyle(.white)
                 }

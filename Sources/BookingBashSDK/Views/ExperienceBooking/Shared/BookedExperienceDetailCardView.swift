@@ -1,10 +1,3 @@
-//
-//  BookedExperienceDetailCardView.swift
-//  VisaActivity
-//
-//  Created by Apple on 06/08/25.
-//
-
 import SwiftUI
 
 struct BookedExperienceDetailCardView: View {
@@ -47,30 +40,13 @@ struct BookedExperienceDetailCardView: View {
                 selectedParticipants: bookingParticipants
             )
             if(isBookingConfirmationScreen) {
-                AddItineraryButtonView()
-                HStack(spacing: 2) {
-                    Text(Constants.BookingStatusScreenConstants.forSupplierVoucher)
-                        .font(.custom(Constants.Font.openSansSemiBold, size: 12))
-                        .foregroundStyle(Color(hex: Constants.HexColors.neutral))
-                    Button(action: {
-                        
-                    }, label: {
-                        Text(Constants.BookingStatusScreenConstants.clickHere)
-                            .font(.custom(Constants.Font.openSansSemiBold, size: 12))
-                            .foregroundStyle(Color(hex: Constants.HexColors.primary))
-                    })
-                }
+                Text("Your supplier voucher is on it's way - check your inbox soon")
+                    .font(.custom(Constants.Font.openSansSemiBold, size: 12))
+                    .foregroundStyle(Color(hex: Constants.HexColors.neutral))
             }
             if(!shouldExpandDetails) {
-                HStack(spacing: 16) {
-                    ActionButton(title: Constants.BookingStatusScreenConstants.viewDetails) {
-                        viewDetailsButtonTapped?()
-                    }
-                    if(isBookingConfirmationScreen) {
-                        ActionButton(title: Constants.BookingStatusScreenConstants.cancelBooking) {
-                            cancelBookingButtonTapped?()
-                        }
-                    }
+                ActionButton(title: Constants.BookingStatusScreenConstants.viewDetails) {
+                    viewDetailsButtonTapped?()
                 }
                 .padding(.top, 12)
             }

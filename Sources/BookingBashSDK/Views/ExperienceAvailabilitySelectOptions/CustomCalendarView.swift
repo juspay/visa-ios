@@ -1,10 +1,3 @@
-//
-//  CustomCalendarView.swift
-//  VisaActivity
-//
-//  Created by Apple on 04/08/25.
-//
-
 import Foundation
 import SUINavigation
 import SwiftUI
@@ -12,7 +5,11 @@ import SwiftUI
 struct CustomCalendarView: View {
     @StateObject private var viewModel = ExperienceAvailabilitySelectOptionsViewModel()
     @State private var shouldNavigateToAvailabilityScreen: Bool = false
+    @State private var showParticipantsSheet: Bool = false
+    
     var model: ExperienceDetailModel
+    @ObservedObject var experienceDetailViewModel: ExperienceDetailViewModel
+
     let columns = Array(repeating: GridItem(.flexible()), count: 7)
     var productCode: String?
     var currency: String?
@@ -26,23 +23,23 @@ struct CustomCalendarView: View {
             HStack(spacing: 12) {
                 Button(action: {
                     viewModel.selectToday()
-                    shouldNavigateToAvailabilityScreen = true
-                }, label: {
+                    showParticipantsSheet = true
+                }) {
                     Text(Constants.AvailabilityScreenConstants.today)
                         .font(.custom(Constants.Font.openSansSemiBold, size: 14))
                         .foregroundStyle(Color(hex: Constants.HexColors.secondary))
-                })
+                }
                 .frame(height: 34)
                 .buttonStyle(CalendarButtonStyle())
                 
                 Button(action: {
                     viewModel.selectTomorrow()
-                    shouldNavigateToAvailabilityScreen = true
-                }, label: {
+                    showParticipantsSheet = true
+                }) {
                     Text(Constants.AvailabilityScreenConstants.tomorrow)
                         .font(.custom(Constants.Font.openSansSemiBold, size: 14))
                         .foregroundStyle(Color(hex: Constants.HexColors.secondary))
-                })
+                }
                 .frame(height: 34)
                 .buttonStyle(CalendarButtonStyle())
             }
@@ -60,7 +57,7 @@ struct CustomCalendarView: View {
             .background(Color.gray.opacity(0.08))
             .cornerRadius(10)
             
-            ScrollView(.vertical, showsIndicators: false){
+            ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 16) {
                     ForEach(viewModel.months) { month in
                         VStack(alignment: .leading, spacing: 12) {
@@ -75,7 +72,7 @@ struct CustomCalendarView: View {
                                         isSelected: viewModel.isSameDay(day.date, viewModel.selectedDateFromCalender)
                                     ) {
                                         viewModel.dateSelectedFromCalender(date: day.date)
-                                        shouldNavigateToAvailabilityScreen = true
+                                        showParticipantsSheet = true
                                     }
                                 }
                             }
@@ -85,15 +82,30 @@ struct CustomCalendarView: View {
             }
         }
         .padding(.horizontal, 16)
+        // Navigate to AvailabilitySelectionMainView after participants are selected
         .navigation(isActive: $shouldNavigateToAvailabilityScreen, id: Constants.NavigationId.availabilitySelectionMainView) {
             AvailabilitySelectionMainView(
-                experienceAvailabilitySViewModel: viewModel, model: model,
-                productCode: productCode, currency: currency
+                experienceAvailabilitySViewModel: viewModel,
+                model: model,
+                experienceDetailViewModel: experienceDetailViewModel,
+                productCode: productCode,
+                currency: currency
             )
         }
+        // Show participant selection as bottom sheet
+        .overlay(
+            BottomSheetView(isPresented: $showParticipantsSheet) {
+                ParticipantSelectionView(
+                    viewModel: viewModel,
+                    onSelect: {
+                        showParticipantsSheet = false
+                        shouldNavigateToAvailabilityScreen = true
+                    }
+                )
+            }
+        )
     }
 }
-
 
 struct CalendarButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {

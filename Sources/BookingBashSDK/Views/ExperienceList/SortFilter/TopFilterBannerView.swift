@@ -10,7 +10,7 @@ import SwiftUI
 struct TopFilterBannerView: View {
     var body: some View {
         HStack(spacing: 16) {
-            if let filtersImage = bundleImage(named: Constants.Icons.filters) {
+            if let filtersImage = ImageLoader.bundleImage(named: Constants.Icons.filters) {
                 filtersImage
                     .resizable()
                     .frame(width: 16, height: 16)

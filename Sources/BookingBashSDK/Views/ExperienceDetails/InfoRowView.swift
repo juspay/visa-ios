@@ -19,7 +19,7 @@ struct InfoRowView: View {
 
             Spacer()
 
-            if let arrowImage = bundleImage(named: Constants.Icons.arrowRight) {
+            if let arrowImage = ImageLoader.bundleImage(named: Constants.Icons.arrowRight) {
                 arrowImage
                     .resizable()
                     .frame(width: 20, height: 20)

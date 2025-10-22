@@ -1,208 +1,223 @@
-//
-//  ExperienceCheckoutView.swift
-//  VisaActivity
-//
-//  Created by Apple on 08/08/25.
-//
-
 import SwiftUI
 import SUINavigation
 
 struct ExperienceCheckoutView: View {
-    @StateObject private var experienceCheckoutViewModel = ExperienceCheckoutViewModel()
-    @ObservedObject var viewModel: ExperienceAvailabilitySelectOptionsViewModel
+    @ObservedObject private var checkoutViewModel: ExperienceCheckoutViewModel
+    @ObservedObject private var experienceDetailViewModel: ExperienceDetailViewModel
+    @ObservedObject private var availabilityViewModel: ExperienceAvailabilitySelectOptionsViewModel
+    
     let package: Package
-    var model: ExperienceDetailModel
+    let model: ExperienceDetailModel
+    let productCode: String
+    let currency: String?
+    let subActivityCode : String
+    let uid : String
+    let availabilityKey : String
+    
     @State private var guestDetails = GuestDetails()
-    @State var showAll: Bool = false
-    @State var isConsentBoxChecked : Bool = false
-    @State private var shouldShowFairSummaryCard: Bool = false
-    @State private var shouldNavigateToConfirmation: Bool = false
-    @State private var errorMessage: String? = nil
-    @State private var showToast: Bool = false
-    @State private var toastMessage: String = ""
+    @State private var showAll = false
+    @State private var showFairSummary = false
+    @State private var isConsentBoxChecked = false
+    @State private var navigateToConfirmation = false
+    
+    init(
+        checkoutViewModel: ExperienceCheckoutViewModel,
+        experienceDetailViewModel: ExperienceDetailViewModel,
+        availabilityViewModel: ExperienceAvailabilitySelectOptionsViewModel,
+        package: Package,
+        model: ExperienceDetailModel,
+        productCode: String,
+        currency: String,
+        subActivityCode: String,
+        uid: String,
+        availabilityKey: String
+    ) {
+        self._checkoutViewModel = ObservedObject(wrappedValue: checkoutViewModel)
+        self._experienceDetailViewModel = ObservedObject(wrappedValue: experienceDetailViewModel)
+        self._availabilityViewModel = ObservedObject(wrappedValue: availabilityViewModel)
+        self.package = package
+        self.model = model
+        self.productCode = productCode
+        self.currency = currency
+        self.subActivityCode = subActivityCode
+        self.uid = uid
+        self.availabilityKey = availabilityKey
+    }
     
     var body: some View {
         ZStack {
-            ThemeTemplateView(header: {
-                VStack(alignment: .leading, spacing: 0) {
-                    MainTopHeaderView(headerText: Constants.CheckoutPageConstants.checkoutHeaderText)
-                        .padding(.bottom, 6)
-                       
-                    VStack(alignment: .leading, spacing: 16) {
-                        ExperienceTopImageCarousalListView(experienceDetailCarousalModel: experienceCheckoutViewModel.carousalData)
-                            .padding(.trailing, -15)
-                        BookedExperienceDetailInfoTopLocationView(
-                            title: model.title,
-                            location: experienceCheckoutViewModel.location ?? ""
-                        )
-                        BookedExperienceDateTimeView(
-                            color: .white,
-                            shouldShowRefundable: false,
-                            selectedDate: formattedSelectedDate(viewModel.selectedDateFromCalender),
-//                            selectedTime: package.selectedTime ?? "--:--",
-                            selectedParticipants: viewModel.participantsSummary // Show full summary like "2 Adults, 3 Children"
-                        )
-                    }
-                }
-            }, content: {
-                VStack(spacing: 16) {
-                    FeatureGridView(
-                        features: experienceCheckoutViewModel.allFeatures,
-                        showAll: $showAll
-                    )
-                    // guest detail -
-                    GuestDetailsFormView(details:  $guestDetails)
-                    //   FareSummaryCardView
-                    FareSummaryCardView(
-                        fairSummaryData: experienceCheckoutViewModel.fairSummaryData, totalPrice: totalPriceG,
-                        totalLableText: Constants.CheckoutPageConstants.total
-                    )
-                    
-                    CheckboxTermsView(
-                        isAgreed: $isConsentBoxChecked,
-                        termsAndConditionTapped: {
-                            print(Constants.CheckoutPageConstants.termsAndConditionsTapped)
-                        },
-                        privacyPolicytapped: {
-                            print(Constants.CheckoutPageConstants.privacyPolicyTapped)
-                        }
-                    )
-                    
-                    //  Error message
-                    if let errorMessage = errorMessage {
-                        Text(errorMessage)
-                            .foregroundColor(.red)
-                            .font(.caption)
-                            .padding(.top, 4)
-                    }
-                    
-                }
-                .padding()
-            })
+            ThemeTemplateView(
+                header: { headerSection },
+                content: { contentSection }
+            )
             .navigationBarBackButtonHidden(true)
-            .onAppear {
-                // Set the selected travel date from the availability view model
-                experienceCheckoutViewModel.selectedTravelDate = viewModel.selectedDateFromCalender
+            .safeAreaInset(edge: .bottom) { paymentBarSection }
+            .overlay { bottomSheetOverlay }
+            
+            toastOverlay
+            navigationLinks
+            
+            if checkoutViewModel.isLoading {
+                Color.black.opacity(0.4)
+                    .edgesIgnoringSafeArea(.all)
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    .scaleEffect(1.5)
             }
-            .safeAreaInset(edge: .bottom) {
-                ExperienceBottomPaymentBarView(
-                    buttonText: Constants.CheckoutPageConstants.saveContinue,
-                    payNowButtonTapped: {
-                        // Validate mobile number first
-                        if let mobileError = validateMobile(guestDetails.mobileNumber, forCode: guestDetails.mobileCountryCode) {
-                            toastMessage = mobileError
-                            showToast = true
-                            return
-                        }
-                        
-                        if !isConsentBoxChecked {
-                            toastMessage = "Please agree to the Terms & Conditions and Privacy Policy before continuing."
-                            showToast = true
-                            return
-                        }
-                        
-                        // if All good, proceed
-                        experienceCheckoutViewModel.initBook()
-                    },
+        }
+        .onAppear {
+                    onAppear()
                     
-                    infoButtontapped: {
-                        shouldShowFairSummaryCard = true
-                    },
-                    price: totalPriceG
+                    if experienceDetailViewModel.items.isEmpty {
+                        print(" Refetching data for checkout screen...")
+                        experienceDetailViewModel.fetchReviewData(
+                            activityCode: productCode,
+                            currency: currency ?? "AED"
+                        )
+                    }
+                }
+    }
+}
+
+private extension ExperienceCheckoutView {
+    var headerSection: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            MainTopHeaderView(headerText: Constants.CheckoutPageConstants.checkoutHeaderText)
+                .padding(.bottom, 6)
+            
+            VStack(alignment: .leading, spacing: 16) {
+                ExperienceTopImageCarousalListView(experienceDetailCarousalModel: checkoutViewModel.carousalData)
+                    .padding(.trailing, -15)
+                
+                BookedExperienceDetailInfoTopLocationView(
+                    title: model.title,
+                    location: checkoutViewModel.location ?? ""
+                )
+                
+                BookedExperienceDateTimeView(
+                    color: .white,
+                    shouldShowRefundable: false,
+                    selectedDate: checkoutViewModel.formattedSelectedDate(availabilityViewModel.selectedDateFromCalender),
+                    selectedParticipants: availabilityViewModel.participantsSummary
                 )
             }
+        }
+    }
+    
+    var contentSection: some View {
+        VStack(spacing: 16) {
+            FeatureGridView(features: experienceDetailViewModel.allFeatures, showAll: $showAll)
+            GuestDetailsFormView(details: $guestDetails)
             
-            .overlay(content: {
-                BottomSheetView(isPresented: $shouldShowFairSummaryCard) {
-                    FareSummaryCardView(fairSummaryData: experienceCheckoutViewModel.fairSummaryData, totalPrice: totalPriceG, totalLableText: Constants.CheckoutPageConstants.total
-                    )
-                    .padding()
-                }
-            })
-            if showToast {
+            FareSummaryCardView(
+                fairSummaryData: checkoutViewModel.fairSummaryData,
+                totalPrice: checkoutViewModel.formattedTotalAmount,
+                totalLableText: Constants.CheckoutPageConstants.total,
+                savingsText: checkoutViewModel.savingsTextforFareBreakup
+            )
+            
+            InfoListView(viewModel: experienceDetailViewModel)
+            
+            CheckboxTermsView(
+                isAgreed: $isConsentBoxChecked,
+                termsAndConditionTapped: { checkoutViewModel.handleTermsTapped() },
+                privacyPolicytapped: { checkoutViewModel.handlePrivacyTapped() }
+            )
+            
+            if let errorMessage = checkoutViewModel.errorMessage {
+                Text(errorMessage)
+                    .foregroundColor(.red)
+                    .font(.caption)
+                    .padding(.top, 4)
+            }
+        }
+        .padding()
+    }
+    
+    var paymentBarSection: some View {
+        ExperienceBottomPaymentBarView(
+            buttonText: Constants.CheckoutPageConstants.saveContinue,
+            payNowButtonTapped: { checkoutViewModel.handlePayNowTapped(guestDetails: guestDetails, isConsentBoxChecked: isConsentBoxChecked) },
+            infoButtontapped: { showFairSummary = true },
+            price: checkoutViewModel.formattedTotalAmount,
+            isLoading: checkoutViewModel.isLoading
+        )
+    }
+    
+    var bottomSheetOverlay: some View {
+        BottomSheetView(isPresented: $showFairSummary) {
+            FareSummaryCardView(
+                fairSummaryData: checkoutViewModel.fairSummaryData,
+                totalPrice: checkoutViewModel.formattedTotalAmount,
+                totalLableText: Constants.CheckoutPageConstants.total
+            )
+            .padding()
+        }
+    }
+    
+    var toastOverlay: some View {
+        Group {
+            if checkoutViewModel.showToast {
                 VStack {
                     Spacer()
                     HStack {
                         Spacer()
-                        ToastView(message: toastMessage)
-                        
+                        ToastView(message: checkoutViewModel.toastMessage)
+                            .transition(.move(edge: .bottom).combined(with: .opacity))
+                            .animation(.easeInOut, value: checkoutViewModel.showToast)
                         Spacer()
                     }
                     .padding(.bottom, 40)
                 }
                 .transition(.move(edge: .bottom).combined(with: .opacity))
-                .onAppear {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        withAnimation {
-                            showToast = false
-                        }
-                    }
-                }
             }
         }
-        .navigation(isActive: $experienceCheckoutViewModel.shouldNavigateToPayment,
-                    id: Constants.NavigationId.paymentWebView) {
-            PaymentView( // <-- wrapper around PaymentWebView
-                orderId: experienceCheckoutViewModel.orderNo ?? "",
-                shouldNavigateToConfirmation: $shouldNavigateToConfirmation
-            )
-            .navigationBarBackButtonHidden(true) // hide default nav bar back
+    }
+    
+    var navigationLinks: some View {
+        Group {
+            NavigationLink(isActive: $checkoutViewModel.shouldNavigateToPayment) {
+                PaymentView(
+                    orderId: checkoutViewModel.orderNo ?? "",
+                    paymentUrl: checkoutViewModel.paymentUrl ?? ""
+                )
+                .navigationBarBackButtonHidden(true)
+            } label: { EmptyView() }
+            
+            NavigationLink(isActive: $checkoutViewModel.shouldNavigateToTerms) {
+                TermsAndConditionsWebView(
+                    url: termsAndConditionsUrlGlobal,
+                    title: "Terms & Conditions"
+                )
+            } label: { EmptyView() }
+            
+            NavigationLink(isActive: $checkoutViewModel.shouldNavigateToPrivacy) {
+                TermsAndConditionsWebView(
+                    url: privacyPolicyUrlGlobal,
+                    title: "Privacy Policy"
+                )
+            } label: { EmptyView() }
         }
-        
-        .navigation(isActive: $shouldNavigateToConfirmation, id: "confirmationPage") {
-            ExperienceBookingConfirmationView(
-                orderNo: experienceCheckoutViewModel.orderNo ?? "")
-        }
+    }
+}
 
-        .onAppear {
-            experienceCheckoutViewModel.fetchData()
-        }
-    }
-    
-    func validateMobile(_ mobile: String, forCode code: String) -> String? {
-        let trimmed = mobile.trimmingCharacters(in: .whitespacesAndNewlines)
+private extension ExperienceCheckoutView {
+    func onAppear() {
+        // Set the selected package in the checkout view model to access subActivityCode
+        checkoutViewModel.setSelectedPackage(package)
         
-        // Check if mobile number is empty
-        if trimmed.isEmpty {
-            return "Please enter a mobile number."
-        }
+        // Set the availability response to access track_id
+        checkoutViewModel.setAvailabilityResponse(availabilityViewModel.response)
         
-        // Check if country code is empty or not selected
-        if code.isEmpty {
-            return "Please select a country code."
-        }
+        // Set the dynamic uid and availabilityKey from the passed parameters
+        checkoutViewModel.setUid(uid)
+        checkoutViewModel.setAvailabilityKey(availabilityKey)
         
-        // Check if mobile contains only numbers
-        if !trimmed.allSatisfy({ $0.isNumber }) {
-            return "Mobile number should contain only digits."
-        }
-        
-        // Find the maxCharLimit for the selected code
-        let codes: [MobileCode] = [
-            MobileCode(name: "UAE", maxCharLimit: 9, countryCode: 1, dialCode: "+971", image: "https://d33mtyizv24ggq.cloudfront.net/assets/ae.svg"),
-            MobileCode(name: "China", maxCharLimit: 11, countryCode: 2, dialCode: "+86", image: "https://d33mtyizv24ggq.cloudfront.net/assets/cn.svg"),
-            MobileCode(name: "Singapore", maxCharLimit: 8, countryCode: 3, dialCode: "+65", image: "https://d33mtyizv24ggq.cloudfront.net/assets/sg.svg"),
-            MobileCode(name: "India", maxCharLimit: 10, countryCode: 4, dialCode: "+91", image: "https://d33mtyizv24ggq.cloudfront.net/assets/in.svg"),
-            MobileCode(name: "Iceland", maxCharLimit: 7, countryCode: 5, dialCode: "+354", image: "https://d33mtyizv24ggq.cloudfront.net/assets/is.svg")
-        ]
-        
-        if let selected = codes.first(where: { $0.dialCode == code }) {
-            // Check if mobile number matches the exact required length for the country
-            if trimmed.count != selected.maxCharLimit {
-                return "\(selected.name) mobile number should be exactly \(selected.maxCharLimit) digits."
-            }
-        } else {
-            return "Invalid country code selected."
-        }
-        
-        return nil
-    }
-    
-    private func formattedSelectedDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.dateFormat = "EEE, dd MMM yyyy" // Sat, 22 Jun 2025
-        return formatter.string(from: date)
+        checkoutViewModel.selectedTravelDate = availabilityViewModel.selectedDateFromCalender
+        checkoutViewModel.fetchData()
+//        experienceDetailViewModel.fetchReviewData(
+//            activityCode: productCode,
+//            currency: currency ?? ""
+//        )
     }
 }

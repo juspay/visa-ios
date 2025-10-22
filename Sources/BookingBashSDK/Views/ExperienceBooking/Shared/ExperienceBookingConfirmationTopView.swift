@@ -1,10 +1,3 @@
-//
-//  ExperienceBookingConfirmationTopView.swift
-//  VisaActivity
-//
-//  Created by Apple on 06/08/25.
-//
-
 import SwiftUI
 
 struct ExperienceBookingConfirmationTopView: View {
@@ -15,7 +8,7 @@ struct ExperienceBookingConfirmationTopView: View {
         HStack {
             Spacer()
             VStack(spacing: 12) {
-                if let icon = bundleImage(named: bookingInfo.image) {
+                if let icon = ImageLoader.bundleImage(named: bookingInfo.image) {
                     icon
                         .resizable()
                         .frame(width: 40, height: 40)

@@ -8,10 +8,10 @@
 import SwiftUI
 import SUINavigation
 
-
 struct AvailabilitySelectionMainView: View {
     @ObservedObject var experienceAvailabilitySViewModel: ExperienceAvailabilitySelectOptionsViewModel
     let model: ExperienceDetailModel
+    @ObservedObject var experienceDetailViewModel: ExperienceDetailViewModel
     @OptionalEnvironmentObject private var navigationStorage: NavigationStorage?
     @State private var showDateSheet = false
     @State private var showParticipantsScreen = false
@@ -34,7 +34,7 @@ struct AvailabilitySelectionMainView: View {
                 )
                     .padding(.bottom, 16)
             }, content: {
-                ExperiencePassesListView(viewModel: experienceAvailabilitySViewModel, model: model)
+                ExperiencePassesListView(viewModel: experienceAvailabilitySViewModel, experienceDetailViewModel: experienceDetailViewModel, model: model, productCode: productCode ?? "")
                     .frame(maxWidth: .infinity)
                     
             })

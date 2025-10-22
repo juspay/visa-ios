@@ -16,7 +16,7 @@ struct FairTopBannerView: View {
     var body: some View {
         HStack(spacing: 8) {
             Spacer()
-            if let icon = bundleImage(named: iconName) {
+            if let icon = ImageLoader.bundleImage(named: iconName) {
                 icon
                     .resizable()
                     .frame(width: 24, height: 24)

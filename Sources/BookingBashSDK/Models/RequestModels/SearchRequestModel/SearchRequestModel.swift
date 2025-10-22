@@ -1,14 +1,7 @@
-//
-//  SearchRequestModel.swift
-//  VisaActivity
-//
-//  Created by Rohit Sankpal on 22/08/25.
-//
-
 // MARK: - SearchRequest
 struct SearchRequestModel: Codable {
     let destinationId: String
-    let destinationType: String
+    let destinationType: Int
     let location: String
     let checkInDate: String
     let checkOutDate: String
@@ -16,7 +9,7 @@ struct SearchRequestModel: Codable {
     let clientId: String
     let enquiryId: String
     let productCode: [String]
-    let filters: SearchFilters
+    var filters: SearchFilters
     
     enum CodingKeys: String, CodingKey {
         case destinationId = "destination_id"
@@ -40,7 +33,7 @@ struct SearchFilters: Codable {
     let rating: [Int]
     let duration: [Int]
     let reviewCount: [Int]
-    let sortBy: SortBy
+    var sort_by: SortBy
     let categories: [String]
     let language: [String]
     let itineraryType: [String]
@@ -54,7 +47,8 @@ struct SearchFilters: Codable {
         case priceRange = "price_range"
         case rating, duration
         case reviewCount = "review_count"
-        case sortBy, categories, language
+        case sort_by
+        case categories, language
         case itineraryType = "itinerary_type"
         case ticketType = "ticket_type"
         case confirmationType = "confirmation_type"

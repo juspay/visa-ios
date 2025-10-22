@@ -10,7 +10,8 @@ import SwiftUI
 @_spi(Advanced) import SwiftUIIntrospect
 
 struct SortView: View {
-    @StateObject private var viewModel = SortViewModel()
+    @ObservedObject var viewModel: SortViewModel
+    var onOptionSelected: (() -> Void)? = nil
 
     var body: some View {
         ScrollView {
@@ -18,7 +19,10 @@ struct SortView: View {
                 title: Constants.DetailScreenConstants.sort,
                 options: viewModel.options,
                 selectedOption: viewModel.selectedOption,
-                onSelect: { viewModel.select($0) },
+                onSelect: { option in
+                    viewModel.select(option)
+                    onOptionSelected?()
+                },
                 titleKeyPath: \.title
             )
         }
@@ -27,3 +31,4 @@ struct SortView: View {
         }
     }
 }
+

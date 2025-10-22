@@ -52,13 +52,15 @@ extension TransactionStatus {
     var color: Color {
         switch self {
         case .confirmed:
-            return .green
+            return Color(hex: Constants.HexColors.greenShade)
         case .pending:
             return .orange
         case .cancelled:
             return .red
         case .completed:
             return .blue
+        case .failed:
+            return .red
         }
     }
 }

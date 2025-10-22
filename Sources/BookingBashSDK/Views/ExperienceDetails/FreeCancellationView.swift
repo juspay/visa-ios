@@ -14,11 +14,13 @@ struct FreeCancellationView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .top, spacing: 4) {
-                Image(Constants.Icons.check)
-                    .resizable()
-                    .frame(width: 20, height: 20)
-                    .foregroundStyle(Color(hex: Constants.HexColors.neutral))
-                    .padding(.top, 2)
+                if let checkImage = ImageLoader.bundleImage(named: Constants.Icons.check) {
+                    checkImage
+                        .resizable()
+                        .frame(width: 20, height: 20)
+                        .foregroundStyle(Color(hex: Constants.HexColors.neutral))
+                        .padding(.top, 2)
+                }
                 
                 VStack(alignment: .leading, spacing: 8) {
                     Text(cancellationPolicy)

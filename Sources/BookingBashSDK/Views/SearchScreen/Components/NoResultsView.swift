@@ -1,19 +1,14 @@
-//
-//  NoResultsView.swift
-//  VisaActivity
-//
-//  Created by Apple on 30/07/25.
-//
 
-import Foundation
 import SwiftUI
 
 struct NoResultsView: View {
     var body: some View {
         VStack(spacing: 24) {
-            Image(Constants.Icons.searchNoResult)
-                .resizable()
-                .frame(width: 124, height: 124)
+            if let noResultImage = ImageLoader.bundleImage(named: Constants.Icons.searchNoResult) {
+                noResultImage
+                    .resizable()
+                    .frame(width: 124, height: 124)
+            }
             
             VStack(spacing: 8) {
                 Text(Constants.searchScreenConstants.noResultFound)

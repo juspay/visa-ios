@@ -24,24 +24,20 @@ struct BookedExperienceDateTimeView: View {
                 )
                 Spacer()
                 IconTextRow(
-                    imageName: Constants.Icons.usergray,
+                    imageName: Constants.Icons.user,
                     text: selectedParticipants,
                     color: color
                 )
             }
             if shouldShowRefundable {
                 HStack(spacing: 6) {
-                    if let checkIcon = bundleImage(named: Constants.Icons.check) {
-                                            checkIcon
-                                                .resizable()
-                                                .foregroundStyle(.green)
-                                                .frame(width: 20, height: 20)
-                                        } else {
-                                            Image(Constants.Icons.check)
-                                                .resizable()
-                                                .foregroundStyle(.green)
-                                                .frame(width: 20, height: 20)
-                                        }
+                    
+                    if let checkIcon = ImageLoader.bundleImage(named: Constants.Icons.check) {
+                        checkIcon
+                            .resizable()
+                            .foregroundStyle(.green)
+                            .frame(width: 20, height: 20)
+                    }
                     Text(Constants.BookingStatusScreenConstants.refundable)
                         .foregroundStyle(.green)
                         .font(.custom(Constants.Font.openSansSemiBold, size: 12))

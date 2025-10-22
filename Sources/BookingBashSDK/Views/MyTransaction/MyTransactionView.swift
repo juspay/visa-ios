@@ -1,9 +1,3 @@
-//
-//  MyTransactionView.swift
-//  VisaActivity
-//
-//  Created by praveen on 04/09/25.
-//
 import SwiftUI
 import SUINavigation
 
@@ -21,7 +15,7 @@ struct TabsBar: View {
                     VStack(spacing: 6) {
                         Text(tab.rawValue)
                             .font(.system(size: 16, weight: selected == tab ? .semibold : .regular))
-                            .foregroundColor(selected == tab ? .primary : .secondary)
+                            .foregroundColor(selected == tab ? Color(hex: Constants.HexColors.primary) : .black)
                             .frame(maxWidth: .infinity)
                         Capsule()
                             .fill(selected == tab ? Color.tabAccent : .clear)
@@ -54,90 +48,110 @@ struct MyTransactionView: View {
     @StateObject private var viewModel = TransactionsViewModel()
     @Environment(\.presentationMode) var presentationMode
     @State private var selectedTransaction: Booking? = nil
+    @State private var cancelledBooking: Booking? = nil
     @OptionalEnvironmentObject private var navigationStorage: NavigationStorage?
-
+    
     var body: some View {
         NavigationStorageView {
             ThemeTemplateView(needsScroll: false,
-                header: {
-                    // Header
-                    HStack(spacing: 8) {
-                        Image(systemName: "ticket")
+                              header: {
+                // Header
+                HStack(spacing: 10) {
+                    if let vectorImage = ImageLoader.bundleImage(named: Constants.Icons.vector) {
+                        vectorImage
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 20, height: 20)
                             .foregroundColor(.white)
-                        Text("My Transactions")
-                            .foregroundColor(.white)
-                            .font(.system(size: 20, weight: .semibold))
-                        Spacer()
                     }
-                    .padding(.top, 8)
-                },
-                content: {
-                    VStack(spacing: 0) {
-                        // Tabs
-                        TabsBar(selected: $viewModel.selectedTab)
-                            .padding(.top, 8)
 
-                        // List of bookings (ScrollView instead of List)
-                        ScrollView {
-                            LazyVStack(spacing: 19) {
-                                if viewModel.bookings.isEmpty && !viewModel.isLoading {
-                                    // Empty state for current tab
-                                    VStack(spacing: 16) {
-                                        Image(systemName: "doc.text")
-                                            .font(.system(size: 50))
-                                            .foregroundColor(.gray)
-                                        Text("No \(viewModel.selectedTab.rawValue.lowercased()) bookings")
-                                            .font(.headline)
-                                            .foregroundColor(.secondary)
+                    Text(Constants.TransactionRowConstants.myTransactionsTitle)
+                        .bold()
+                        .foregroundColor(.white)
+                        .font(.custom("Lexend-Bold", size: 16))
+                    
+                    Spacer()
+                }
+                .padding(.top, 8)
+            },
+            content: {
+                VStack(spacing: 0) {
+                    // Tabs
+                    TabsBar(selected: $viewModel.selectedTab)
+                        .padding(.top, 8)
+                    
+                    // List of bookings (ScrollView instead of List)
+                    ScrollView {
+                        LazyVStack(spacing: 19) {
+                            if viewModel.bookings.isEmpty && !viewModel.isLoading {
+                                // Empty state for current tab
+                                VStack(spacing: 16) {
+                                    Image(systemName: Constants.TransactionRowConstants.docTextSystemImage)
+                                        .font(.system(size: 50))
+                                        .foregroundColor(.black)
+                                    Text(String(format: Constants.TransactionRowConstants.noBookingsFormat, viewModel.selectedTab.rawValue.lowercased()))
+                                        .font(.headline)
+                                        .foregroundColor(.primary)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(.top, 50)
+                            } else {
+                                ForEach(viewModel.bookings) { item in
+                                    Button(action: {
+                                        if item.status == .cancelled {
+                                            cancelledBooking = item
+                                        } else {
+                                            selectedTransaction = item
+                                        }
+                                    }) {
+                                        TransactionRow(item: item)
                                     }
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.top, 50)
-                                } else {
-                                    ForEach(viewModel.bookings) { item in
-                                        Button(action: {
-                                            // Only navigate if the booking is not cancelled
-                                            if item.status != .cancelled {
-                                                selectedTransaction = item
-                                            }
-                                        }) {
-                                            TransactionRow(item: item)
+                                    .onAppear {
+                                        // Load more when the last item appears
+                                        if item.id == viewModel.bookings.last?.id {
+                                            viewModel.loadMoreBookings()
                                         }
                                     }
                                 }
-
-                                if viewModel.isLoading {
-                                    ProgressView()
-                                        .frame(maxWidth: .infinity)
-                                        .padding(.vertical, 8)
-                                }
                             }
-                            .padding(.horizontal)
-                            .padding(.top, 8)
+                            
+                            if viewModel.isLoading {
+                                ProgressView()
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 8)
+                            }
                         }
-
-                        // Navigation
-                        NavigationLink(
-                            destination: Group {
-                                if let transaction = selectedTransaction {
-                                    if let nav = navigationStorage {
-                                        ExperienceBookingConfirmationView(orderNo: transaction.orderNo, isFromBookingJourney: false)
-                                            .environmentObject(nav)
-                                    } else {
-                                        ExperienceBookingConfirmationView(orderNo: transaction.orderNo, isFromBookingJourney: false)
-                                    }
-                                } else {
-                                    EmptyView()
-                                }
-                            },
-                            isActive: Binding(
-                                get: { selectedTransaction != nil },
-                                set: { if !$0 { selectedTransaction = nil } }
-                            ),
-                            label: { EmptyView() }
-                        )
-                        .hidden()
+                        .padding(.horizontal)
+                        .padding(.top, 8)
                     }
+                    NavigationLink(
+                        destination: Group {
+                            if let transaction = selectedTransaction {
+                                if let nav = navigationStorage {
+                                    ExperienceBookingConfirmationView(orderNo: transaction.orderNo, isFromBookingJourney: false,
+                                                                      booking: transaction )
+                                    .environmentObject(nav)
+                                } else {
+                                    ExperienceBookingConfirmationView(orderNo: transaction.orderNo, isFromBookingJourney: false)
+                                }
+                            } else {
+                                EmptyView()
+                            }
+                        },
+                        isActive: Binding(
+                            get: { selectedTransaction != nil },
+                            set: { if !$0 { selectedTransaction = nil } }
+                        ),
+                        label: { EmptyView() }
+                    )
+                    .hidden()
                 }
+                .sheet(item: $cancelledBooking) { booking in
+                    CancelBookingBottomSheet(isPresented: .constant(true), onFinish: {
+                        cancelledBooking = nil
+                    })
+                }
+            }
             )
             .onAppear {
                 viewModel.fetchBookings()
@@ -146,85 +160,3 @@ struct MyTransactionView: View {
         }
     }
 }
-
-//struct MyTransactionView: View {
-//    @StateObject private var viewModel = TransactionsViewModel()
-//    @Environment(\.presentationMode) var presentationMode
-//    @State private var selectedTransaction: Booking? = nil
-//    @OptionalEnvironmentObject private var navigationStorage: NavigationStorage?
-//
-//    var body: some View {
-//        NavigationStorageView {
-//            ThemeTemplateView(needsScroll: false,
-//                header: {
-//                    //  Wrap inside HStack
-//                    HStack(spacing: 8) {
-//                        Image(systemName: "ticket")
-//                            .foregroundColor(.white)
-//                        Text("My Transactions")
-//                            .foregroundColor(.white)
-//                            .font(.system(size: 20, weight: .semibold))
-//                        Spacer()
-//                    }
-//                    .padding(.top, 8)
-//                },
-//                content: {
-//                    //  Wrap inside VStack
-//                    VStack(spacing: 0) {
-//                        // Tabs
-//                        TabsBar(selected: $viewModel.selectedTab)
-//                            .padding(.top, 8)
-//
-//                        // List of bookings
-//                        List {
-//                            Section {
-//                                ForEach(viewModel.bookings) { item in
-//                                    Button(action: {
-//                                        selectedTransaction = item
-//                                    }) {
-//                                        TransactionRow(item: item)
-//                                            .padding(.vertical, 4)
-//                                    }
-//                                    .listRowSeparator(.hidden)
-//                                    .listRowBackground(Color.clear)
-//                                }
-//                            } footer: {
-//                                if viewModel.isLoading {
-//                                    ProgressView()
-//                                        .frame(maxWidth: .infinity)
-//                                        .listRowInsets(.init())
-//                                }
-//                            }
-//                        }
-//                        .listStyle(.plain)
-//                        .background(Color(.systemGroupedBackground))
-//                        NavigationLink(
-//                            destination: Group {
-//                                if let transaction = selectedTransaction {
-//                                    if let nav = navigationStorage {
-//                                        ExperienceBookingConfirmationView(orderNo: transaction.orderNo)
-//                                            .environmentObject(nav) // inject the same NavigationStorage
-//                                    } else {
-//                                        ExperienceBookingConfirmationView(orderNo: transaction.orderNo)
-//                                    }
-//                                } else {
-//                                    EmptyView()
-//                                }
-//                            },
-//                            isActive: Binding(
-//                                get: { selectedTransaction != nil },
-//                                set: { if !$0 { selectedTransaction = nil } }
-//                            ),
-//                            label: { EmptyView() }
-//                        )
-//                        .hidden()
-//                    }
-//                }
-//            )
-//            .onAppear {
-//                viewModel.fetchBookings()
-//            }
-//            .navigationBarBackButtonHidden(true)
-//        }
-//    }
-//}

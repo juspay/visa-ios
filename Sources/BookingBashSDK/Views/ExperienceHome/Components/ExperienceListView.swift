@@ -14,6 +14,7 @@ struct ExperienceListView: View {
     var onTap: ((Experience) -> Void)? = nil
     @State private var shouldNavigateToDetail: Bool = false
     @State private var selectedExperience: Experience?
+    @State private var selectedProductCode: String? = nil
 
     var body: some View {
         LazyVStack(spacing: 15) {
@@ -21,7 +22,9 @@ struct ExperienceListView: View {
                 ExperienceCardView(experience: experience)
                     .onTapGesture {
                         selectedExperience = experience
+                        selectedProductCode = experience.productCode
                         shouldNavigateToDetail = true
+                        
                         onTap?(experience)
                     }
             }
@@ -31,7 +34,7 @@ struct ExperienceListView: View {
             if let selectedExperience = selectedExperience {
                 ExperienceDetailView(
                     productCode: selectedExperience.productCode,
-                    currency: "INR"
+                    currency: "AED"
                 )
             }
         }

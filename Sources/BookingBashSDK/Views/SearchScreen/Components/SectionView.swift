@@ -37,10 +37,8 @@ struct SectionView: View {
                         onTap(destination)
                     }) {
                         HStack(spacing: 12) {
-//                            Image(Constants.Icons.map)
-//                                .frame(width: 20, height: 20)
-//                                .foregroundStyle(.gray
-                            if let mapImage = bundleImage(named: Constants.Icons.map) {
+
+                            if let mapImage = ImageLoader.bundleImage(named: Constants.Icons.map) {
                                 mapImage
                                     .resizable()
                                     .frame(width: 20, height: 20)
@@ -53,9 +51,12 @@ struct SectionView: View {
 
                             Spacer()
 
-                            Image(Constants.Icons.arrowRight)
-                                .frame(width: 20, height: 20)
-                                .foregroundStyle(Color(hex: Constants.HexColors.primary))
+                            if let arrowImage = ImageLoader.bundleImage(named: Constants.Icons.arrowRight) {
+                                arrowImage
+                                    .resizable()
+                                    .frame(width: 20, height: 20)
+                                    .foregroundStyle(Color(hex: Constants.HexColors.primary))
+                            }
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 16)

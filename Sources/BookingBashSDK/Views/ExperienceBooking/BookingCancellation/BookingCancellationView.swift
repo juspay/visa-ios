@@ -11,6 +11,7 @@ import SUINavigation
 struct BookingCancellationView: View {
     @ObservedObject var experienceBookingConfirmationViewModel: ExperienceBookingConfirmationViewModel
     @State private var shouldExpandDetails: Bool = false
+    @State private var showCancelBottomSheet: Bool = false
     @OptionalEnvironmentObject private var navigationStorage: NavigationStorage?
     @State private var navigateToHome: Bool = false
 
@@ -30,19 +31,17 @@ struct BookingCancellationView: View {
                             shouldExpandDetails = true
                         },
                         cancelBookingButtonTapped: {
+                            showCancelBottomSheet = true
                         },
                         isBookingConfirmationScreen: false,
                         shouldExpandDetails: $shouldExpandDetails
                     )
                     
                     if shouldExpandDetails {
-                        ContactDetailsCardView(contactDetailsModel: experienceBookingConfirmationViewModel.contactDetails, title: Constants.BookingStatusScreenConstants.supplierContactTitle)
                         FareSummaryCardView(fairSummaryData: experienceBookingConfirmationViewModel.fairSummaryData, totalPrice: "\(experienceBookingConfirmationViewModel.currency) \(String(format: "%.0f", experienceBookingConfirmationViewModel.totalAmount))", shouldShowTopBanner: false)
                         RefundDetailsCardView(viewModel: experienceBookingConfirmationViewModel)
                         ConfirmationInfoReusableCardView(section: experienceBookingConfirmationViewModel.cancellationPolicy, showBullets: false)
                         ConfirmationInfoReusableCardView(section: experienceBookingConfirmationViewModel.leadTraveller, showBullets: false)
-                        ConfirmationInfoReusableCardView(section: experienceBookingConfirmationViewModel.specialRequest, showBullets: false)
-                        ConfirmationInfoReusableCardView(section: experienceBookingConfirmationViewModel.meetingPickup, showBullets: false)
                         ConfirmationInfoReusableCardView(section: experienceBookingConfirmationViewModel.inclusions, showBullets: true)
                         ConfirmationInfoReusableCardView(section: experienceBookingConfirmationViewModel.OtherDetails, showBullets: false)
                         ContactDetailsCardView(contactDetailsModel: experienceBookingConfirmationViewModel.personContactDetails, title: Constants.BookingStatusScreenConstants.contactDetails)
@@ -59,6 +58,16 @@ struct BookingCancellationView: View {
             }
             .modifier(NavigationDestinationModifier(navigateToHome: $navigateToHome))
 
+        }
+        .overlay {
+            if showCancelBottomSheet {
+                CancelBookingBottomSheet(
+                    isPresented: $showCancelBottomSheet,
+                    onFinish: {
+                        showCancelBottomSheet = false
+                    }
+                )
+            }
         }
     }
 }

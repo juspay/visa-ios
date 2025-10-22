@@ -35,9 +35,9 @@ struct BottomSheetView<Content: View>: View {
             if isPresented {
                 Color(hex: Constants.HexColors.secondary).opacity(0.9)
                     .ignoresSafeArea()
-                    .onTapGesture {
-                        dismissSheet()
-                    }
+                    .contentShape(Rectangle())     
+                        .onTapGesture {
+                        }
                 
                 VStack(spacing: 0) {
                     Spacer()

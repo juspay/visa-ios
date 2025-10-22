@@ -1,39 +1,39 @@
-//
-//  HomeResponseModel.swift
-//  VisaActivity
-//
-//  Created by Prav on 11/09/25.
-//
-
 import Foundation
 
-// MARK: - Home Response
 struct HomeResponseModel: Codable {
     let status: Bool
     let statusCode: Int
-    let destination: [HomeDestinationModel]
-    let featureActivity: [HomeFeatureActivityModel]
-
+    let data: HomeDataModel
     enum CodingKeys: String, CodingKey {
         case status
         case statusCode = "status_code"
-        case destination
-        case featureActivity = "feature_activity"
+        case data
     }
 }
 
-// MARK: - Home Destination Model
+struct HomeDataModel: Codable {
+    let popularDestinations: [HomeDestinationModel]
+    let featuredActivities: [HomeFeatureActivityModel]
+    let pageUrls: HomePageUrlsModel
+    let currency: String
+    enum CodingKeys: String, CodingKey {
+        case popularDestinations = "popular_destinations"
+        case featuredActivities = "featured_activities"
+        case pageUrls = "page_urls"
+        case currency
+    }
+}
+
 struct HomeDestinationModel: Codable {
     let title: String
-    let destinationType: String
+    let destinationType: Int
     let destinationId: String
     let locationName: String
     let city: String
     let state: String
     let region: String
-    let latLong: HomeLatLongModel
+    let latLong: HomeLatLongModel?
     let image: String
-
     enum CodingKeys: String, CodingKey {
         case title
         case destinationType = "destination_type"
@@ -43,21 +43,19 @@ struct HomeDestinationModel: Codable {
         case state
         case region
         case latLong = "lat_long"
-        case image = "image"
+        case image
     }
 }
 
-// MARK: - Home LatLong Model
 struct HomeLatLongModel: Codable {
     let lat: Double
     let lng: Double
 }
 
-// MARK: - Home Feature Activity Model
 struct HomeFeatureActivityModel: Codable {
-    let productCode: String
+    let activityCode: String?
     let title: String
-    let shortDescription: String
+    let shortDescription: String?
     let thumbnail: String
     let price: HomePriceModel
     let rating: Int
@@ -66,14 +64,13 @@ struct HomeFeatureActivityModel: Codable {
     let destinationId: String
     let destinationName: String
     let specialOfferAvailable: Bool
-    let confirmationType: String
-    let itineraryType: String
-    let featureFlags: [String]
-    let categories: [HomeCategoryModel]
-    let productId: String
-
+    let confirmationType: String?
+    let itineraryType: String?
+    let featureFlags: [String]?
+    let categories: [HomeCategoryModel]?
+    let productId: String?
     enum CodingKeys: String, CodingKey {
-        case productCode = "product_code"
+        case activityCode = "activity_code"
         case title
         case shortDescription = "short_description"
         case thumbnail
@@ -92,7 +89,17 @@ struct HomeFeatureActivityModel: Codable {
     }
 }
 
-// MARK: - Home Price Model
+struct HomeCategoryModel: Codable {
+    let name: String?
+    let tagId: Int?
+    let parentIds: [Int]?
+    enum CodingKeys: String, CodingKey {
+        case name
+        case tagId = "tag_id"
+        case parentIds = "parent_ids"
+    }
+}
+
 struct HomePriceModel: Codable {
     let baseRate: Double
     let taxes: Double
@@ -100,7 +107,6 @@ struct HomePriceModel: Codable {
     let strikeout: HomeStrikeoutModel?
     let currency: String
     let roeBase: Double
-
     enum CodingKeys: String, CodingKey {
         case baseRate = "base_rate"
         case taxes
@@ -111,36 +117,31 @@ struct HomePriceModel: Codable {
     }
 }
 
-// MARK: - Home Strikeout Model
 struct HomeStrikeoutModel: Codable {
-    let baseRate: Double
-    let taxes: Double
-    let totalAmount: Double
-    let savingPercentage: Int
-
+    let baseRate: Double?
+    let taxes: Double?
+    let totalAmount: Double?
+    let savingPercentage: Int?
+    let savingAmount: Double?
     enum CodingKeys: String, CodingKey {
         case baseRate = "base_rate"
         case taxes
         case totalAmount = "total_amount"
         case savingPercentage = "saving_percentage"
+        case savingAmount = "saving_amount"
     }
 }
 
-// MARK: - Home Duration Hours Model
 struct HomeDurationHoursModel: Codable {
     let from: Int
     let to: Int
 }
 
-// MARK: - Home Category Model
-struct HomeCategoryModel: Codable {
-    let name: String
-    let tagId: Int
-    let parentIds: [Int]?
-
+struct HomePageUrlsModel: Codable {
+    let termsAndConditions: String
+    let privacyPolicy: String
     enum CodingKeys: String, CodingKey {
-        case name
-        case tagId = "tag_id"
-        case parentIds = "parent_ids"
+        case termsAndConditions = "terms_and_conditions"
+        case privacyPolicy = "privacy_policy"
     }
 }

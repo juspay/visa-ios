@@ -23,6 +23,7 @@ struct DestinationScrollView: View {
                 }
             }
             .padding(.leading, 15)
+            .padding(.trailing, 15)
         }
     }
 }

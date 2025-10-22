@@ -7,9 +7,9 @@
 
 import Foundation
 
-struct Experience: Identifiable {
+struct Experience: Identifiable, Equatable {
     let id = UUID()
-    let imageURL: String // Changed from imageName to imageURL
+    let imageURL: String
     let country: String
     let title: String
     let originalPrice: Int

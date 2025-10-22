@@ -12,9 +12,10 @@ struct ExperienceListModel: Identifiable {
     let title: String
     let rating: Double
     let reviewCount: Int
-    let price: Int
+    let price: Double // Changed from Int to Double to preserve exact values
+    let strikeoutPrice: Double? // Changed from Int to Double
+    let savingPercentage: Double? // Percentage saved
     let imageName: String
     let productCode: String
     let currency: String
 }
-
