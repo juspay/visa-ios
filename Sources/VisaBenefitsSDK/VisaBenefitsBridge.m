@@ -17,6 +17,11 @@
 
 @implementation VisaBenefitsBridge
 
+- (void) dealloc {
+    _bookingBashVC = nil;
+    _bridgeComponent = nil;
+}
+
 - (void)launchBookingBash:(NSString *)encryptedPayload :(NSString *)callback {
     // Get the base view controller from bridge component
     UIViewController *baseViewController = [_bridgeComponent getBaseViewController];
@@ -68,9 +73,7 @@
         [invocation invoke];
 
         // FIX: Use a local variable of type UIViewController*
-        UIViewController *resultVC = nil;
-        [invocation getReturnValue:&resultVC];
-        _bookingBashVC = resultVC;
+        [invocation getReturnValue:&_bookingBashVC];
         
         if (_bookingBashVC) {
             _bookingBashVC.modalPresentationStyle = UIModalPresentationFullScreen;
