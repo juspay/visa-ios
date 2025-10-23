@@ -7,6 +7,7 @@
 
 #import "VisaBenefitsBridge.h"
 #import <UIKit/UIKit.h>
+@import BookingBashSDK;
 
 @interface VisaBenefitsBridge ()
 
@@ -36,61 +37,28 @@
         return; // Always return after error handling
     }
     
-    // Import BookingBash module and create the view
-    Class bookingBashClass = NSClassFromString(@"BookingBashSDK.BookingBashSDK");
-    if (bookingBashClass) {
-        // Create a dummy callback block that will be passed to BookingBashSDK
-        __weak typeof(self) weakSelf = self;
-        void (^onFinisCallbck)(void) = ^{
-            // Dismiss the BookingBash view controller
-            if (weakSelf && weakSelf.bookingBashVC) {
-                [weakSelf.bookingBashVC dismissViewControllerAnimated:YES completion:^{
-                    NSString *jsString = [NSString stringWithFormat:@"window.callUICallback('%@', '{\"success\": true}')", callback];
-                    [weakSelf.bridgeComponent executeOnWebView:jsString];
-                }];
-            }
-        };
-        
-        // The selector and argument approach
-        SEL selector = NSSelectorFromString(@"createExperienceHomeViewWithEncryptPayLoad:callback:");
-        NSMethodSignature *signature = [bookingBashClass methodSignatureForSelector:selector];
-        if (!signature) {
-            NSString *jsString =
-                [NSString stringWithFormat:
-                    @"window.callUICallback('%@', '{\"success\": false, \"error\": \"BookingBashSDK method not found\"}')"
-                    , callback
-                ];
-            [_bridgeComponent executeOnWebView:jsString];
-            return;
+    // Create a callback block that will be passed to BookingBashSDK
+    __weak typeof(self) weakSelf = self;
+    void (^onFinisCallbck)(void) = ^{
+        // Dismiss the BookingBash view controller
+        if (weakSelf && weakSelf.bookingBashVC) {
+            [weakSelf.bookingBashVC dismissViewControllerAnimated:YES completion:^{
+                NSString *jsString = [NSString stringWithFormat:@"window.callUICallback('%@', '{\"success\": true}')", callback];
+                [weakSelf.bridgeComponent executeOnWebView:jsString];
+            }];
         }
-        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
-
-        [invocation setTarget:bookingBashClass];
-        [invocation setSelector:selector];
-        [invocation setArgument:&encryptedPayload atIndex:2];
-        [invocation setArgument:&onFinisCallbck atIndex:3];
-        
-        [invocation invoke];
-
-        // FIX: Use a local variable of type UIViewController*
-        [invocation getReturnValue:&_bookingBashVC];
-        
-        if (_bookingBashVC) {
-            _bookingBashVC.modalPresentationStyle = UIModalPresentationFullScreen;
-            // Store reference to the presented view controller
-            [baseViewController presentViewController:_bookingBashVC animated:YES completion:nil];
-        } else {
-            NSString *jsString =
-                [NSString stringWithFormat:
-                    @"window.callUICallback('%@', '{\"success\": false, \"error\": \"Error Occured while getting Booking Bash View Controller\"}')"
-                    , callback
-                ];
-            [_bridgeComponent executeOnWebView:jsString];
-        }
+    };
+    
+    // Directly call BookingBashSDK method
+    _bookingBashVC = [BookingBashSDK createExperienceHomeViewWithEncryptPayLoad:encryptedPayload callback:onFinisCallbck];
+    
+    if (_bookingBashVC) {
+        _bookingBashVC.modalPresentationStyle = UIModalPresentationFullScreen;
+        [baseViewController presentViewController:_bookingBashVC animated:YES completion:nil];
     } else {
         NSString *jsString =
             [NSString stringWithFormat:
-                @"window.callUICallback('%@', '{\"success\": false, \"error\": \"Error Occured while getting Booking Bash Class\"}')"
+                @"window.callUICallback('%@', '{\"success\": false, \"error\": \"Error Occured while getting Booking Bash View Controller\"}')"
                 , callback
             ];
         [_bridgeComponent executeOnWebView:jsString];
