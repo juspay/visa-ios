@@ -1,5 +1,6 @@
 //
 //  xorEncrypt.swift
+//  VisaActivity
 //
 //
 
@@ -19,25 +20,7 @@ extension String {
 
 struct TokenProvider {
     static func getAuthHeader() -> String? {
-        var path: String?
-        
-        // Try Bundle.module first (for SPM) - use #if to check compile-time availability
-        #if SWIFT_PACKAGE
-        path = Bundle.module.path(forResource: "Token", ofType: "plist")
-        #endif
-        
-        // Fallback to Bundle.main (for main app/submodule)
-        if path == nil {
-            path = Bundle.main.path(forResource: "Token", ofType: "plist")
-        }
-        
-        guard let filePath = path,
-              let dict = NSDictionary(contentsOfFile: filePath),
-              let encrypted = dict["authHeader"] as? String else {
-            print("Token.plist not found in any bundle")
-            return nil
-        }
-        print(encrypted.xorDecrypt(key: "BookingBash"))
-        return encrypted.xorDecrypt(key: "BookingBash")
+        print("AA4cAgpONjtQPjoUKTU+PF5RDzU1ARgFKhIwOiEvLxkhcyE4LQUgHRtTPTwhFjZZJFw9KCwJJwU2FiYTDVIMJiUDDTs9ADAZWn8=".xorDecrypt(key: "BookingBash"))
+        return "AA4cAgpONjtQPjoUKTU+PF5RDzU1ARgFKhIwOiEvLxkhcyE4LQUgHRtTPTwhFjZZJFw9KCwJJwU2FiYTDVIMJiUDDTs9ADAZWn8=".xorDecrypt(key: "BookingBash")
     }
 }
