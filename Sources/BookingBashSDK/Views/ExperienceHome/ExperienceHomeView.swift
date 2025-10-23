@@ -244,14 +244,13 @@ private extension View {
     ) -> some View {
         overlay {
             if isPresented.wrappedValue {
-                GeometryReader { geometry in
-                    let screenHeight = geometry.size.height
-                    BottomSheetView(isPresented: isPresented, sheetHeight: screenHeight * 0.9) {
-                        SearchDestinationBottomSheetView(
-                            searchDestinationViewModel: searchDestinationViewModel,
-                            onSelectDestination: onSelectDestination
-                        )
-                    }
+                let screenHeight = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?
+                    .screen.bounds.height ?? 0
+                BottomSheetView(isPresented: isPresented, sheetHeight: screenHeight * 0.9) {
+                    SearchDestinationBottomSheetView(
+                        searchDestinationViewModel: searchDestinationViewModel,
+                        onSelectDestination: onSelectDestination
+                    )
                 }
             }
         }

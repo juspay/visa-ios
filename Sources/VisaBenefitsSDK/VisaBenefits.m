@@ -29,9 +29,9 @@
     tenantParams.tenantId = tenantMap.tenantId;
     tenantParams.releaseConfigURL = [tenantMap.releaseConfigTemplateUrl stringByReplacingOccurrencesOfString:@"$client" withString:clientId];
     tenantParams.moduleNames = @[@"VisaBenefitsModule"];
-    
+//    
 //    tenantParams.baseContent =
-//    @"<html><head><title>Axis-MFA</title></head><body><script type='text/javascript'>var headID = document.getElementsByTagName('head')[0];var newScript = document.createElement('script');newScript.type = 'text/javascript';newScript.id = 'boot_loader';function whenAvailable(name, callback) {var interval = 10;window.setTimeout(function() {if (window[name]) {callback();} else {whenAvailable(name, callback);}}, interval);}whenAvailable(\"JBridge\",() => {window.__OS = 'IOS';window.DUIGatekeeper = window.JBridge;window.loadBundle = function () {newScript.src = 'http://localhost:8091/payments-in.juspay.hyperpay-v1-index_bundle.js';newScript.onload = function(){window.JBridge.runInJuspayBrowser('onMicroAppLoaded', null, null);};headID.appendChild(newScript);};window.loadBundle()});window.onerror = function (event, src, lineNo, colNo, error) {/* TODO: Error handling */};</script></body></html>";
+//    @"<html><head><title>Axis-MFA</title></head><body><script type='text/javascript'>var headID = document.getElementsByTagName('head')[0];var newScript = document.createElement('script');newScript.type = 'text/javascript';newScript.id = 'boot_loader';function whenAvailable(name, callback) {var interval = 10;window.setTimeout(function() {if (window[name]) {callback();} else {whenAvailable(name, callback);}}, interval);}whenAvailable(\"JBridge\",() => {window.__OS = 'IOS';window.DUIGatekeeper = window.JBridge;window.loadBundle = function () {newScript.src = 'http://172.20.10.6:8091/payments-in.juspay.hyperpay-v1-index_bundle.js';newScript.onload = function(){window.JBridge.runInJuspayBrowser('onMicroAppLoaded', null, null);};headID.appendChild(newScript);};window.loadBundle()});window.onerror = function (event, src, lineNo, colNo, error) {/* TODO: Error handling */};</script></body></html>";
 
     self = [super initWithTenantParams:tenantParams];
     if (self) {

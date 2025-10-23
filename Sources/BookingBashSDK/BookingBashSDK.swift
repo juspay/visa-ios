@@ -4,23 +4,14 @@ import SUINavigation
 @objc public class BookingBashSDK: NSObject {
 
     @objc public static func createExperienceHomeView(encryptPayLoad: String, callback: @escaping () -> Void) -> UIViewController {
-        let view = ExperienceHomeWrapper(encryptPayLoad: encryptPayLoad, onFinish: callback)
-        return UIHostingController(rootView: view)
+        let view = NavigationStorageView {
+            ExperienceHomeView(
+                encryptPayLoadMainapp: encryptPayLoad,
+                isActive: .constant(true),
+                onFinish: callback
+            )
+        }
+        return UIHostingController.init(rootView: view)
     }
 
-}
-
-private struct ExperienceHomeWrapper: View {
-    let encryptPayLoad: String
-    let onFinish: () -> Void
-    @State private var isActive = true
-
-    var body: some View {
-        NavigationStorageView {
-            ExperienceHomeView(encryptPayLoadMainapp: encryptPayLoad, isActive: $isActive, onFinish: onFinish)
-        }
-        .onAppear {
-            isActive = true
-        }
-    }
 }

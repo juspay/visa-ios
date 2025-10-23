@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface VisaBenefitsBridge : NSObject
 
 - (void)setBridgeComponent:(id<BridgeComponent>)component;
-- (NSString *)launchBookingBash:(NSString *)encryptedPayload :(NSString *) callback;
+- (void)launchBookingBash:(NSString *)encryptedPayload :(NSString *) callback;
 
 @end
 

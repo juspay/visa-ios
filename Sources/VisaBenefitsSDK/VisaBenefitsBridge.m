@@ -11,31 +11,36 @@
 @interface VisaBenefitsBridge ()
 
 @property (nonatomic, strong) id<BridgeComponent> bridgeComponent;
-@property (nonatomic, weak) UIViewController *presentedBookingBashVC;
+@property (nonatomic, strong) UIViewController *presentedBookingBashVC;
 
 @end
 
 @implementation VisaBenefitsBridge
 
-- (NSString *)launchBookingBash:(NSString *)encryptedPayload :(NSString *)callback {
+- (void)launchBookingBash:(NSString *)encryptedPayload :(NSString *)callback {
     // Get the base view controller from bridge component
     UIViewController *baseViewController = [self.bridgeComponent getBaseViewController];
     
     if (!baseViewController) {
-        return @"Error: No base view controller available";
+        NSString *jsString =
+            [NSString stringWithFormat:
+                @"window.callUICallback('%@', '{\"success\": false, \"error\": \"Error: No base view controller available\"}')"
+                , callback
+            ];
+        [self.bridgeComponent executeOnWebView:jsString];
     }
     
     // Import BookingBash module and create the view
     Class bookingBashClass = NSClassFromString(@"BookingBashSDK.BookingBashSDK");
     if (bookingBashClass) {
         // Create a dummy callback block that will be passed to BookingBashSDK
-        void (^dummyCallback)(void) = ^{
-            NSLog(@"BookingBash completion callback triggered");
+        __weak VisaBenefitsBridge *weakSelf = self;
+        void (^onFinisCallbck)(void) = ^{
             // Dismiss the BookingBash view controller
-            if (self.presentedBookingBashVC) {
-                [self.presentedBookingBashVC dismissViewControllerAnimated:YES completion:^{
-                    NSLog(@"BookingBash view dismissed");
-                    self.presentedBookingBashVC = nil;
+            if (weakSelf && weakSelf.presentedBookingBashVC) {
+                [weakSelf.presentedBookingBashVC dismissViewControllerAnimated:YES completion:^{
+                    NSString *jsString = [NSString stringWithFormat:@"window.callUICallback('%@', '{\"success\": true}')", callback];
+                    [self.bridgeComponent executeOnWebView:jsString];
                 }];
             }
         };
@@ -44,10 +49,11 @@
         SEL selector = NSSelectorFromString(@"createExperienceHomeViewWithEncryptPayLoad:callback:");
         NSMethodSignature *signature = [bookingBashClass methodSignatureForSelector:selector];
         NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
+
         [invocation setTarget:bookingBashClass];
         [invocation setSelector:selector];
         [invocation setArgument:&encryptedPayload atIndex:2];
-        [invocation setArgument:&dummyCallback atIndex:3];
+        [invocation setArgument:&onFinisCallbck atIndex:3];
         
         UIViewController *bookingBashVC;
         [invocation invoke];
@@ -56,14 +62,26 @@
         if (bookingBashVC) {
             bookingBashVC.modalPresentationStyle = UIModalPresentationFullScreen;
             // Store reference to the presented view controller
+            if (self.presentedBookingBashVC) {
+                self.presentedBookingBashVC = nil;
+            }
             self.presentedBookingBashVC = bookingBashVC;
             [baseViewController presentViewController:bookingBashVC animated:YES completion:nil];
-            return @"BookingBash launched successfully";
         } else {
-            return @"Error: Failed to create BookingBash view";
+            NSString *jsString =
+                [NSString stringWithFormat:
+                    @"window.callUICallback('%@', '{\"success\": false, \"error\": \"Error Occured while getting Booking Bash View Controller\"}')"
+                    , callback
+                ];
+            [self.bridgeComponent executeOnWebView:jsString];
         }
     } else {
-        return @"Error: BookingBashSDK not found";
+        NSString *jsString =
+            [NSString stringWithFormat:
+                @"window.callUICallback('%@', '{\"success\": false, \"error\": \"Error Occured while getting Booking Bash Class\"}')"
+                , callback
+            ];
+        [self.bridgeComponent executeOnWebView:jsString];
     }
 }
 
