@@ -179,7 +179,8 @@ private extension ExperienceCheckoutView {
             NavigationLink(isActive: $checkoutViewModel.shouldNavigateToPayment) {
                 PaymentView(
                     orderId: checkoutViewModel.orderNo ?? "",
-                    paymentUrl: checkoutViewModel.paymentUrl ?? ""
+                    paymentUrl: checkoutViewModel.paymentUrl ?? "",
+                    participantsSummary: availabilityViewModel.participantsSummary
                 )
                 .navigationBarBackButtonHidden(true)
             } label: { EmptyView() }

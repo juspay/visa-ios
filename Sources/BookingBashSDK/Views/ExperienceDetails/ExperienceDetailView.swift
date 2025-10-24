@@ -3,8 +3,9 @@ import SUINavigation
 
 struct ExperienceDetailView: View {
     @StateObject private var experienceDetailViewModel = ExperienceDetailViewModel()
-    @State private var shouldPresentCalenderView: Bool = false
+    @State var shouldPresentCalenderView: Bool = false
     @State private var showAll: Bool = false
+    
     
     let productCode: String
     let currency: String?
@@ -144,7 +145,7 @@ private extension ExperienceDetailView {
         ) {
             if let model = experienceDetailViewModel.experienceDetail {
                 CustomCalendarView(
-                    model: model, experienceDetailViewModel: experienceDetailViewModel,
+                    shouldPresentCalenderView: shouldPresentCalenderView, model: model, experienceDetailViewModel: experienceDetailViewModel,
                     productCode: productCode,
                     currency: currency
                 )
@@ -154,3 +155,4 @@ private extension ExperienceDetailView {
         }
     }
 }
+

@@ -13,6 +13,7 @@ struct BookingFailedView: View {
     @ObservedObject var experienceBookingConfirmationViewModel: ExperienceBookingConfirmationViewModel
     @State private var shouldExpandDetails: Bool = false
     @State private var showCancelBottomSheet: Bool = false
+    let participantsSummary: String
     @OptionalEnvironmentObject private var navigationStorage: NavigationStorage?
     
     var body: some View {
@@ -34,7 +35,7 @@ struct BookingFailedView: View {
                             showCancelBottomSheet = true
                         },
                         isBookingConfirmationScreen: false,
-                        shouldExpandDetails: $shouldExpandDetails
+                        shouldExpandDetails: $shouldExpandDetails, participantsSummary: participantsSummary
                     )
                     
                     if shouldExpandDetails {

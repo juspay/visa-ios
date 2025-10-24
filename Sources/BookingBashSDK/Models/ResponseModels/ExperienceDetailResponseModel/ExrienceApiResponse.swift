@@ -1,9 +1,3 @@
-//
-//  ExperienceResponseModel.swift
-//  VisaActivity
-//
-//  Created by Rohit Sankpal on 21/08/25.
-//
 
 import Foundation
 
@@ -613,3 +607,4 @@ struct DetailReviews: Codable {
 struct DetailReviewCountTotal: Codable {
     let rating, count: Int
 }
+

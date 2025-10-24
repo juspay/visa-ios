@@ -3,6 +3,7 @@ import SwiftUI
 struct PaymentView: View {
     var orderId: String
     var paymentUrl: String
+    var participantsSummary: String
     @State private var shouldNavigateToConfirmation = false
 
     var body: some View {
@@ -31,7 +32,7 @@ struct PaymentView: View {
             .navigationBarBackButtonHidden(true)
             
             NavigationLink(isActive: $shouldNavigateToConfirmation) {
-                ExperienceBookingConfirmationView(orderNo: orderId)
+                ExperienceBookingConfirmationView(orderNo: orderId, participantsSummary: participantsSummary)
                     .navigationBarBackButtonHidden(true)
             } label: { EmptyView() }
         }

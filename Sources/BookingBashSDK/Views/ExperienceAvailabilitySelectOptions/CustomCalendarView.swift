@@ -6,7 +6,8 @@ struct CustomCalendarView: View {
     @StateObject private var viewModel = ExperienceAvailabilitySelectOptionsViewModel()
     @State private var shouldNavigateToAvailabilityScreen: Bool = false
     @State private var showParticipantsSheet: Bool = false
-    
+    @State var shouldPresentCalenderView: Bool = false
+
     var model: ExperienceDetailModel
     @ObservedObject var experienceDetailViewModel: ExperienceDetailViewModel
 

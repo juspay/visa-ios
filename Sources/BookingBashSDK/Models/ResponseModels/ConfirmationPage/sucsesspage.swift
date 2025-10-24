@@ -271,6 +271,7 @@ struct SuccessProductInfo: Codable {
     let exclusions: [Exclusion]?
     let additionalInfo: [AdditionalInfo]?
     let supplierName: String?
+//    let supplierInfo: SupplierInfo?
     let providerSupplierName: String?
     let supplier: SupplierInfo?
     let pickupDetails: PickupDetail?
@@ -287,8 +288,9 @@ struct SuccessProductInfo: Codable {
         case additionalInfo = "additional_info"
         case inclusions, exclusions
         case supplierName = "supplier_name"
+//        case supplierInfo = "supplierInfo"
         case providerSupplierName = "provider_supplier_name"
-        case supplier
+        case supplier = "supplier_info"
         case pickupDetails = "pickup_details"
         case languageDetails = "language_details"
         case cancellationPolicyString = "cancellation_policy_string"

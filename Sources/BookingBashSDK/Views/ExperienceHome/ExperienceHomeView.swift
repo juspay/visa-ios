@@ -74,7 +74,7 @@ struct ExperienceHomeView: View {
                     UserDefaults.standard.set(true, forKey: "hasAgreedToPrivacy")
                 },
                 onDisAgree: {
-                    showSkipSheet = true
+                    onFinish()
                 }
             )
         }
@@ -249,7 +249,7 @@ private extension View {
                 BottomSheetView(isPresented: isPresented, sheetHeight: screenHeight * 0.9) {
                     SearchDestinationBottomSheetView(
                         searchDestinationViewModel: searchDestinationViewModel,
-                        onSelectDestination: onSelectDestination
+                        onSelectDestination: onSelectDestination, isPresented: isPresented
                     )
                 }
             }

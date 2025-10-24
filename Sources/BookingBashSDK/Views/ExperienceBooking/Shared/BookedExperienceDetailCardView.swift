@@ -7,6 +7,8 @@ struct BookedExperienceDetailCardView: View {
     let cancelBookingButtonTapped: (() -> Void)?
     var isBookingConfirmationScreen: Bool = true
     @Binding var shouldExpandDetails: Bool
+    let participantsSummary: String
+
     
     var bookingDate: String {
         confirmationViewModel.bookingBasicDetails.first(where: { $0.key == "Booking Date" })?.value ?? "-"
@@ -17,8 +19,9 @@ struct BookedExperienceDetailCardView: View {
     }
     
     var bookingParticipants: String {
-        confirmationViewModel.bookingBasicDetails.first(where: { $0.key == "Participants" })?.value ?? "1 Adult"
+        confirmationViewModel.bookingBasicDetails.first(where: { $0.key == "Participants" })?.value ?? ""
     }
+    
     
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -37,7 +40,7 @@ struct BookedExperienceDetailCardView: View {
             BookedExperienceDateTimeView(
                 color: Color(hex: Constants.HexColors.neutral),
                 selectedDate: travelDate,
-                selectedParticipants: bookingParticipants
+                selectedParticipants: participantsSummary
             )
             if(isBookingConfirmationScreen) {
                 Text("Your supplier voucher is on it's way - check your inbox soon")

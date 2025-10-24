@@ -111,6 +111,22 @@ class ExperienceBookingConfirmationViewModel: ObservableObject {
     @Published var additionalInformation = ConfirmationReusableInfoModel(title: "Additional Information", points: ["-"])
     @Published var exclusions = ConfirmationReusableInfoModel(title: "What's Not Included?", points: ["-"])
     
+    // Computed property for participants summary
+    var participantsSummary: String {
+        var summary = ""
+        if totalAdults > 0 {
+            summary += "\(totalAdults) Adult" + (totalAdults > 1 ? "s" : "")
+        }
+        if totalChildren > 0 {
+            if !summary.isEmpty { summary += ", " }
+            summary += "\(totalChildren) Child" + (totalChildren > 1 ? "ren" : "")
+        }
+        if summary.isEmpty {
+            summary = "No participants"
+        }
+        return summary
+    }
+    
     // MARK: - Cancellation reasons
     struct CancellationReasonsAPIResponse: Codable {
         let status: Bool
@@ -176,7 +192,7 @@ class ExperienceBookingConfirmationViewModel: ObservableObject {
         contactDetails = [
             ContactDetailsModel(keyIcon: "UserGray", value: supplier),
             ContactDetailsModel(keyIcon: "Frame", value: supplierEmail),
-            ContactDetailsModel(keyIcon: "Mobile", value: supplierPhone)
+            ContactDetailsModel(keyIcon: "mobile", value: supplierPhone)
         ]
     }
     
@@ -292,11 +308,16 @@ class ExperienceBookingConfirmationViewModel: ObservableObject {
         }
         
         // Supplier info
-        let supplierValue = product.providerSupplierName ?? "Unknown Supplier"
+        let supplierValue = product.supplier?.name ?? "Unknown Supplier"
+        let supplierEmail = product.supplier?.email ?? ""
+        let supplierPhone = product.supplier?.phone ?? ""
         self.supplierName = supplierValue
-        // keep at least one contact detail as in original code (didSet on supplierName also updates contactDetails)
+      
+        
         self.contactDetails = [
             ContactDetailsModel(keyIcon: "UserGray", value: supplierValue),
+            ContactDetailsModel(keyIcon: "Frame", value: supplierEmail),
+            ContactDetailsModel(keyIcon: "mobile", value: supplierPhone),
         ]
         
         // INCLUSIONS
@@ -328,13 +349,17 @@ class ExperienceBookingConfirmationViewModel: ObservableObject {
         }
         
         // ADDITIONAL INFORMATION (display type values)
+//        self.additionalInformation = ConfirmationReusableInfoModel(
+//            title: "Additional Information",
+//            points: product.additionalInfo?.isEmpty == false
+//            ? product.additionalInfo!.compactMap { $0.type ?? "-" }
+//            : ["-"]
+//        )
         self.additionalInformation = ConfirmationReusableInfoModel(
             title: "Additional Information",
-            points: product.additionalInfo?.isEmpty == false
-            ? product.additionalInfo!.compactMap { $0.type ?? "-" }
-            : ["-"]
+            points: product.additionalInfo?.compactMap { $0.type } ?? []
         )
-        
+
         // Cancellation Policy
         let cancellationPolicyText = product.cancellationPolicy?.description ??
         "Tickets are non-cancellable, non-refundable and non-transferable."
@@ -373,22 +398,38 @@ class ExperienceBookingConfirmationViewModel: ObservableObject {
         let travellerNumber = traveller.mobile
         self.personContactDetails = [
             ContactDetailsModel(keyIcon: "UserGray", value: leadName),
-            ContactDetailsModel(keyIcon: "Mobile", value: travellerNumber ?? "Not available")
+            ContactDetailsModel(keyIcon: "mobile", value: travellerNumber ?? "Not available")
         ]
     }
     
     // MARK: - Booking details processing
     private func processBookingDetails(bookingDetails: SuccessBookingDetails) {
+//        let bookingDate = self.formatBookingDate(from: bookingDetails.createdAt ?? "")
+//        let bookingref = bookingDetails.bookingRef ?? "-"
+//        let bookingId = bookingDetails.orderNo ?? "-"
+//
+//
+//        self.bookingBasicDetails = [
+//            BasicBookingDetailsModel(key: "Booking ID", value: bookingId),
+//            BasicBookingDetailsModel(key: "Voucher ID", value: bookingref),
+//            BasicBookingDetailsModel(key: "Booking Date", value: bookingDate)
+//        ]
         let bookingDate = self.formatBookingDate(from: bookingDetails.createdAt ?? "")
-        let bookingref = bookingDetails.bookingRef ?? "-"
+        let bookingRef = bookingDetails.bookingRef ?? ""
         let bookingId = bookingDetails.orderNo ?? "-"
-        let voucherId = "ABCDLHRS31117"
-        
-        self.bookingBasicDetails = [
+
+        var details: [BasicBookingDetailsModel] = [
             BasicBookingDetailsModel(key: "Booking ID", value: bookingId),
-            BasicBookingDetailsModel(key: "Voucher ID", value: bookingref),
             BasicBookingDetailsModel(key: "Booking Date", value: bookingDate)
         ]
+
+        // Add Voucher ID only if it's not empty
+        if !bookingRef.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            details.insert(BasicBookingDetailsModel(key: "Voucher ID", value: bookingRef), at: 1)
+        }
+
+        self.bookingBasicDetails = details
+
         
         // Update booking status based on API response
         if let status = bookingDetails.bookingStatus?.uppercased() {

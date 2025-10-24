@@ -23,21 +23,20 @@ struct ExperienceBookingStatusScreenView: View {
         VStack(spacing: 16) {
             switch viewModel.bookingStatus {
             case .confirmed:
-                ExperienceBookingConfirmationView(orderNo: "" /*experienceBookingConfirmationViewModel: viewModel*/)
+                ExperienceBookingConfirmationView(orderNo: viewModel.bookingRef ?? "")
 
             case .bookingPending:
-                BookingPendingView(experienceBookingConfirmationViewModel: viewModel)
+                BookingPendingView(experienceBookingConfirmationViewModel: viewModel, participantsSummary: viewModel.participantsSummary)
 
             case .paymentfailed:
-                PaymentFailedView(experienceBookingConfirmationViewModel: viewModel)
+                PaymentFailedView(experienceBookingConfirmationViewModel: viewModel, participantsSummary: viewModel.participantsSummary)
 
             case .bookingFailed:
-                BookingFailedView(experienceBookingConfirmationViewModel: viewModel)
+                BookingFailedView(experienceBookingConfirmationViewModel: viewModel, participantsSummary: viewModel.participantsSummary)
                 
             case .cancelled:
-                BookingCancellationView(experienceBookingConfirmationViewModel: viewModel)
+                BookingCancellationView(experienceBookingConfirmationViewModel: viewModel, participantsSummary: viewModel.participantsSummary)
             }
         }
     }
 }
-

@@ -10,6 +10,7 @@ import SUINavigation
 
 struct BookingCancellationView: View {
     @ObservedObject var experienceBookingConfirmationViewModel: ExperienceBookingConfirmationViewModel
+    let participantsSummary: String
     @State private var shouldExpandDetails: Bool = false
     @State private var showCancelBottomSheet: Bool = false
     @OptionalEnvironmentObject private var navigationStorage: NavigationStorage?
@@ -34,7 +35,7 @@ struct BookingCancellationView: View {
                             showCancelBottomSheet = true
                         },
                         isBookingConfirmationScreen: false,
-                        shouldExpandDetails: $shouldExpandDetails
+                        shouldExpandDetails: $shouldExpandDetails, participantsSummary: participantsSummary
                     )
                     
                     if shouldExpandDetails {

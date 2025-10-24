@@ -27,7 +27,7 @@ final class DefaultExperienceListService: ExperienceListService {
                  Constants.APIHeaders.tokenKey: ssoTokenGlobal
         ]
        
-       
+       print("Headers for list view - \(headers)")
         
         // Convert to JSON to see exactly what's being sent
         if let jsonData = try? JSONEncoder().encode(requestBody),
@@ -183,3 +183,4 @@ struct SearchRequestBuilder {
         )
     }
 }
+

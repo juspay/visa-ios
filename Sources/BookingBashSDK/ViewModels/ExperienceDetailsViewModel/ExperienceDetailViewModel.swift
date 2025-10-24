@@ -522,3 +522,4 @@ extension ExperienceDetailViewModel {
         ]
     }
 }
+

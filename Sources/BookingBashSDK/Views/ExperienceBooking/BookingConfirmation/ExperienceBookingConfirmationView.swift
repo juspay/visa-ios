@@ -8,10 +8,12 @@ struct ExperienceBookingConfirmationView: View {
     
     let orderNo: String
     let isFromBookingJourney: Bool
+    let participantsSummary: String
     
-    init(orderNo: String = "", isFromBookingJourney: Bool = true, booking: Booking? = nil) {
+    init(orderNo: String = "", isFromBookingJourney: Bool = true, booking: Booking? = nil, participantsSummary: String = "") {
         self.orderNo = orderNo
         self.isFromBookingJourney = isFromBookingJourney
+        self.participantsSummary = participantsSummary
         _viewModel = StateObject(wrappedValue: ExperienceBookingConfirmationViewModel(booking: booking))
     }
 
@@ -72,14 +74,16 @@ private extension ExperienceBookingConfirmationView {
     
     var contentSection: some View {
         VStack(spacing: 16) {
-            BookingBasicDetailsCardView(basicBookingDetailsModel: viewModel.bookingBasicDetails)
-            
+            BookingBasicDetailsCardView(
+                basicBookingDetailsModel: viewModel.bookingBasicDetails.filter { $0.key.lowercased() != "participants" }
+                
+            )
             BookedExperienceDetailCardView(
                 experienceViewModel: ExperienceAvailabilitySelectOptionsViewModel(),
                 confirmationViewModel: viewModel,
                 viewDetailsButtonTapped: { shouldExpandDetails = true },
                 cancelBookingButtonTapped: { viewModel.fetchCancellationReasons(orderNo: orderNo) },
-                shouldExpandDetails: $shouldExpandDetails
+                shouldExpandDetails: $shouldExpandDetails, participantsSummary: participantsSummary
             )
             
             if shouldExpandDetails { expandedDetailsSection }
@@ -93,7 +97,7 @@ private extension ExperienceBookingConfirmationView {
     
     var navigationToCancellation: some View {
         NavigationLink(
-            destination: BookingCancellationView(experienceBookingConfirmationViewModel: viewModel),
+            destination: BookingCancellationView(experienceBookingConfirmationViewModel: viewModel, participantsSummary: participantsSummary),
             isActive: $viewModel.navigateToCancellationView
         ) { EmptyView() }
     }
@@ -108,7 +112,8 @@ private extension ExperienceBookingConfirmationView {
             )
             FareSummaryCardView(
                 fairSummaryData: viewModel.fairSummaryData,
-                totalPrice: "\(viewModel.currency) \(String(format: "%.0f", viewModel.totalAmount))"
+                totalPrice: "\(viewModel.currency) \(String(format: "%.0f", viewModel.totalAmount))",
+                savingsText: viewModel.savingsTextforFareBreakup // Pass savings text for banner
             )
             ConfirmationInfoReusableCardView(section: viewModel.cancellationPolicy, showBullets: false)
             ConfirmationInfoReusableCardView(section: viewModel.leadTraveller, showBullets: false)
