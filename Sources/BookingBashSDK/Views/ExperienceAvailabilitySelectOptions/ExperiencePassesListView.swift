@@ -5,7 +5,6 @@ struct ExperiencePassesListView: View {
     @ObservedObject var viewModel: ExperienceAvailabilitySelectOptionsViewModel
     @ObservedObject var experienceDetailViewModel: ExperienceDetailViewModel
     
-
     var model: ExperienceDetailModel
     let productCode: String
     
@@ -21,9 +20,22 @@ struct ExperiencePassesListView: View {
                     .foregroundStyle(Color(hex: Constants.HexColors.blackStrong))
                 
                 if viewModel.packages.isEmpty {
-                    Text(Constants.AvailabilityScreenConstants.noPackagesAvailable)
-                        .font(.custom(Constants.Font.openSansRegular, size: 14))
-                        .foregroundStyle(Color(hex: Constants.HexColors.blackStrong))
+                    VStack(spacing: 12) {
+                        if let noResultImage = ImageLoader.bundleImage(named: Constants.Icons.searchNoResult) {
+                            noResultImage
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 124, height: 124)
+                                .padding(.top, 40)
+                        }
+                        
+                        Text(Constants.AvailabilityScreenConstants.noPackagesAvailable)
+                            .font(.custom(Constants.Font.openSansRegular, size: 14))
+                            .foregroundStyle(Color(hex: Constants.HexColors.blackStrong))
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
                     ForEach(viewModel.packages) { package in
                         ExperiencePassesCardView(
@@ -31,7 +43,8 @@ struct ExperiencePassesListView: View {
                             model: model,
                             viewModel: viewModel,
                             experienceDetailViewModel: experienceDetailViewModel,
-                            productCode: productCode, currency: nil,
+                            productCode: productCode,
+                            currency: nil,
                             subActivityCode: package.subActivityCode ?? "",
                             uid: viewModel.response?.data?.uid ?? "",
                             availabilityKey: findAvailabilityKey(for: package)

@@ -80,11 +80,13 @@ struct StrikeoutPrice: Codable {
     let baseRate: Double
     let taxes: Double
     let totalAmount: Double
+    let savingAmount: Double
 
     enum CodingKeys: String, CodingKey {
         case baseRate = "base_rate"
         case taxes
         case totalAmount = "total_amount"
+        case savingAmount = "saving_amount"
     }
 }
 

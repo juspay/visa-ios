@@ -26,16 +26,16 @@ struct ExperienceBookingStatusScreenView: View {
                 ExperienceBookingConfirmationView(orderNo: viewModel.bookingRef ?? "")
 
             case .bookingPending:
-                BookingPendingView(experienceBookingConfirmationViewModel: viewModel, participantsSummary: viewModel.participantsSummary)
+                BookingPendingView(experienceBookingConfirmationViewModel: viewModel, participantsSummary: viewModel.participantsSummary, selectedTime: viewModel.selectedTime ?? "")
 
             case .paymentfailed:
-                PaymentFailedView(experienceBookingConfirmationViewModel: viewModel, participantsSummary: viewModel.participantsSummary)
+                PaymentFailedView(experienceBookingConfirmationViewModel: viewModel, participantsSummary: viewModel.participantsSummary, selectedTime: viewModel.selectedTime ?? "")
 
             case .bookingFailed:
-                BookingFailedView(experienceBookingConfirmationViewModel: viewModel, participantsSummary: viewModel.participantsSummary)
+                BookingFailedView(experienceBookingConfirmationViewModel: viewModel, participantsSummary: viewModel.participantsSummary, selectedTime: viewModel.selectedTime ?? "")
                 
             case .cancelled:
-                BookingCancellationView(experienceBookingConfirmationViewModel: viewModel, participantsSummary: viewModel.participantsSummary)
+                BookingCancellationView(experienceBookingConfirmationViewModel: viewModel, participantsSummary: viewModel.participantsSummary, selectedTime: viewModel.selectedTime ?? "")
             }
         }
     }

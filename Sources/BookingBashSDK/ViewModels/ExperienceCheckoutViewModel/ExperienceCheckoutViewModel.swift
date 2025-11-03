@@ -4,7 +4,11 @@ final class ExperienceCheckoutViewModel: ObservableObject {
     @Published var paymentUrl: String?
     @Published var location: String?
     @Published var totalAmount: Double?
-    @Published var shouldNavigateToPayment: Bool = false
+    @Published var shouldNavigateToPayment: Bool = false {
+        willSet {
+            print("🔍 [CHECKOUT VM] shouldNavigateToPayment changing from \(shouldNavigateToPayment) to \(newValue)")
+        }
+    }
     @Published var carousalData: [ExperienceDetailCarousalModel] = []
     @Published var selectedTravelDate: Date = Date()
     @Published var fairSummaryData: [FareItem] = []
@@ -12,9 +16,12 @@ final class ExperienceCheckoutViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var showToast = false
     @Published var toastMessage = ""
+    @Published var showNoResultImage = false
     @Published var shouldNavigateToTerms = false
     @Published var shouldNavigateToPrivacy = false
     @Published var isLoading: Bool = false // Added property to track loading state
+    @Published var showErrorOverlay = false
+    var errorStatusCode: Int? = nil
     
     // Additional UI data properties - Updated to match details page structure
     @Published var experienceTitle: String = ""
@@ -33,10 +40,10 @@ final class ExperienceCheckoutViewModel: ObservableObject {
     @Published var allFeatures: [FeatureItem] = []
     
     let productId: String
-    private var selectedPackage: Package? // Added to store the selected package from availability view
-    private var availabilityResponse: AvailabilityApiResponse? // Added to store availability response for track_id
-    private var uid: String? // Added to store uid from availability
-    private var availabilityKey: String? // Added to store availabilityKey from availability
+    private var selectedPackage: Package?
+    private var availabilityResponse: AvailabilityApiResponse?
+    private var uid: String?
+    private var availabilityKey: String?
     
     init(productId: String) {
         self.productId = productId
@@ -45,21 +52,14 @@ final class ExperienceCheckoutViewModel: ObservableObject {
     // Method to set the selected package from the availability view
     func setSelectedPackage(_ package: Package) {
         self.selectedPackage = package
-        // 🔍 LOG: Print package details when set
-        print("🔍 [CHECKOUT] Setting selected package:")
-        print("   - Package title: '\(package.title)'")
-        print("   - subActivityCode: '\(package.subActivityCode ?? "nil")'")
-        print("   - activityCode: '\(package.activityCode ?? "nil")'")
+        
     }
     
     // Method to set the availability response to access track_id
     func setAvailabilityResponse(_ response: AvailabilityApiResponse?) {
         self.availabilityResponse = response
-        // 🔍 LOG: Print availability response details
         if let response = response {
-            print("🔍 [CHECKOUT] Setting availability response:")
-            print("   - trackId: '\(response.data?.trackId ?? "nil")'")
-            print("   - uid: '\(response.data?.uid ?? "nil")'")
+            
         }
     }
     
@@ -84,6 +84,12 @@ final class ExperienceCheckoutViewModel: ObservableObject {
     }
     
     func handlePayNowTapped(guestDetails: GuestDetails, isConsentBoxChecked: Bool) {
+        let allowedTitles = ["Mr", "Ms", "Mrs", "Dr"]
+        let trimmedTitle = guestDetails.title.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmedTitle.isEmpty || !allowedTitles.contains(trimmedTitle) {
+            showToast(message: "Please select title")
+            return
+        }
         if let error = validateMobile(guestDetails.mobileNumber, forCode: guestDetails.mobileCountryCode) {
             showToast(message: error)
             return
@@ -108,7 +114,7 @@ final class ExperienceCheckoutViewModel: ObservableObject {
     private func showToast(message: String) {
         toastMessage = message
         showToast = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
             self?.showToast = false
         }
     }
@@ -139,20 +145,11 @@ extension ExperienceCheckoutViewModel {
     private func fetchReviewDetails() {
         guard let url = URL(string: Constants.APIURLs.reviewDetailsURL) else { return }
         
-//        let rateCode = selectedPackage?.subActivityCode ?? ""
+        //        let rateCode = selectedPackage?.subActivityCode ?? ""
         let activityCode = selectedPackage?.activityCode ?? ""
         
-        // Use dynamic values instead of constants
-//        let requestUid = uid ?? Constants.API.reviewDetailsUID
-        
-        // Construct availabilityId as "uid||availabilityKey"
-//        let requestAvailabilityId: String
-//        if let uid = uid, let key = availabilityKey, !key.isEmpty {
-//
-//        } else {
-//            requestAvailabilityId = Constants.API.reviewDetailsAvailabilityID
-//        }
-     let requestAvailabilityId = "\(avalabulityUid)||\(availablityKey)"
+       
+        let requestAvailabilityId = "\(avalabulityUid)||\(availablityKey)"
         
         let requestBody = ReviewDetailsRequestModel(
             uid: detaislUid,
@@ -163,26 +160,24 @@ extension ExperienceCheckoutViewModel {
             rateCode: subActivityCode
         )
         
-        print("🔍 [CHECKOUT] Review Details Request:")
-  
-      
-        
         let headers: [String: String] = [
             Constants.APIHeaders.contentTypeKey: Constants.APIHeaders.contentTypeValue,
-           Constants.APIHeaders.authorizationKey: TokenProvider.getAuthHeader() ?? "",
-           Constants.APIHeaders.siteId: ssoSiteIdGlobal,
-           Constants.APIHeaders.tokenKey: ssoTokenGlobal
+            Constants.APIHeaders.authorizationKey: TokenProvider.getAuthHeader() ?? "",
+            Constants.APIHeaders.siteId: ssoSiteIdGlobal,
+            Constants.APIHeaders.tokenKey: ssoTokenGlobal
         ]
-        print(requestBody)
         NetworkManager.shared.post(url: url, body: requestBody, headers: headers) { (result: Result<ReviewTourDetailResponse, Error>) in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let response):
-                    print("🔍 [CHECKOUT] Review Details Response:")
-                    print("   - status: \(response.status ?? false)")
-                    print("   - statusCode: \(response.statusCode ?? 0)")
-                    print(response.data?.reviewUid ?? "tatatatattat")
-
+                    if response.status == false || response.statusCode != 200 {
+                        self.errorStatusCode = response.statusCode
+                        self.errorMessage = Constants.ErrorMessages.somethingWentWrong
+                        self.showErrorOverlay = true
+                       
+                        self.showNoResultImage = true
+                        return
+                    }
                     if let status = response.status, status, let data = response.data {
                         // Success: safe to use data
                         self.totalAmount = data.price?.totalAmount
@@ -190,24 +185,16 @@ extension ExperienceCheckoutViewModel {
                         self.reviewResponse = response
                         self.setUiData(responseData: data)
                         self.updateCarouselData(from: data)
-                        print("✅ [CHECKOUT] Successfully processed ReviewTourDetailResponse")
-                        print("   - Total Amount: \(data.price?.totalAmount ?? 0)")
-                        print("   - Location: \(self.location ?? "N/A")")
-                    } else if let error = response.error {
-                        // API returned an error
-                        self.errorMessage = error.details
-                        self.showToast(message: error.details)
-                        print("❌ [CHECKOUT] API Error: \(error.type) - \(error.details)")
-                    } else {
+                        self.showNoResultImage = false
+                    }  else {
                         self.errorMessage = "Unknown API error"
                         self.showToast(message: "Unknown API error")
-                        print("❌ [CHECKOUT] Unknown API error, data empty")
+                        self.showNoResultImage = true
                     }
-
                 case .failure(let error):
                     self.errorMessage = error.localizedDescription
                     self.showToast(message: error.localizedDescription)
-                    print("❌ [CHECKOUT] Network request failed: \(error.localizedDescription)")
+                    self.showNoResultImage = true
                 }
             }
         }
@@ -287,7 +274,7 @@ extension ExperienceCheckoutViewModel {
             }
         }
     }
-
+    
     // Method to update carousel data from review response
     private func updateCarouselData(from data: ReviewTourDetailData) {
         // Start with thumbnail from review data
@@ -299,7 +286,7 @@ extension ExperienceCheckoutViewModel {
         // If you want to fetch more images, uncomment the line below
         // fetchImageList()
     }
-
+    
     func setUiData(responseData: ReviewTourDetailData?) {
         guard let data = responseData else {
             print("❌ [CHECKOUT] setUiData called with nil data")
@@ -371,45 +358,35 @@ extension ExperienceCheckoutViewModel {
             }
             
             // Add base rate
-//            if let baseRate = price.baseRate {
-//                let leftText = "1 Adults x AED \(String(format: "%.1f", baseRate))"
-//                let rightText = "AED \(String(format: "%.2f", baseRate))"
-//
-//                fairSummaryData.append(FareItem(
-//                    title: leftText,
-//                    value: rightText,
-//                    isDiscount: false
-//                ))
-//                print("🔍 [CHECKOUT] ✅ Added base rate fare item: \(leftText) = \(rightText)")
-//            }
+            
             if let pricePerAges = reviewResponse?.data?.tourOption?.rates?.first?.price?.pricePerAge {
-                            print("🔍 Found pricePerAge array with \(pricePerAges.count) items")
-
-                            for item in pricePerAges {
-                                if let bandId = item.bandId,
-                                   let count = item.count,
-                                   let bandTotal = item.bandTotal,
-                                   let perPriceTraveller = item.perPriceTraveller {
-
-                                    let descriptionText = count > 1
-                                        ? "\(bandId.capitalized)s"
-                                        : bandId.capitalized
-
-                                    let leftText = "\(Int(count)) \(descriptionText) x AED \(String(format: "%.1f", perPriceTraveller))"
-                                    let rightText = "AED \(String(format: "%.2f", bandTotal ))"
-
-                                    fairSummaryData.append(
-                                        FareItem(title: leftText, value: rightText, isDiscount: false)
-                                    )
-
-                                    print("✅ Added Fare Item → \(leftText) = \(rightText)")
-                                } else {
-                                    print("⚠️ Skipped one price item because of missing data: \(item)")
-                                }
-                            }
-                        } else {
-                            print("⚠️ No pricePerAge data found in tourOption rates")
-                        }
+                print("🔍 Found pricePerAge array with \(pricePerAges.count) items")
+                
+                for item in pricePerAges {
+                    if let bandId = item.bandId,
+                       let count = item.count,
+                       let bandTotal = item.bandTotal,
+                       let perPriceTraveller = item.perPriceTraveller {
+                        
+                        let descriptionText = count > 1
+                        ? "\(bandId.capitalized)s"
+                        : bandId.capitalized
+                        
+                        let leftText = "\(Int(count)) \(descriptionText) x AED \( perPriceTraveller)"
+                        let rightText = "AED \( bandTotal )"
+                        
+                        fairSummaryData.append(
+                            FareItem(title: leftText, value: rightText, isDiscount: false)
+                        )
+                        
+                        print("✅ Added Fare Item → \(leftText) = \(rightText)")
+                    } else {
+                        print("⚠️ Skipped one price item because of missing data: \(item)")
+                    }
+                }
+            } else {
+                print("⚠️ No pricePerAge data found in tourOption rates")
+            }
             // Add taxes if available and greater than 0
             if let taxes = price.taxes, taxes > 0 {
                 fairSummaryData.append(FareItem(
@@ -434,13 +411,13 @@ extension ExperienceCheckoutViewModel {
                     isDiscount: true
                 ))
                 
-                savingsTextforFareBreakup = "You saveing AED \(String(format: "%.2f", discountAmount))"
+                savingsTextforFareBreakup = "You are saving AED \(String(format: "%.2f", discountAmount))"
                 print("🔍 [CHECKOUT] ✅ Added discount fare item: - AED \(String(format: "%.2f", discountAmount))")
                 
             } else {
                 // No strikeout or no discount, still append
                 savingsTextforFareBreakup = "You are saving AED \(String(format: "%.2f", 0.0)) "
-
+                
                 fairSummaryData.append(FareItem(
                     title: "Discount",
                     value: "- AED 0.00",
@@ -448,7 +425,7 @@ extension ExperienceCheckoutViewModel {
                 ))
                 print("🔍 [CHECKOUT] ⚪ No strikeout price, added default discount item: - AED 0.00")
             }
-
+            
         } else {
             print("❌ [CHECKOUT] No price object found in data!")
         }
@@ -742,7 +719,7 @@ extension ExperienceCheckoutViewModel {
         print("🔍 [CHECKOUT] ========================================")
     }
 }
- 
+
 
 // MARK: - Init Booking
 extension ExperienceCheckoutViewModel {
@@ -762,9 +739,7 @@ extension ExperienceCheckoutViewModel {
             return
         }
         
-        print("🔍 [INIT BOOK] ========== Starting Init Book ==========")
-        print("🔍 [INIT BOOK] Using review_uid: '\(reviewUid)'")
-        print("🔍 [INIT BOOK] Guest details: \(guestDetails?.firstName ?? "nil") \(guestDetails?.lastName ?? "nil")")
+        
         
         // Create sub-expressions to help compiler type-checking
         let bookingDetails = InitBookingDetails(
@@ -778,7 +753,7 @@ extension ExperienceCheckoutViewModel {
         )
         
         let contactDetails = InitContactDetails(
-            title: guestDetails?.title ?? "Mr",
+            title: guestDetails?.title ?? "",
             first_name: guestDetails?.firstName ?? "",
             last_name: guestDetails?.lastName ?? "",
             email: guestDetails?.email ?? "",
@@ -888,40 +863,20 @@ extension ExperienceCheckoutViewModel {
             booking_question: bookingQuestion
         )
         
-        print("🔍 [INIT BOOK] Request constructed:")
-        print("   - UID: '\(reviewUid)'")
-        print("   - Contact: \(contactDetails.first_name) \(contactDetails.last_name)")
-        print("   - Email: \(contactDetails.email)")
-        print("   - Mobile: +\(contactDetails.code) \(contactDetails.mobile)")
-        print("   - Total Amount: \(earningDetails.total_amount)")
-        
         let headers: [String: String] = [
             Constants.APIHeaders.contentTypeKey: Constants.APIHeaders.contentTypeValue,
-           Constants.APIHeaders.authorizationKey: TokenProvider.getAuthHeader() ?? "",
-           Constants.APIHeaders.siteId: ssoSiteIdGlobal,
-           Constants.APIHeaders.tokenKey: ssoTokenGlobal
+            Constants.APIHeaders.authorizationKey: TokenProvider.getAuthHeader() ?? "",
+            Constants.APIHeaders.siteId: ssoSiteIdGlobal,
+            Constants.APIHeaders.tokenKey: ssoTokenGlobal
         ]
-        print("🔍 [INIT BOOK] Headers set for request")
-        print(requestBody)
-        print(headers)
-        print(url)
         
         NetworkManager.shared.post(url: url, body: requestBody, headers: headers) { (result: Result<InitBookResponse, Error>) in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let response):
-                    print("🔍 [INIT BOOK] Response received:")
-                    print("   - Status: \(response.status ?? false)")
-                    print("   - Status Code: \(response.status_code ?? 0)")
+                    
                     
                     if let status = response.status, status, let data = response.data {
-                        print("✅ [INIT BOOK] Success!")
-                        print("   - Booking ID: '\(data.booking_id ?? "nil")'")
-                        print("   - PG Token: '\(data.pg_token ?? "nil")'")
-                        print("   - Success URL: '\(data.success_url ?? "nil")'")
-                        print("   - PG Type: '\(data.pg_type ?? "nil")'")
-                        print("   - Price Changed: '\(data.price_changed ?? "nil")'")
-                        print("   - Message: '\(data.msg ?? "nil")'")
                         
                         // Store booking_id and payment URL
                         if let bookingId = data.booking_id {
@@ -933,26 +888,28 @@ extension ExperienceCheckoutViewModel {
                                 print("✅ [INIT BOOK] Payment URL stored: \(successUrl)")
                             }
                             
+                            print("🔍 [INIT BOOK] About to set shouldNavigateToPayment = true")
                             self.shouldNavigateToPayment = true
                             print("✅ [INIT BOOK] Navigation to payment triggered with booking ID: \(bookingId)")
+                            print("🔍 [INIT BOOK] Current navigation state: \(self.shouldNavigateToPayment)")
                         } else {
                             self.errorMessage = "Booking ID not received"
-                            self.showToast(message: "Booking ID not received")
+//                            self.showToast(message: "Booking ID not received")
                             print("❌ [INIT BOOK] No booking ID in response")
                         }
                     } else if let error = response.error {
                         self.errorMessage = error.details
-                        self.showToast(message: error.details)
+//                        self.showToast(message: error.details)
                         print("❌ [INIT BOOK] API Error: \(error.type) - \(error.details)")
                     } else {
                         self.errorMessage = "Unknown error occurred"
-                        self.showToast(message: "Unknown error occurred")
+//                        self.showToast(message: "Unknown error occurred")
                         print("❌ [INIT BOOK] Unknown error - no data or error in response")
                     }
                     
                 case .failure(let error):
                     self.errorMessage = error.localizedDescription
-                    self.showToast(message: error.localizedDescription)
+//                    self.showToast(message: error.localizedDescription)
                     print("❌ [INIT BOOK] Network Error: \(error.localizedDescription)")
                 }
                 

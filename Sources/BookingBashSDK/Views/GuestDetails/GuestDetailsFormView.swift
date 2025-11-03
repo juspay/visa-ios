@@ -1,5 +1,4 @@
 import SwiftUI
-import SVGKit
 
 struct GuestDetailsFormView: View {
     @State private var isExpanded = true
@@ -35,10 +34,12 @@ struct GuestDetailsFormView: View {
         Button {
             withAnimation(.easeInOut) { isExpanded.toggle() }
         } label: {
-            HStack(alignment: .center, spacing: 10) {
-                Image(systemName: Constants.GuestDetailsFormConstants.systemNamePersonCircle)
-                    .font(.system(size: 18))
-                    .foregroundColor(Color(.systemGray))
+            HStack(alignment: .center, spacing: 6) {
+                if let icon = ImageLoader.bundleImage(named: Constants.Icons.usergray) {
+                    icon
+                        .resizable()
+                        .frame(width: 17, height: 17)
+                }
                 Text(Constants.GuestDetailsFormConstants.addGuestDetails)
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundColor(Color(.label))
@@ -84,8 +85,11 @@ struct GuestDetailsFormView: View {
                 titleOptions: titleMenu,
                 selectedTitle: $details.title,
                 firstName: $details.firstName
+                
             )
             .padding(.horizontal, 14)
+            // Disable only first name field (title remains active)
+            .disabled(false) // title dropdown active, name textfield inactive handled internally if needed
         }
     }
     
@@ -98,6 +102,8 @@ struct GuestDetailsFormView: View {
                 text: $details.lastName
             )
             .padding(.horizontal, 14)
+             .disabled(true)
+             .opacity(0.6)
         }
     }
     
@@ -111,6 +117,8 @@ struct GuestDetailsFormView: View {
                 keyboardType: .emailAddress
             )
             .padding(.horizontal, 14)
+             .disabled(true)
+             .opacity(0.6) 
         }
     }
     
@@ -127,6 +135,7 @@ struct GuestDetailsFormView: View {
                 }
             )
             .padding(.horizontal, 14)
+            // Keep this editable (do not disable)
             .onChange(of: details.mobileNumber) { newValue in
                 if let selected = codes.first(where: { $0.dialCode == details.mobileCountryCode }) {
                     let filtered = newValue.filter { $0.isNumber }

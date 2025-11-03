@@ -32,10 +32,6 @@ struct TopBarView: View {
                     .font(.custom(Constants.Font.openSansRegular, size: 14))
                     .foregroundStyle(Color(hex: Constants.HexColors.blackStrong))
                 Spacer()
-                Image(systemName: Constants.Icons.xmark)
-                    .imageScale(.small)
-                    .frame(width: 18, height: 18)
-                    .foregroundStyle(Color(hex: Constants.HexColors.neutral))
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 12)
@@ -43,6 +39,7 @@ struct TopBarView: View {
                 RoundedRectangle(cornerRadius: 50)
                     .stroke(Color.gray.opacity(0.4), lineWidth: 1)
             )
+            .contentShape(Rectangle())
             .onTapGesture {
                 onSearchTap()
             }

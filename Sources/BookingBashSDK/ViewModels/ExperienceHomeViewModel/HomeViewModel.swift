@@ -78,9 +78,7 @@ final class HomeViewModel: ObservableObject {
     }
     
     func loadHome(encryptPayload: String) {
-//        decryptPayload(encryptPayload)
         fetchHomeData()
-        performSSOLogin(encryptedToken: encryptPayload)
     }
     
     func fetchHomeData() {
@@ -122,25 +120,53 @@ final class HomeViewModel: ObservableObject {
         }
     }
     
+//    func performSSOLogin(encryptedToken: String) {
+//        isSSOLoginLoading = true
+//        errorMessage = ""
+//
+//        service.ssoLogin(encryptedToken: encryptedToken) { [weak self] result in
+//            DispatchQueue.main.async {
+//                guard let self = self else { return }
+//                self.isSSOLoginLoading = false
+//                switch result {
+//                case .success(let response):
+//                    self.ssoLoginResponse = response
+//                    self.processSSOLoginResponse(response)
+//                case .failure(let error):
+//                    self.setError(error.localizedDescription)
+//                }
+//            }
+//        }
+//    }
     func performSSOLogin(encryptedToken: String) {
-        isSSOLoginLoading = true
-        errorMessage = ""
-        
-        service.ssoLogin(encryptedToken: encryptedToken) { [weak self] result in
-            DispatchQueue.main.async {
-                guard let self = self else { return }
-                self.isSSOLoginLoading = false
-                switch result {
-                case .success(let response):
-                    self.ssoLoginResponse = response
-                    self.processSSOLoginResponse(response)
-                case .failure(let error):
-                    self.setError(error.localizedDescription)
+    isSSOLoginLoading = true
+    errorMessage = ""
+    
+    service.ssoLogin(encryptedToken: encryptedToken) { [weak self] result in
+        DispatchQueue.main.async {
+            guard let self = self else { return }
+            self.isSSOLoginLoading = false
+            
+            switch result {
+            case .success(let response):
+                // Success: decoding succeeded
+                self.ssoLoginResponse = response
+                self.processSSOLoginResponse(response)
+                // Additional safety check for status
+                if response.status == false {
+                    self.errorMessage = Constants.ErrorMessages.somethingWentWrong
                 }
+
+            case .failure(let error):
+                // Decoding or network failure
+              
+                self.errorMessage = Constants.ErrorMessages.somethingWentWrong
             }
         }
     }
-    
+}
+
+
     private func processHomeResponse(_ response: HomeResponseModel) {
         
         // Process destinations with detailed logging
@@ -153,7 +179,8 @@ final class HomeViewModel: ObservableObject {
                 locationName: apiDestination.locationName,
                 city: apiDestination.city,
                 state: apiDestination.state,
-                region: apiDestination.region
+                region: apiDestination.region,
+                currency: response.data.currency // Pass currency from response
             )
         }
         
@@ -170,7 +197,7 @@ final class HomeViewModel: ObservableObject {
                 originalPrice: Int(activity.price.strikeout?.totalAmount ?? activity.price.totalAmount),
                 discount: activity.price.strikeout?.savingPercentage ?? 0,
                 finalPrice: Int(activity.price.totalAmount),
-                productCode: productCode
+                productCode: productCode, currency: activity.price.currency
             )
         }
         termsAndConditionsUrlGlobal = response.data.pageUrls.termsAndConditions

@@ -18,6 +18,8 @@ struct ExperienceSelectedDestination: View {
     @State private var selectedDestination: Destination?
     @State private var experienceListSearchRequestModel: SearchRequestModel?
     @State private var searchText: String = ""
+    @FocusState private var isSearchFieldFocused: Bool
+
     
     // Currency
     @State private var isCurrencySheetPresented = false
@@ -97,7 +99,7 @@ struct ExperienceSelectedDestination: View {
                             SearchBarView(
                                 viewModel: searchDestinationViewModel,
                                 searchPlaceholderText: "Search attractions / city",
-                                searchText: $searchText
+                                searchText: $searchText, isFocused: $isSearchFieldFocused
                             )
                             .shadow(color: Color.black.opacity(0.15), radius: 4, x: 0, y: 2)
                             .padding(.horizontal, 16)
@@ -222,7 +224,7 @@ private extension ExperienceSelectedDestination {
             enquiryId: Constants.ExperienceHomeConstants.defaultEnquiryId,
             productCode: [],
             filters: SearchFilters(
-                limit: Constants.ExperienceHomeConstants.defaultLimit,
+                limit: 700,
                 offset: Constants.ExperienceHomeConstants.defaultOffset,
                 priceRange: [],
                 rating: [],

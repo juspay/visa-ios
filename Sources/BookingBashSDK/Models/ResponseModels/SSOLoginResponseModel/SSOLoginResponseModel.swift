@@ -11,11 +11,21 @@ import Foundation
 struct SSOLoginResponseModel: Codable {
     let status: Bool
     let message: String
+//    let data: SSOLoginData
     let data: SSOLoginData
+    let error: SSOLoginError?
 }
 
+struct SSOLoginError: Codable {
+    let type: String?
+    let code: String?
+    let status_code: Int?
+    let details: String?
+    let stack: String?
+}
 // MARK: - SSO Login Data
 struct SSOLoginData: Codable {
+    
     let status: Bool
     let loginType: String
     let accessToken: String

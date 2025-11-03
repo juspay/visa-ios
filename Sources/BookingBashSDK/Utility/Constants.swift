@@ -32,6 +32,8 @@ struct Constants {
         static let plus = "Plus"
         static let clock = "Clock"
         static let check = "Check"
+        static let greenTick = "green_tick"
+        
         static let print = "Print"
         static let download = "Download"
         static let Share = "Share"
@@ -64,6 +66,7 @@ struct Constants {
         static let logos  = "Logos"
         static let bookingBash = "BookingBashLogo"
         static let vector = "Vector"
+        static let mobile = "mobile"
     }
     
     enum searchScreenConstants {
@@ -100,7 +103,6 @@ struct Constants {
         static let experienceFound = "%d experiences found"
         static let perPerson = "/Person"
         static let addedInFavorites = "Added in Favorites"
-        static let searchExperiencesNear = "Search experiences near..."
         static let exploreExperiencesNear = "Explore experiences near and far"
     }
     
@@ -124,7 +126,7 @@ struct Constants {
     
     enum BookingStatusScreenConstants {
         static let supplierContactTitle = "Supplier provider details"
-        static let contactDetails = "Contact Details"
+        static let contactDetails = "Support Contact Details"
         static let cancelBooking = "Cancel Booking"
         static let calendar = "Calendar"
         static let addItineraryToCalendar = "Add  Itinerary to Calendar"
@@ -255,6 +257,7 @@ struct Constants {
         static let invalidCountryCodeOrMobile = "Invalid country code or Mobile Number."
         static let emptyMobileNumber = "Please enter a mobile number."
         static let noDataInResponse = "Oops! No data in response"
+        static let somethingWentWrong = "Oops! something went wrong."
     }
     
     enum ExperienceHomeConstants {
@@ -266,7 +269,6 @@ struct Constants {
         static let defaultEnquiryId = ""
         
         // Search filter defaults
-        static let defaultLimit = 50
         static let defaultOffset = 0
         static let defaultSortName = "price"
         static let defaultSortType = "ASC"
@@ -354,7 +356,7 @@ struct Constants {
     }
     
     enum GuestDetailsFormConstants {
-        static let addGuestDetails = "Add Guest Details"
+        static let addGuestDetails = "Guest  Details"
         static let requiredMark = "*"
         static let infoText = "We'll use this information to send you confirmation and updates about your booking."
         static let firstName = "First name"
@@ -465,6 +467,7 @@ struct Constants {
         static let contentTypeValue = "application/json"
         static let tokenKey = "token"
         static let siteId = "site_id"
+        static let trackId = "track_id"
         static let siteKey = "site_key"
         static let authorizationKey = "Authorization"
     }

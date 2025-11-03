@@ -11,6 +11,7 @@ import SUINavigation
 struct BookingCancellationView: View {
     @ObservedObject var experienceBookingConfirmationViewModel: ExperienceBookingConfirmationViewModel
     let participantsSummary: String
+    let selectedTime: String
     @State private var shouldExpandDetails: Bool = false
     @State private var showCancelBottomSheet: Bool = false
     @OptionalEnvironmentObject private var navigationStorage: NavigationStorage?
@@ -31,11 +32,8 @@ struct BookingCancellationView: View {
                         viewDetailsButtonTapped: {
                             shouldExpandDetails = true
                         },
-                        cancelBookingButtonTapped: {
-                            showCancelBottomSheet = true
-                        },
                         isBookingConfirmationScreen: false,
-                        shouldExpandDetails: $shouldExpandDetails, participantsSummary: participantsSummary
+                        shouldExpandDetails: $shouldExpandDetails, selectedTime: selectedTime
                     )
                     
                     if shouldExpandDetails {
@@ -44,7 +42,7 @@ struct BookingCancellationView: View {
                         ConfirmationInfoReusableCardView(section: experienceBookingConfirmationViewModel.cancellationPolicy, showBullets: false)
                         ConfirmationInfoReusableCardView(section: experienceBookingConfirmationViewModel.leadTraveller, showBullets: false)
                         ConfirmationInfoReusableCardView(section: experienceBookingConfirmationViewModel.inclusions, showBullets: true)
-                        ConfirmationInfoReusableCardView(section: experienceBookingConfirmationViewModel.OtherDetails, showBullets: false)
+                        
                         ContactDetailsCardView(contactDetailsModel: experienceBookingConfirmationViewModel.personContactDetails, title: Constants.BookingStatusScreenConstants.contactDetails)
                         ConfirmationInfoReusableCardView(section: experienceBookingConfirmationViewModel.additionalInformation, showBullets: true)
                     }

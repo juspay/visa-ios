@@ -14,6 +14,7 @@ struct PaymentFailedView: View {
     @State private var shouldExpandDetails: Bool = false
     @State private var showCancelBottomSheet: Bool = false
     let participantsSummary: String
+    let selectedTime: String
     @OptionalEnvironmentObject private var navigationStorage: NavigationStorage?
     
     var body: some View {
@@ -30,12 +31,10 @@ struct PaymentFailedView: View {
                         confirmationViewModel: experienceBookingConfirmationViewModel,
                         viewDetailsButtonTapped: {
                             shouldExpandDetails = true
-                        },
-                        cancelBookingButtonTapped: {
-                            showCancelBottomSheet = true
-                        },
+                        }, 
+
                         isBookingConfirmationScreen: false,
-                        shouldExpandDetails: $shouldExpandDetails, participantsSummary: participantsSummary
+                        shouldExpandDetails: $shouldExpandDetails, selectedTime: selectedTime
                     )
                     
                     if shouldExpandDetails {
@@ -44,7 +43,7 @@ struct PaymentFailedView: View {
                         ConfirmationInfoReusableCardView(section: experienceBookingConfirmationViewModel.cancellationPolicy, showBullets: false)
                         ConfirmationInfoReusableCardView(section: experienceBookingConfirmationViewModel.leadTraveller, showBullets: false)
                         ConfirmationInfoReusableCardView(section: experienceBookingConfirmationViewModel.inclusions, showBullets: true)
-                        ConfirmationInfoReusableCardView(section: experienceBookingConfirmationViewModel.OtherDetails, showBullets: false)
+//                        
                         ContactDetailsCardView(contactDetailsModel: experienceBookingConfirmationViewModel.personContactDetails, title: Constants.BookingStatusScreenConstants.contactDetails)
                         ConfirmationInfoReusableCardView(section: experienceBookingConfirmationViewModel.additionalInformation, showBullets: true)
                     }

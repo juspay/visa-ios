@@ -27,6 +27,7 @@ class ExperienceBookingConfirmationViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var isLoading: Bool = false
     var booking: Booking?
+    @Published var selectedTime: String? 
     
     // MARK: - Cancellation / Sheet state
     @Published var cancellationSheetState: CancellationSheetState = .none
@@ -62,7 +63,7 @@ class ExperienceBookingConfirmationViewModel: ObservableObject {
     @Published var bookingFailedInfo = BookingConfirmationTopInfoModel(
         image: "Failed",
         bookingStatus: "Booking Failed",
-        bookingMessage: "Oops, your booking failed. It seems something went wrong during the booking process."
+        bookingMessage: "We couldn’t complete your booking. Any debited amount will be refunded within 24 hours."
     )
     
     // MARK: - Supplier / contact
@@ -95,6 +96,7 @@ class ExperienceBookingConfirmationViewModel: ObservableObject {
     @Published var bookingRef: String?
     @Published var bookingDate: String?
     @Published var travelDate: String?
+    @Published var travelTime: String?
     @Published var totalTravellers: Int = 0
     @Published var totalAdults: Int = 0
     @Published var totalChildren: Int = 0
@@ -105,11 +107,11 @@ class ExperienceBookingConfirmationViewModel: ObservableObject {
     @Published var bookingBasicDetails: [BasicBookingDetailsModel] = []
     @Published var cancellationPolicy = ConfirmationReusableInfoModel(title: "Cancellation refund policy", points: ["-"])
     @Published var leadTraveller = ConfirmationReusableInfoModel(title: "Lead Traveler", points: ["-"])
-    @Published var inclusions = ConfirmationReusableInfoModel(title: "What includes?", points: ["-"])
-    @Published var OtherDetails = ConfirmationReusableInfoModel(title: "Other Details", points: ["-"])
+    @Published var inclusions = ConfirmationReusableInfoModel(title: "What's included?", points: ["-"])
+//    @Published var OtherDetails = ConfirmationReusableInfoModel(title: "Other Details", points: ["-"])
     @Published var personContactDetails: [ContactDetailsModel] = []
-    @Published var additionalInformation = ConfirmationReusableInfoModel(title: "Additional Information", points: ["-"])
-    @Published var exclusions = ConfirmationReusableInfoModel(title: "What's Not Included?", points: ["-"])
+    @Published var additionalInformation = ConfirmationReusableInfoModel(title: "Additional Information", points: ["Not Available"])
+    @Published var exclusions = ConfirmationReusableInfoModel(title: "What's not included?", points: ["-"])
     
     // Computed property for participants summary
     var participantsSummary: String {
@@ -137,8 +139,9 @@ class ExperienceBookingConfirmationViewModel: ObservableObject {
     @Published var selectedReason: CancellationReason?
     
     // MARK: - Init
-    init(booking: Booking? = nil) {
+    init(booking: Booking? = nil, selectedTime: String? = nil) {
         self.booking = booking
+        self.selectedTime = selectedTime
         print("BookingConfirmationVM init booking:", booking?.bookingRef ?? "nil")
         
         // Call fetchBookingAsJSON if we have a booking reference
@@ -232,6 +235,7 @@ class ExperienceBookingConfirmationViewModel: ObservableObject {
            Constants.APIHeaders.tokenKey: ssoTokenGlobal
         ]
         
+        
         NetworkManager.shared.post(url: url, body: requestBody, headers: headers) { (result: Result<SuccessPageResponse, Error>) in
             DispatchQueue.main.async {
                 // Set loading to false when API call completes
@@ -256,7 +260,7 @@ class ExperienceBookingConfirmationViewModel: ObservableObject {
                     if let traveller = response.data?.bookingDetails?.travellerInfo ?? response.data?.travellerInfo {
                         self.processTravellerInfo(traveller: traveller)
                     } else {
-                        print("⚠️ No traveller info found in response")
+                        print(" No traveller info found in response")
                     }
                     
                     // BOOKING DETAILS
@@ -266,9 +270,6 @@ class ExperienceBookingConfirmationViewModel: ObservableObject {
                     
                     // FARE SUMMARY
                     self.updateFareSummary()
-                    
-                    // Note: amountPaid and totalAmount are set inside updateFareSummary()
-                    // Don't set them here to avoid overwriting with old values
                     self.cancellationFee = 0
                     
                     print(" Booking data updated successfully")
@@ -324,12 +325,12 @@ class ExperienceBookingConfirmationViewModel: ObservableObject {
         if let inclusionsArray = product.inclusions {
             let points = inclusionsArray.map { $0.otherDescription ?? "-" }
             self.inclusions = ConfirmationReusableInfoModel(
-                title: "What includes?",
+                title: "What's included?",
                 points: points.isEmpty ? ["Not available"] : points
             )
         } else {
             self.inclusions = ConfirmationReusableInfoModel(
-                title: "What includes?",
+                title: "What's included?",
                 points: ["-"]
             )
         }
@@ -348,16 +349,9 @@ class ExperienceBookingConfirmationViewModel: ObservableObject {
             )
         }
         
-        // ADDITIONAL INFORMATION (display type values)
-//        self.additionalInformation = ConfirmationReusableInfoModel(
-//            title: "Additional Information",
-//            points: product.additionalInfo?.isEmpty == false
-//            ? product.additionalInfo!.compactMap { $0.type ?? "-" }
-//            : ["-"]
-//        )
         self.additionalInformation = ConfirmationReusableInfoModel(
             title: "Additional Information",
-            points: product.additionalInfo?.compactMap { $0.type } ?? []
+            points: product.additionalInfo?.compactMap { $0.description } ?? []
         )
 
         // Cancellation Policy
@@ -370,12 +364,12 @@ class ExperienceBookingConfirmationViewModel: ObservableObject {
         
         // Other details: language
         let languageName = product.languageDetails?.name ?? "English"
-        self.OtherDetails = ConfirmationReusableInfoModel(
-            title: "Other Details",
-            points: [
-                "Tour language: \(languageName)"
-            ]
-        )
+//        self.OtherDetails = ConfirmationReusableInfoModel(
+//            title: "Other Details",
+//            points: [
+//                "Tour language: \(languageName)"
+//            ]
+//        )
     }
     
     // MARK: - Traveller processing
@@ -397,23 +391,13 @@ class ExperienceBookingConfirmationViewModel: ObservableObject {
         
         let travellerNumber = traveller.mobile
         self.personContactDetails = [
-            ContactDetailsModel(keyIcon: "UserGray", value: leadName),
-            ContactDetailsModel(keyIcon: "mobile", value: travellerNumber ?? "Not available")
+            ContactDetailsModel(keyIcon: "Frame", value: "reservations@bookingbash.com"),
+            ContactDetailsModel(keyIcon: "mobile", value: "+97148348696")
         ]
     }
     
     // MARK: - Booking details processing
     private func processBookingDetails(bookingDetails: SuccessBookingDetails) {
-//        let bookingDate = self.formatBookingDate(from: bookingDetails.createdAt ?? "")
-//        let bookingref = bookingDetails.bookingRef ?? "-"
-//        let bookingId = bookingDetails.orderNo ?? "-"
-//
-//
-//        self.bookingBasicDetails = [
-//            BasicBookingDetailsModel(key: "Booking ID", value: bookingId),
-//            BasicBookingDetailsModel(key: "Voucher ID", value: bookingref),
-//            BasicBookingDetailsModel(key: "Booking Date", value: bookingDate)
-//        ]
         let bookingDate = self.formatBookingDate(from: bookingDetails.createdAt ?? "")
         let bookingRef = bookingDetails.bookingRef ?? ""
         let bookingId = bookingDetails.orderNo ?? "-"
@@ -425,9 +409,11 @@ class ExperienceBookingConfirmationViewModel: ObservableObject {
 
         // Add Voucher ID only if it's not empty
         if !bookingRef.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            details.insert(BasicBookingDetailsModel(key: "Voucher ID", value: bookingRef), at: 1)
+                        details.insert(BasicBookingDetailsModel(key: "Voucher ID", value: bookingRef), at: 1)
+            
+            
+//            details.insert(BasicBookingDetailsModel(key: "Voucher ID", value: bookingRef.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "-" : bookingRef), at: 1)
         }
-
         self.bookingBasicDetails = details
 
         
@@ -648,7 +634,7 @@ class ExperienceBookingConfirmationViewModel: ObservableObject {
         let headers = [
             Constants.APIHeaders.contentTypeKey: Constants.APIHeaders.contentTypeValue,
             Constants.APIHeaders.authorizationKey: TokenProvider.getAuthHeader() ?? "",
-            Constants.APIHeaders.tokenKey: encryptedPayloadMain
+            Constants.APIHeaders.tokenKey: ssoTokenGlobal
         ]
         
         NetworkManager.shared.post(url: url, body: requestBody, headers: headers) { (result: Result<CancellationReasonsAPIResponse, Error>) in
@@ -702,7 +688,7 @@ class ExperienceBookingConfirmationViewModel: ObservableObject {
         let headers = [
             Constants.APIHeaders.contentTypeKey: Constants.APIHeaders.contentTypeValue,
             Constants.APIHeaders.authorizationKey: TokenProvider.getAuthHeader() ?? "",
-            Constants.APIHeaders.tokenKey: encryptedPayloadMain,
+            Constants.APIHeaders.tokenKey: ssoTokenGlobal,
             Constants.APIHeaders.siteId: siteId
         ]
         

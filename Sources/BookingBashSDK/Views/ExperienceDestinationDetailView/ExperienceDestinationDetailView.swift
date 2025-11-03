@@ -4,6 +4,7 @@ struct ExperienceDestinationDetailView : View {
     @State private var searchText: String = ""
     @State private var isSearchSheetPresented = false
     var experience: Experience
+    @FocusState private var isSearchFieldFocused: Bool
     
     var body: some View {
         ThemeTemplateView(
@@ -39,7 +40,7 @@ struct ExperienceDestinationDetailView : View {
                             SearchBarView(
                                 viewModel: SearchDestinationViewModel(),
                                 searchPlaceholderText: "Search Burj Khalifa",
-                                searchText: $searchText
+                                searchText: $searchText, isFocused: $isSearchFieldFocused
                             )
                             .shadow(color: Color.black.opacity(0.15), radius: 4, x: 0, y: 2)
                             .padding(.horizontal, 16)
@@ -133,7 +134,7 @@ let sampleExperiences: [Experience] = [
         originalPrice: 350,
         discount: 15,
         finalPrice: 295,
-        productCode: "EXP001"
+        productCode: "EXP001", currency: ""
     ),
     Experience(
         imageURL: "DubaiImage",
@@ -142,7 +143,7 @@ let sampleExperiences: [Experience] = [
         originalPrice: 320,
         discount: 10,
         finalPrice: 290,
-        productCode: "EXP002"
+        productCode: "EXP002", currency: ""
     ),
     Experience(
         imageURL: "Sky",
@@ -151,6 +152,6 @@ let sampleExperiences: [Experience] = [
         originalPrice: 450,
         discount: 20,
         finalPrice: 360,
-        productCode: "EXP003"
+        productCode: "EXP003", currency: ""
     )
 ]

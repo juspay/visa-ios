@@ -3,33 +3,33 @@ import SUINavigation
 
 struct ExperienceDetailView: View {
     @StateObject private var experienceDetailViewModel = ExperienceDetailViewModel()
+    @StateObject private var experienceAvailabilityViewModel = ExperienceAvailabilitySelectOptionsViewModel()
     @State var shouldPresentCalenderView: Bool = false
     @State private var showAll: Bool = false
-    
-    
+    @State private var showParticipantsSheet: Bool = false
+
     let productCode: String
     let currency: String?
-    
+
     init(productCode: String? = nil, currency: String? = nil) {
         self.productCode = productCode ?? ""
         self.currency = currency
-        
     }
-    
+
     var body: some View {
-        ZStack {
-            ZStack(alignment: .bottom) {
-                ThemeTemplateView(
-                    header: { headerContent },
-                    content: { mainContent }
-                )
-                .navigationBarBackButtonHidden(true)
-                .padding(.bottom, -8)
-                .safeAreaInset(edge: .bottom) {
-                    if !experienceDetailViewModel.isLoading {
-                        ExperienceDetailBottomBarView(viewModel: experienceDetailViewModel) {
-                            shouldPresentCalenderView = true
-                        }
+        ZStack(alignment: .center) {
+            ThemeTemplateView(
+                header: { headerContent },
+                content: { mainContent }
+            )
+            .navigationBarBackButtonHidden(true)
+            .padding(.bottom, -8)
+            .safeAreaInset(edge: .bottom) {
+                if !experienceDetailViewModel.isLoading &&
+                    experienceDetailViewModel.errorStatusCode != 500 &&
+                    experienceDetailViewModel.errorMessage == nil {
+                    ExperienceDetailBottomBarView(viewModel: experienceDetailViewModel) {
+                        shouldPresentCalenderView = true
                     }
                 }
             }
@@ -44,13 +44,17 @@ struct ExperienceDetailView: View {
     }
 }
 
+
 private extension ExperienceDetailView {
     var headerContent: some View {
+        
         VStack(spacing: 12) {
             ExperienceDetailsTopHeaderView()
 
             if experienceDetailViewModel.isLoading {
                 headerLoadingPlaceholder
+            } else if experienceDetailViewModel.errorMessage != nil {
+                EmptyView()
             } else {
                 ExperienceTopImageCarousalListView(
                     experienceDetailCarousalModel: experienceDetailViewModel.carousalData
@@ -58,9 +62,7 @@ private extension ExperienceDetailView {
                 .padding(.trailing, -15)
 
                 if let model = experienceDetailViewModel.experienceDetail {
-//                    if model.rating != 0.0 {
                         ExperienceDetailInfoTopView(model: model)
-//                    }
                 }
             }
         }
@@ -72,6 +74,24 @@ private extension ExperienceDetailView {
             if experienceDetailViewModel.isLoading {
                 LoaderView(text: Constants.ExperienceListDetailViewConstants.loading)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if experienceDetailViewModel.showErrorOverlay || (experienceDetailViewModel.errorStatusCode != nil && experienceDetailViewModel.errorStatusCode != 200) {
+                Spacer()
+                VStack(spacing: 20) {
+                    if let noResultImage = ImageLoader.bundleImage(named: Constants.Icons.searchNoResult) {
+                        noResultImage
+                            .resizable()
+                            .frame(width: 124, height: 124)
+                    }
+                    Text(Constants.ErrorMessages.somethingWentWrong)
+                        .font(.headline)
+                        .foregroundColor(.black)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                }
+                .frame(maxWidth: .infinity)
+                Spacer()
+            } else if experienceDetailViewModel.errorMessage != nil {
+                EmptyView()
             } else {
                 // Only show FeatureGridView if there are features
                 if !experienceDetailViewModel.allFeatures.isEmpty {
@@ -79,9 +99,7 @@ private extension ExperienceDetailView {
                         features: experienceDetailViewModel.allFeatures,
                         showAll: $showAll
                     )
-                    .onAppear {
-                        print("DEBUG VIEW: FeatureGridView is VISIBLE with \(experienceDetailViewModel.allFeatures.count) features")
-                    }
+                   
                 } else {
                     Color.clear
                         .frame(height: 0)
@@ -138,21 +156,43 @@ private extension ExperienceDetailView {
     var calendarBottomSheet: some View {
         let screenHeight = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?
             .screen.bounds.height ?? 0
-        
         return BottomSheetView(
             isPresented: $shouldPresentCalenderView,
             sheetHeight: screenHeight * 0.85
         ) {
-            if let model = experienceDetailViewModel.experienceDetail {
-                CustomCalendarView(
-                    shouldPresentCalenderView: shouldPresentCalenderView, model: model, experienceDetailViewModel: experienceDetailViewModel,
-                    productCode: productCode,
-                    currency: currency
-                )
-            } else {
-                LoaderView(text: Constants.ExperienceListDetailViewConstants.loading)
+            ZStack(alignment: .topTrailing) {
+                if let model = experienceDetailViewModel.experienceDetail {
+
+                    CustomCalendarView(
+                        viewModel: experienceAvailabilityViewModel, showParticipantsSheet: $showParticipantsSheet,
+                        shouldPresentCalenderView: $shouldPresentCalenderView,
+                        isFromDetailView: true,
+                        model: model,
+                        experienceDetailViewModel: experienceDetailViewModel,
+                        productCode: productCode,
+                        currency: currency
+                    )
+
+                } else {
+                    LoaderView(text: Constants.ExperienceListDetailViewConstants.loading)
+                }
+                // Cross button at top right
+                if !showParticipantsSheet {
+                    Button(action: {
+                        shouldPresentCalenderView = false
+                    }) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundColor(.gray)
+                            .padding(12)
+                            .background(Color(.systemGray6))
+                            .clipShape(Circle())
+                    }
+                    .offset(y: -15)
+                    .zIndex(1)
+                    .padding(.trailing, 16)
+                }
             }
         }
     }
 }
-

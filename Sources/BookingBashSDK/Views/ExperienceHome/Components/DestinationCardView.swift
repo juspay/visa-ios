@@ -1,14 +1,6 @@
-//
-//  DestinationCardView.swift
-//  VisaActivity
-//
-//  Created by Apple on 29/07/25.
-//
-
 import SwiftUI
 
 struct DestinationCardView: View {
-    
     let destination: Destination
     var itemWidth: CGFloat = 140
     
@@ -53,8 +45,14 @@ struct DestinationCardView: View {
             Text(destination.name)
                 .font(.custom(Constants.Font.openSansBold, size: 16))
                 .foregroundStyle(Color.white)
-                .padding(.horizontal, 10)
+                .multilineTextAlignment(.leading)
+                .lineLimit(3)
+                .truncationMode(.tail)
+                .frame(width: itemWidth, alignment: .leading)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal, 4)
                 .padding(.bottom, 10)
+
         }
         .background(Color.white.opacity(0.05))
         .cornerRadius(8)

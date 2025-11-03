@@ -1,9 +1,4 @@
-//
-//  ExperienceDetailBottomBarView.swift
-//  VisaActivity
-//
-//  Created by Apple on 04/08/25.
-//
+
 import Foundation
 import SwiftUI
 
@@ -14,9 +9,10 @@ struct ExperienceDetailBottomBarView: View {
     private func formatPrice(_ priceValue: Double, currency: String) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
-        formatter.maximumFractionDigits = 0
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 2
         formatter.groupingSeparator = ","
-        let formattedPrice = formatter.string(from: NSNumber(value: priceValue)) ?? "\(Int(priceValue))"
+        let formattedPrice = formatter.string(from: NSNumber(value: priceValue)) ?? String(format: "%.2f", priceValue)
         return "\(currency) \(formattedPrice)"
     }
     

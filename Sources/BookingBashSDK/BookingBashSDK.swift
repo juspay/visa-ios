@@ -4,14 +4,32 @@ import SUINavigation
 @objc public class BookingBashSDK: NSObject {
 
     @objc public static func createExperienceHomeView(encryptPayLoad: String, callback: @escaping () -> Void) -> UIViewController {
-        let view = NavigationStorageView {
-            ExperienceHomeView(
-                encryptPayLoadMainapp: encryptPayLoad,
-                isActive: .constant(true),
-                onFinish: callback
-            )
-        }
-        return UIHostingController.init(rootView: view)
+        let view =
+            if #available(iOS 16.0, *) {
+                AnyView(
+                    NavigationStack {
+                        ExperienceHomeView(
+                            encryptPayLoadMainapp: encryptPayLoad,
+                            isActive: .constant(true),
+                            onFinish:callback
+                        )
+                        .preferredColorScheme(.light)
+                    }
+                )
+            } else {
+                AnyView(
+                    NavigationStorageView {
+                        ExperienceHomeView(
+                            encryptPayLoadMainapp: encryptPayLoad,
+                            isActive: .constant(true),
+                            onFinish: callback
+                        )
+                        .preferredColorScheme(.light)
+                    }
+                )
+            }
+        let vc = UIHostingController.init(rootView: view);
+        vc.overrideUserInterfaceStyle = .light;
+        return vc;
     }
-
 }

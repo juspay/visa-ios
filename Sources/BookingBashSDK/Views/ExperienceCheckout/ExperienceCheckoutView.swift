@@ -13,8 +13,10 @@ struct ExperienceCheckoutView: View {
     let subActivityCode : String
     let uid : String
     let availabilityKey : String
+    let selectedTime: String
     
     @State private var guestDetails = GuestDetails()
+    @State private var extraGuests: [String: [GuestDetails]] = [:]
     @State private var showAll = false
     @State private var showFairSummary = false
     @State private var isConsentBoxChecked = false
@@ -30,7 +32,8 @@ struct ExperienceCheckoutView: View {
         currency: String,
         subActivityCode: String,
         uid: String,
-        availabilityKey: String
+        availabilityKey: String,
+        selectedTime: String
     ) {
         self._checkoutViewModel = ObservedObject(wrappedValue: checkoutViewModel)
         self._experienceDetailViewModel = ObservedObject(wrappedValue: experienceDetailViewModel)
@@ -42,6 +45,7 @@ struct ExperienceCheckoutView: View {
         self.subActivityCode = subActivityCode
         self.uid = uid
         self.availabilityKey = availabilityKey
+        self.selectedTime = selectedTime
     }
     
     var body: some View {
@@ -53,9 +57,25 @@ struct ExperienceCheckoutView: View {
             .navigationBarBackButtonHidden(true)
             .safeAreaInset(edge: .bottom) { paymentBarSection }
             .overlay { bottomSheetOverlay }
-            
             toastOverlay
             navigationLinks
+            
+            // Show No Result Placeholder if API status is false or statusCode != 200
+            if checkoutViewModel.showNoResultImage && (checkoutViewModel.errorStatusCode != 200 || checkoutViewModel.errorMessage != nil) {
+                VStack(spacing: 12) {
+                    if let noResultImage = ImageLoader.bundleImage(named: Constants.Icons.searchNoResult) {
+                        noResultImage
+                            .resizable()
+                            .frame(width: 124, height: 124)
+                    }
+                    Text(Constants.ErrorMessages.somethingWentWrong)
+                        .font(.custom(Constants.Font.openSansSemiBold, size: 16))
+                        .foregroundColor(.gray)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.white.opacity(0.95))
+                .edgesIgnoringSafeArea(.all)
+            }
             
             if checkoutViewModel.isLoading {
                 Color.black.opacity(0.4)
@@ -65,17 +85,34 @@ struct ExperienceCheckoutView: View {
                     .scaleEffect(1.5)
             }
         }
+
         .onAppear {
-                    onAppear()
-                    
-                    if experienceDetailViewModel.items.isEmpty {
-                        print(" Refetching data for checkout screen...")
-                        experienceDetailViewModel.fetchReviewData(
-                            activityCode: productCode,
-                            currency: currency ?? "AED"
-                        )
-                    }
-                }
+            onAppear()
+            if experienceDetailViewModel.items.isEmpty {
+                print(" Refetching data for checkout screen...")
+                experienceDetailViewModel.fetchReviewData(
+                    activityCode: productCode,
+                    currency: currency ?? "AED"
+                )
+                
+            }
+            // Initialize extraGuests per band
+            var guestsDict: [String: [GuestDetails]] = [:]
+            for category in availabilityViewModel.categories {
+                let bandId = category.type
+                let count = category.count
+                print("[GuestCountLog] Band: \(bandId), Count from response: \(count)")
+                guestsDict[bandId] = Array(repeating: GuestDetails(), count: max(0, count))
+            }
+            extraGuests = guestsDict
+        }
+        .onChange(of: checkoutViewModel.shouldNavigateToPayment) { shouldNavigate in
+            print("🔍 [CHECKOUT VIEW] Navigation state changed to: \(shouldNavigate)")
+            if shouldNavigate {
+                print("🔍 [CHECKOUT VIEW] Order ID: \(checkoutViewModel.orderNo ?? "nil")")
+                print("🔍 [CHECKOUT VIEW] Payment URL: \(checkoutViewModel.paymentUrl ?? "nil")")
+            }
+        }
     }
 }
 
@@ -98,7 +135,8 @@ private extension ExperienceCheckoutView {
                     color: .white,
                     shouldShowRefundable: false,
                     selectedDate: checkoutViewModel.formattedSelectedDate(availabilityViewModel.selectedDateFromCalender),
-                    selectedParticipants: availabilityViewModel.participantsSummary
+                    selectedTime: selectedTime
+//                    selectedParticipants: availabilityViewModel.participantsSummary
                 )
             }
         }
@@ -115,15 +153,12 @@ private extension ExperienceCheckoutView {
                 totalLableText: Constants.CheckoutPageConstants.total,
                 savingsText: checkoutViewModel.savingsTextforFareBreakup
             )
-            
             InfoListView(viewModel: experienceDetailViewModel)
-            
             CheckboxTermsView(
                 isAgreed: $isConsentBoxChecked,
                 termsAndConditionTapped: { checkoutViewModel.handleTermsTapped() },
                 privacyPolicytapped: { checkoutViewModel.handlePrivacyTapped() }
             )
-            
             if let errorMessage = checkoutViewModel.errorMessage {
                 Text(errorMessage)
                     .foregroundColor(.red)
@@ -146,14 +181,35 @@ private extension ExperienceCheckoutView {
     
     var bottomSheetOverlay: some View {
         BottomSheetView(isPresented: $showFairSummary) {
-            FareSummaryCardView(
-                fairSummaryData: checkoutViewModel.fairSummaryData,
-                totalPrice: checkoutViewModel.formattedTotalAmount,
-                totalLableText: Constants.CheckoutPageConstants.total
-            )
-            .padding()
+            VStack(spacing: 0) {
+                HStack {
+                    Spacer()
+                    Button(action: {
+                        showFairSummary = false
+                    }) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundColor(.gray)
+                            .padding(10)
+                            .background(Color(.systemGray6).opacity(0.9))
+                            .clipShape(Circle())
+                            .shadow(radius: 1)
+                    }
+                    .padding(.top, 12)
+                    .padding(.trailing, 16)
+                }
+                
+                FareSummaryCardView(
+                    fairSummaryData: checkoutViewModel.fairSummaryData,
+                    totalPrice: checkoutViewModel.formattedTotalAmount,
+                    totalLableText: Constants.CheckoutPageConstants.total,
+                    savingsText: checkoutViewModel.savingsTextforFareBreakup
+                )
+                .padding()
+            }
         }
     }
+    
     
     var toastOverlay: some View {
         Group {
@@ -175,50 +231,60 @@ private extension ExperienceCheckoutView {
     }
     
     var navigationLinks: some View {
-        Group {
-            NavigationLink(isActive: $checkoutViewModel.shouldNavigateToPayment) {
-                PaymentView(
+        ZStack {
+            // Payment Navigation
+            NavigationLink(
+                destination: PaymentView(
                     orderId: checkoutViewModel.orderNo ?? "",
                     paymentUrl: checkoutViewModel.paymentUrl ?? "",
-                    participantsSummary: availabilityViewModel.participantsSummary
+                    participantsSummary: availabilityViewModel.participantsSummary,
+                    selectedTime: selectedTime // <-- Pass selectedTime
                 )
-                .navigationBarBackButtonHidden(true)
-            } label: { EmptyView() }
+                .navigationBarBackButtonHidden(true),
+                isActive: $checkoutViewModel.shouldNavigateToPayment
+            ) {
+                EmptyView()
+            }
+            .hidden()
             
-            NavigationLink(isActive: $checkoutViewModel.shouldNavigateToTerms) {
-                TermsAndConditionsWebView(
+            // Terms Navigation
+            NavigationLink(
+                destination: TermsAndConditionsWebView(
                     url: termsAndConditionsUrlGlobal,
                     title: "Terms & Conditions"
-                )
-            } label: { EmptyView() }
+                ),
+                isActive: $checkoutViewModel.shouldNavigateToTerms
+            ) {
+                EmptyView()
+            }
+            .hidden()
             
-            NavigationLink(isActive: $checkoutViewModel.shouldNavigateToPrivacy) {
-                TermsAndConditionsWebView(
+            // Privacy Navigation
+            NavigationLink(
+                destination: TermsAndConditionsWebView(
                     url: privacyPolicyUrlGlobal,
                     title: "Privacy Policy"
-                )
-            } label: { EmptyView() }
+                ),
+                isActive: $checkoutViewModel.shouldNavigateToPrivacy
+            ) {
+                EmptyView()
+            }
+            .hidden()
         }
     }
 }
 
 private extension ExperienceCheckoutView {
     func onAppear() {
-        // Set the selected package in the checkout view model to access subActivityCode
         checkoutViewModel.setSelectedPackage(package)
         
-        // Set the availability response to access track_id
         checkoutViewModel.setAvailabilityResponse(availabilityViewModel.response)
         
-        // Set the dynamic uid and availabilityKey from the passed parameters
         checkoutViewModel.setUid(uid)
         checkoutViewModel.setAvailabilityKey(availabilityKey)
         
         checkoutViewModel.selectedTravelDate = availabilityViewModel.selectedDateFromCalender
         checkoutViewModel.fetchData()
-//        experienceDetailViewModel.fetchReviewData(
-//            activityCode: productCode,
-//            currency: currency ?? ""
-//        )
+
     }
 }

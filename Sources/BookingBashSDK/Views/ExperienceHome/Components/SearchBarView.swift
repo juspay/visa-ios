@@ -7,6 +7,7 @@ struct SearchBarView: View {
     @ObservedObject var viewModel: SearchDestinationViewModel
     let searchPlaceholderText: String
     @Binding var searchText: String
+    @FocusState.Binding var isFocused: Bool
     
     var body: some View {
         HStack(spacing: 8) {
@@ -18,7 +19,7 @@ struct SearchBarView: View {
             }
             
             ZStack(alignment: .leading) {
-                if searchText.isEmpty {
+                if searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                     Text(searchPlaceholderText)
                         .font(.custom(Constants.Font.openSansRegular, size: 14))
                         .foregroundStyle(Color(hex: Constants.HexColors.blackStrong))
@@ -27,19 +28,25 @@ struct SearchBarView: View {
                 TextField("", text: $searchText)
                     .font(.custom(Constants.Font.openSansRegular, size: 14))
                     .foregroundStyle(Color(hex: Constants.HexColors.blackStrong))
+                    .autocorrectionDisabled(true)
+                    .textInputAutocapitalization(.never)
+                    .focused($isFocused)
             }
             
             Spacer()
             
-            if !searchText.isEmpty {
+            // 👇 Only show X if actual text (excluding spaces) is not empty
+            if !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 Image(systemName: Constants.Icons.xmark)
                     .imageScale(.small)
                     .frame(width: 18, height: 18)
                     .foregroundStyle(Color(hex: Constants.HexColors.neutral))
                     .onTapGesture {
                         searchText = ""
-                        viewModel.destinations = [] // Clear search results
+                        viewModel.destinations = [] // Clear results
                     }
+                    .transition(.opacity) // smooth fade-in/out
+                    .animation(.easeInOut(duration: 0.2), value: searchText)
             }
         }
         .onChange(of: searchText) { newValue in
@@ -64,4 +71,5 @@ struct SearchBarView: View {
         )
     }
 }
+
 

@@ -17,13 +17,7 @@ struct BookingBasicDetailsCardView: View {
                                 .foregroundStyle(Color(hex: Constants.HexColors.neutral))
                                 .multilineTextAlignment(.leading)
                                 .frame(width: geometry.size.width * 0.45, alignment: .leading)
-//                            HStack(spacing: 4) {
-//                                Image(systemName: "person")
-//                                    .foregroundColor(Color(hex: Constants.HexColors.neutral))
-//                                Text(participantsSummary)
-//                                    .font(.custom(Constants.Font.openSansSemiBold, size: 12))
-//                                    .foregroundColor(Color(hex: Constants.HexColors.neutral))
-//                            }
+
                         }
                     } else {
                         HStack(alignment: .top, spacing: 8) {

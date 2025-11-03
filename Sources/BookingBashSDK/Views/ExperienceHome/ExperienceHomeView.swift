@@ -1,5 +1,6 @@
 import SwiftUI
- 
+import Combine
+
 struct ExperienceHomeView: View {
     @StateObject private var searchDestinationViewModel = SearchDestinationViewModel()
     @StateObject private var homeViewModel = HomeViewModel()
@@ -14,37 +15,89 @@ struct ExperienceHomeView: View {
     @State private var isDecryptionLoading = false
     @State private var showPrivacyPolicySheet = false
     @State private var hasShownPrivacyPolicyThisSession = false
- 
+    @State private var cancellables = Set<AnyCancellable>()
+    @State private var showSSOError = false
+    @State private var ssoErrorMessage = ""
+    
     let encryptPayLoadMainapp: String
     @Binding var isActive: Bool
     var onFinish: () -> Void
- 
+    
     var body: some View {
         GeometryReader { geo in
             ThemeTemplateView(
                 header: { EmptyView() },
                 content: {
                     ZStack {
-                        contentStack
-                        if showMenu { sideMenu }
                         if homeViewModel.isLoading || isDecryptionLoading {
-                            LoaderView(text: "Loading Experiences")
+                            
+                            VStack {
+                                LoaderView(text: "Loading Experiences")
+                            }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .background(Color.white)
+                            .ignoresSafeArea()
+                            
+                        } else {
+                            contentStack
+                            if showMenu { sideMenu }
+                        }
+                        
+                        // SSO error UI overlay
+                        if showSSOError {
+                            Color.white.opacity(0.95)
+                                .edgesIgnoringSafeArea(.all)
+                            Spacer()
+                            VStack(spacing: 20) {
+                                if let noResultImage = ImageLoader.bundleImage(named: Constants.Icons.searchNoResult) {
+                                    noResultImage
+                                        .resizable()
+                                        .frame(width: 124, height: 124)
+                                }
+                                Text(ssoErrorMessage)
+                                    .font(.headline)
+                                    .foregroundColor(.black)
+                                    .multilineTextAlignment(.center)
+                                    .padding(.horizontal)
+                                Button(action: {
+                                    handleAppExit()
+                                }) {
+                                    Text("Exit")
+                                        .bold()
+                                        .foregroundColor(.white)
+                                        .frame(maxWidth: 100)
+                                        .padding()
+                                        .background(Color(hex: Constants.HexColors.primary))
+                                        .cornerRadius(10)
+                                }
+                                .padding(.horizontal, 24)
+                            }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .background(Color.white)
                         }
                     }
- 
-                },
+                } ,
                 onBack: { showSkipSheet = true }
             )
             
             .onAppear {
-                homeViewModel.loadHome(encryptPayload: encryptPayLoadMainapp)
-                showPrivacyPolicyIfNeeded()
+                let hasAgreed = UserDefaults.standard.bool(forKey: "hasAgreedToPrivacy")
                 
-                // Store the callback globally so it can be accessed from NavigationDestinationModifier
-                encryptedPayloadMain = encryptPayLoadMainapp;
+                if hasAgreed {
+                    // User has already agreed earlier → load immediately
+                    performInitialLoad()
+                } else {
+                    // Show privacy policy after slight delay
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        showPrivacyPolicySheet = true
+                    }
+                }
+                
+                // Store these globally once (for navigation)
+                encryptedPayloadMain = encryptPayLoadMainapp
                 globalOnFinishCallback = onFinish
             }
- 
+            
             .navigationBarBackButtonHidden(true)
             .navigationLinks(
                 experienceListSearchRequestModel,
@@ -72,6 +125,7 @@ struct ExperienceHomeView: View {
                 isPresented: $showPrivacyPolicySheet,
                 onAgree: {
                     UserDefaults.standard.set(true, forKey: "hasAgreedToPrivacy")
+                    performInitialLoad()
                 },
                 onDisAgree: {
                     onFinish()
@@ -80,7 +134,37 @@ struct ExperienceHomeView: View {
         }
         .navigationBarBackButtonHidden(true)
     }
- 
+    private func performInitialLoad() {
+        homeViewModel.performSSOLogin(encryptedToken: encryptPayLoadMainapp)
+        
+        homeViewModel.$ssoLoginResponse
+            .compactMap { $0 }
+            .sink { response in
+                if response.status == true {
+                    homeViewModel.loadHome(encryptPayload: encryptPayLoadMainapp)
+                } else {
+                    ssoErrorMessage = Constants.ErrorMessages.somethingWentWrong
+                    showSSOError = true
+                }
+            }
+            .store(in: &cancellables)
+        
+        homeViewModel.$errorMessage
+            .dropFirst() // ignore initial empty value
+            .sink { error in
+                guard !error.isEmpty else { return }
+                ssoErrorMessage = Constants.ErrorMessages.somethingWentWrong
+                showSSOError = true
+            }
+            .store(in: &cancellables)
+    }
+    
+    
+    private func handleAppExit() {
+        showSSOError = false
+        onFinish()
+    }
+    
     private func showPrivacyPolicyIfNeeded() {
         let hasAgreed = UserDefaults.standard.bool(forKey: "hasAgreedToPrivacy")
         guard !hasAgreed else { return } // If already agreed, do nothing
@@ -90,9 +174,8 @@ struct ExperienceHomeView: View {
             showPrivacyPolicySheet = true
         }
     }
- 
 }
- 
+
 // MARK: - Private subviews & helpers
 private extension ExperienceHomeView {
     var contentStack: some View {
@@ -146,7 +229,7 @@ private extension ExperienceHomeView {
     var sideMenu: some View {
         HStack {
             SideMenuView()
-                .frame(width: 280)
+                .frame(width: 340)
                 .transition(.move(edge: .leading))
             Spacer()
         }
@@ -159,7 +242,7 @@ private extension ExperienceHomeView {
     func makeSearchRequest(for destination: Destination) -> SearchRequestModel {
         let calendar = Calendar.current
         let currentDate = Date()
-        let checkInDate = calendar.date(byAdding: .day, value: 20, to: currentDate) ?? currentDate
+        let checkInDate = calendar.date(byAdding: .day, value: 1, to: currentDate) ?? currentDate
         let checkOutDate = calendar.date(byAdding: .day, value: 2, to: checkInDate) ?? checkInDate
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
@@ -177,7 +260,7 @@ private extension ExperienceHomeView {
             enquiryId: Constants.ExperienceHomeConstants.defaultEnquiryId,
             productCode: [],
             filters: SearchFilters(
-                limit: Constants.ExperienceHomeConstants.defaultLimit,
+                limit: 700,
                 offset: Constants.ExperienceHomeConstants.defaultOffset,
                 priceRange: [],
                 rating: [],
@@ -199,7 +282,7 @@ private extension ExperienceHomeView {
     }
     
 }
- 
+
 // MARK: - Navigation
 private extension View {
     func navigationLinks(
@@ -209,32 +292,55 @@ private extension View {
         searchDestinationViewModel: SearchDestinationViewModel,
         destinations: [Destination]
     ) -> some View {
-        self
-            .navigation(
-                isActive: navigateToAllDestinations,
-                id: Constants.NavigationId.allDestinations
-            ) {
-                AllDestinationsView(
-                    viewModel: searchDestinationViewModel,
-                    destinations: destinations
-                )
-            }
-            .navigation(
-                isActive: navigateToExperienceList,
-                id: Constants.NavigationId.experienceListDetailView
-            ) {
-                if let requestModel = experienceListSearchRequestModel {
-                    ExperienceListDetailView(
-                        destinationId: requestModel.destinationId,
-                        destinationType: requestModel.destinationType,
-                        location: requestModel.location,
-                        checkInDate: requestModel.checkInDate,
-                        checkOutDate: requestModel.checkOutDate,
-                        currency: requestModel.currency,
-                        productCodes: requestModel.productCode
+        if #available(iOS 16.0, *) {
+            return self
+                .navigationDestination(isPresented: navigateToAllDestinations) {
+                    AllDestinationsView(
+                        viewModel: searchDestinationViewModel,
+                        destinations: destinations
                     )
                 }
-            }
+                .navigationDestination(isPresented: navigateToExperienceList) {
+                    if let requestModel = experienceListSearchRequestModel {
+                        ExperienceListDetailView(
+                            destinationId: requestModel.destinationId,
+                            destinationType: requestModel.destinationType,
+                            location: requestModel.location,
+                            checkInDate: requestModel.checkInDate,
+                            checkOutDate: requestModel.checkOutDate,
+                            currency: requestModel.currency,
+                            productCodes: requestModel.productCode
+                        )
+                    }
+                }
+        } else {
+            return self
+                .navigation(
+                    isActive: navigateToAllDestinations,
+                    id: Constants.NavigationId.allDestinations
+                ) {
+                    AllDestinationsView(
+                        viewModel: searchDestinationViewModel,
+                        destinations: destinations
+                    )
+                }
+                .navigation(
+                    isActive: navigateToExperienceList,
+                    id: Constants.NavigationId.experienceListDetailView
+                ) {
+                    if let requestModel = experienceListSearchRequestModel {
+                        ExperienceListDetailView(
+                            destinationId: requestModel.destinationId,
+                            destinationType: requestModel.destinationType,
+                            location: requestModel.location,
+                            checkInDate: requestModel.checkInDate,
+                            checkOutDate: requestModel.checkOutDate,
+                            currency: requestModel.currency,
+                            productCodes: requestModel.productCode
+                        )
+                    }
+                }
+        }
     }
     
     func searchSheet(
@@ -270,63 +376,63 @@ private extension View {
                 GeometryReader { geometry in
                     let screenHeight = geometry.size.height
                     BottomSheetView(isPresented: isPresented, sheetHeight: screenHeight * 0.34) {
-                    VStack(spacing: 20) {
-                        
-                        if let activityImage = ImageLoader.bundleImage(named: Constants.Icons.activity) {
-                            activityImage
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 48, height: 48)
-                        }
-                        
-                        Text(Constants.HomeScreenConstants.cancelBookingText)
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(.black)
-                            .multilineTextAlignment(.center)
-                            .padding(.top, 4)
-                        
-                        HStack(spacing: 12) {
-                            Button {
-                                isPresented.wrappedValue = false
-                                isActive.wrappedValue = false
-                                onFinish()
-                            } label: {
-                                Text(Constants.HomeScreenConstants.skip)
-                                    .font(.system(size: 16, weight: .bold))
-                                    .foregroundColor(Color(hex: Constants.HexColors.primary))
-                                    .frame(width: 120, height: 48)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .stroke(Color(hex: Constants.ColorConstants.strokeColor), lineWidth: 2)
-                                    )
+                        VStack(spacing: 20) {
+                            
+                            if let activityImage = ImageLoader.bundleImage(named: Constants.Icons.activity) {
+                                activityImage
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 48, height: 48)
                             }
                             
-                            Button {
-                                isPresented.wrappedValue = false
-                            } label: {
-                                Text(Constants.HomeScreenConstants.stay)
-                                    .font(.system(size: 16, weight: .bold))
-                                    .foregroundColor(.white)
-                                    .frame(width: 120, height: 48)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .fill(Color(hex: Constants.ColorConstants.fillColor))
-                                    )
+                            Text(Constants.HomeScreenConstants.cancelBookingText)
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundColor(.black)
+                                .multilineTextAlignment(.center)
+                                .padding(.top, 4)
+                            
+                            HStack(spacing: 12) {
+                                Button {
+                                    isPresented.wrappedValue = false
+                                    isActive.wrappedValue = false
+                                    onFinish()
+                                } label: {
+                                    Text(Constants.HomeScreenConstants.skip)
+                                        .font(.system(size: 16, weight: .bold))
+                                        .foregroundColor(Color(hex: Constants.HexColors.primary))
+                                        .frame(width: 120, height: 48)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 8)
+                                                .stroke(Color(hex: Constants.ColorConstants.strokeColor), lineWidth: 2)
+                                        )
+                                }
+                                
+                                Button {
+                                    isPresented.wrappedValue = false
+                                } label: {
+                                    Text(Constants.HomeScreenConstants.stay)
+                                        .font(.system(size: 16, weight: .bold))
+                                        .foregroundColor(.white)
+                                        .frame(width: 120, height: 48)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 8)
+                                                .fill(Color(hex: Constants.ColorConstants.fillColor))
+                                        )
+                                }
                             }
+                            .frame(maxWidth: 260)
                         }
-                        .frame(maxWidth: 260)
-                    }
-                    .padding(.vertical, 16)
-                    .padding(.horizontal, 25)
-                    .background(Color.white)
-                    .cornerRadius(20)
+                        .padding(.vertical, 16)
+                        .padding(.horizontal, 25)
+                        .background(Color.white)
+                        .cornerRadius(20)
                     }
                 }
             }
         }
     }
 }
- 
+
 extension View {
     func privacyPolicySheet(
         isPresented: Binding<Bool>,
@@ -336,84 +442,91 @@ extension View {
         overlay(alignment: .bottom) {
             if isPresented.wrappedValue {
                 GeometryReader { geometry in
-                    let screenHeight = geometry.size.height
+                    let screenHeight = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?
+                        .screen.bounds.height ?? 0
                     
-                    BottomSheetView(isPresented: isPresented, sheetHeight: screenHeight * 0.52) {
-                    VStack(spacing: 0) {
-                        if let policyImage = ImageLoader.bundleImage(named: Constants.Icons.sheild) {
-                            policyImage
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 48, height: 48)
-                                .padding(.top, 16)
-                        }
-                        Text("Your privacy is our\nresponsibility")
-                            .font(.custom("Lexend-Medium", size: 18))
-                            .foregroundColor(Color(hex: Constants.HexColors.blackStrong))
-                            .multilineTextAlignment(.center)
-                            .padding(.top, 16)
-                            .padding(.bottom, 20)
-                        VStack(alignment: .center, spacing: 8) {
-                            Text("Use of Your Personal data")
-                                .font(.custom("Lexend-Medium", size: 14))
-                                .foregroundColor(.black)
-                            Text("We’ll use your personal data (e.g., name, email) to create an account for BookingBash and send you transactional emails related to your bookings.")
-                                .font(.custom("Lexend-Medium", size: 14))
-                                .foregroundColor(Color(hex: Constants.HexColors.neutral))
-                                .multilineTextAlignment(.leading)
-                                .fixedSize(horizontal: false, vertical: true)
-                            Text("By clicking \"I Agree,\" you consent to this use of your data.")
-                                .font(.custom("Lexend-Medium", size: 14))
-                                .foregroundColor(Color(hex: Constants.HexColors.neutral))
-                                .multilineTextAlignment(.leading)
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 4)
-                        .padding(.bottom, 12)
-                        Divider()
-                        HStack(spacing: 16) {
-                            Button {
-                                isPresented.wrappedValue = false
-                                // can handle exit logic here
-                                onDisAgree()
-                            } label: {
-                                Text("Exit")
-                                    .font(.custom("Lexend-Medium", size: 16))
-                                    .foregroundColor(Color(hex: Constants.HexColors.primary))
-                                    .frame(maxWidth: .infinity, minHeight: 48)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .stroke(Color(hex: Constants.ColorConstants.strokeColor), lineWidth: 2)
-                                    )
+                    BottomSheetView(
+                        isPresented: isPresented,
+                        sheetHeight: screenHeight * 0.52,
+                        content: {
+                            VStack(spacing: 0) {
+                                if let policyImage = ImageLoader.bundleImage(named: Constants.Icons.sheild) {
+                                    policyImage
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 48, height: 48)
+                                        .padding(.top, 16)
+                                }
+                                Text("Your privacy is our\nresponsibility")
+                                    .font(.custom("Lexend-Medium", size: 18))
+                                    .foregroundColor(Color(hex: Constants.HexColors.blackStrong))
+                                    .multilineTextAlignment(.center)
+                                    .padding(.top, 16)
+                                    .padding(.bottom, 20)
+                                VStack(alignment: .center, spacing: 8) {
+                                    Text("Use of Your Personal data")
+                                        .font(.custom("Lexend-Medium", size: 14))
+                                        .foregroundColor(.black)
+                                    Text("We’ll use your personal data (e.g., name, email) to create an account for BookingBash and send you transactional emails related to your bookings.")
+                                        .font(.custom("Lexend-Medium", size: 14))
+                                        .foregroundColor(Color(hex: Constants.HexColors.neutral))
+                                        .multilineTextAlignment(.leading)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                    Text("By clicking \"I Agree,\" you consent to this use of your data.")
+                                        .font(.custom("Lexend-Medium", size: 14))
+                                        .foregroundColor(Color(hex: Constants.HexColors.neutral))
+                                        .multilineTextAlignment(.leading)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.horizontal, 4)
+                                .padding(.bottom, 12)
+                                Divider()
+                                HStack(spacing: 16) {
+                                    Button {
+                                        isPresented.wrappedValue = false
+                                        // handle exit logic here
+                                        onDisAgree()
+                                    } label: {
+                                        Text("Exit")
+                                            .font(.custom("Lexend-Medium", size: 16))
+                                            .foregroundColor(Color(hex: Constants.HexColors.primary))
+                                            .frame(maxWidth: .infinity, minHeight: 48)
+                                            .background(
+                                                RoundedRectangle(cornerRadius: 8)
+                                                    .stroke(Color(hex: Constants.ColorConstants.strokeColor), lineWidth: 2)
+                                            )
+                                    }
+                                    Button {
+                                        isPresented.wrappedValue = false
+                                        onAgree()
+                                    } label: {
+                                        Text("I Agree")
+                                            .font(.custom("Lexend-Medium", size: 16))
+                                            .foregroundColor(.white)
+                                            .frame(maxWidth: .infinity, minHeight: 48)
+                                            .background(
+                                                RoundedRectangle(cornerRadius: 8)
+                                                    .fill(Color(hex: Constants.ColorConstants.fillColor))
+                                            )
+                                    }
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(.horizontal, 4)
+                                .padding(.vertical, 12)
                             }
-                            Button {
-                                isPresented.wrappedValue = false
-                                onAgree()
-                                
-                            } label: {
-                                Text("I Agree")
-                                    .font(.custom("Lexend-Medium", size: 16))
-                                    .foregroundColor(.white)
-                                    .frame(maxWidth: .infinity, minHeight: 48)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .fill(Color(hex: Constants.ColorConstants.fillColor))
-                                    )
-                            }
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.horizontal, 4)
-                        .padding(.vertical, 12)
-                    }
-                    .padding(.vertical, 0)
-                    .padding(.horizontal, 25)
-                    .background(Color.white)
-                    .cornerRadius(20)
-                    }
+                            .padding(.vertical, 0)
+                            .padding(.horizontal, 25)
+                            .background(Color.white)
+                            .cornerRadius(20)
+                            //  This line disables drag-to-dismiss only here
+                            .highPriorityGesture(DragGesture())
+                        },
+                        productCode: nil,
+                        isDragToDismissEnabled: false
+                    )
                 }
             }
         }
     }
 }
- 

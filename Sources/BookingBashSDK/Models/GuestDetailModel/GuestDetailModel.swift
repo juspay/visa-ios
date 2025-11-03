@@ -8,7 +8,7 @@
 import Foundation
 
 struct GuestDetails {
-    var title: String = "Mr"
+    var title: String = "Title"
     var firstName: String = ""
     var lastName: String = ""
     var email: String = ""
@@ -18,7 +18,7 @@ struct GuestDetails {
 
 extension GuestDetails {
     init(from payload: Payload) {
-        self.title = "Mr"
+        self.title = ""
         self.firstName = payload.firstName
         self.lastName = payload.lastName
         self.email = payload.customerEmail

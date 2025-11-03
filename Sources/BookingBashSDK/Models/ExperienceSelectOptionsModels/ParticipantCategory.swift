@@ -29,7 +29,7 @@ struct ParticipantCategory: Identifiable {
     // Initialize from DetailAgeBand (from details API response)
     init(from ageBand: DetailAgeBand) {
         self.type = ageBand.description
-        self.ageRange = "(age \(ageBand.ageFrom) to \(ageBand.ageTo))"
+        self.ageRange = "(Age \(ageBand.ageFrom) to \(ageBand.ageTo))"
         self.price = 0 // Price will be calculated from availability API
         self.count = ageBand.minTravelersPerBooking > 0 ? ageBand.minTravelersPerBooking : 0
         self.maxLimit = ageBand.maxTravelersPerBooking

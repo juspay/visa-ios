@@ -15,9 +15,6 @@ struct ReviewTourDetailResponse: Codable {
     }
 }
 
-
-
-
 struct ReviewAPIError: Codable {
     let type: String
     let code: String
@@ -529,12 +526,14 @@ struct ReviewRate: Codable {
     let commission: Double?
     let subActivityCode: String?
     let price: ReviewRatePrice?
+    let guestDetailRequired: String?
 
     enum CodingKeys: String, CodingKey {
         case available, time
         case commission
         case subActivityCode = "sub_activity_code"
         case price
+        case guestDetailRequired = "guest_detail_required"
     }
 }
 

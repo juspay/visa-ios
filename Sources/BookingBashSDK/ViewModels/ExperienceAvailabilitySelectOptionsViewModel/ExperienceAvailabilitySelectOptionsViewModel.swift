@@ -3,11 +3,13 @@ import Foundation
 class ExperienceAvailabilitySelectOptionsViewModel: ObservableObject {
     @Published var selectedDate: String = ""
     @Published var participants: String = ""
+    @Published var showErrorView: Bool = false
     @Published var experienceTitle: String = ""
     @Published var months: [CalendarMonth] = []
     @Published var selectedDateFromCalender: Date = Date()
     let formatter = DateFormatter()
-    
+    @Published var maxTravelersPerBooking: Int = 0
+    @Published var bandId : String = ""
     @Published var response: AvailabilityApiResponse?
     @Published var errorMessage: String?
     @Published var isLoading: Bool = false
@@ -28,8 +30,7 @@ class ExperienceAvailabilitySelectOptionsViewModel: ObservableObject {
     
     init() {
         generateMonths()
-        // Don't initialize with global age bands automatically
-        // Keep default categories for initial load (1 Adult)
+        
         print("🔍 [INIT] Initialized availability view with default categories (1 Adult)")
     }
     
@@ -95,15 +96,15 @@ class ExperienceAvailabilitySelectOptionsViewModel: ObservableObject {
         return formatter.string(from: date)
     }
     
-    func selectToday() {
-        selectedDateFromCalender = calendar.startOfDay(for: Date())
-        selectedDate = formatDate(selectedDateFromCalender)
-    }
-    
-    func selectTomorrow() {
-        selectedDateFromCalender = calendar.date(byAdding: .day, value: 1, to: Date())!
-        selectedDate = formatDate(selectedDateFromCalender)
-    }
+    //    func selectToday() {
+    //        selectedDateFromCalender = calendar.startOfDay(for: Date())
+    //        selectedDate = formatDate(selectedDateFromCalender)
+    //    }
+    //
+    //    func selectTomorrow() {
+    //        selectedDateFromCalender = calendar.date(byAdding: .day, value: 1, to: Date())!
+    //        selectedDate = formatDate(selectedDateFromCalender)
+    //    }
     
     func isSameDay(_ d1: Date, _ d2: Date) -> Bool {
         calendar.isDate(d1, inSameDayAs: d2)
@@ -147,7 +148,7 @@ class ExperienceAvailabilitySelectOptionsViewModel: ObservableObject {
         print("   - availabilityKey: '\(availablityKey)'")
         print("   - subActivityCode: '\(subActivityCode)'")
     }
-
+    
     func setFirstPackageExpanded() {
         packages = packages.enumerated().map { index, item in
             var newItem = item
@@ -180,69 +181,64 @@ class ExperienceAvailabilitySelectOptionsViewModel: ObservableObject {
         }
     }
     
-    @Published var categories = [
-        ParticipantCategory(type: "Adult", ageRange: "(age 13 to 100)", price: 295, count: 1, maxLimit: 10),
-        ParticipantCategory(type: "Children", ageRange: "(age 5 to 12)", price: 0, count: 0, maxLimit: 5),
-        ParticipantCategory(type: "Infant", ageRange: "(age 0 to 2)", price: 0, count: 0, maxLimit: 3)
-    ]
+    @Published var categories: [ParticipantCategory] = []
     
     func updateCategoriesFromAgeBands(_ ageBands: [DetailAgeBand]) {
         print("🔍 [AGE_BANDS] Updating categories from age bands:")
         for ageBand in ageBands {
-            print("   - \(ageBand.description): age \(ageBand.ageFrom)-\(ageBand.ageTo), min: \(ageBand.minTravelersPerBooking), max: \(ageBand.maxTravelersPerBooking)")
+            print("   - \(ageBand.bandID): age \(ageBand.ageFrom)-\(ageBand.ageTo), min: \(ageBand.minTravelersPerBooking), max: \(ageBand.maxTravelersPerBooking)")
         }
-
-        self.ageBands = ageBands
-
         
+        self.ageBands = ageBands
+      
         var currentCounts: [String: Int] = [:]
-
+        
         let sortedAgeBands = ageBands.sorted { $0.sortOrder < $1.sortOrder }
-
+        
         categories = sortedAgeBands.map { ageBand in
-            // Since currentCounts is empty, this will fall back to API min
-            let existingCount = currentCounts[ageBand.bandID] ??
-                                currentCounts[ageBand.description.uppercased()] ?? 0
-
             var category = ParticipantCategory(from: ageBand)
-
-            // 🧠 Always use API min on first load
             category.count = ageBand.minTravelersPerBooking
-
+            print("[DEBUG] Created category: \(category.type) (bandId: \(category.bandId)), count: \(category.count), maxLimit: \(category.maxLimit)")
             return category
         }
-
+        
         // Update participants summary for UI display
         updateParticipantsSummary()
         print("🔍 [AGE_BANDS] Categories updated dynamically from API min counts")
     }
-
-
+    
+    
     
     // Add method to update participants summary
     private func updateParticipantsSummary() {
         participants = participantsSummary
     }
     
+
     func increment(for category: ParticipantCategory) {
         guard let index = categories.firstIndex(where: { $0.id == category.id }) else { return }
-        if categories[index].count < categories[index].maxLimit {
-            categories[index].count += 1
-            participants = "\(categories[index].count) \(categories[index].type)"
-            
-            // Remove auto-refresh - only update UI, don't call API
-            // refreshAvailabilityAfterParticipantChange()
+        
+        // Calculate total selected participants before incrementing
+        let totalSelected = categories.reduce(0) { $0 + $1.count }
+        
+        // Ensure total doesn't exceed maxTravelersPerBooking
+        if totalSelected < maxTravelersPerBooking {
+            if categories[index].count < categories[index].maxLimit {
+                categories[index].count += 1
+                print("[DEBUG] Incremented \(categories[index].type) (bandId: \(categories[index].bandId)), new count: \(categories[index].count)")
+                updateParticipantsSummary()
+            }
+        } else {
+            print("⚠️ Cannot exceed max travelers per booking: \(maxTravelersPerBooking)")
         }
     }
-    
+ 
     func decrement(for category: ParticipantCategory) {
         guard let index = categories.firstIndex(where: { $0.id == category.id }) else { return }
         if categories[index].count > 0 {
             categories[index].count -= 1
+            print("[DEBUG] Decremented \(categories[index].type) (bandId: \(categories[index].bandId)), new count: \(categories[index].count)")
             participants = "\(categories[index].count) \(categories[index].type)"
-            
-            // Remove auto-refresh - only update UI, don't call API
-            // refreshAvailabilityAfterParticipantChange()
         }
     }
     
@@ -254,54 +250,115 @@ class ExperienceAvailabilitySelectOptionsViewModel: ObservableObject {
         totalSelected <= 15
     }
     
-    // Returns a string like "2 Adults, 3 Children" for display
+    // Computed property to summarize selected participants
     var participantsSummary: String {
-        let parts = categories.compactMap { category -> String? in
+        var parts: [String] = []
+        for category in categories {
             if category.count > 0 {
-                let type = category.type
-                if type == "Children" || type == "Child" {
-                    // Special handling for children
-                    if category.count == 1 {
-                        return "1 Child"
-                    } else {
-                        return "\(category.count) Children"
-                    }
+                let label: String
+                if category.bandId.lowercased().contains("adult") {
+                    label = category.count > 1 ? "Adults" : "Adult"
+                } else if category.bandId.lowercased().contains("child") || category.bandId.lowercased().contains("children") {
+                    label = category.count > 1 ? "Children" : "Child"
+                } else if category.bandId.lowercased().contains("infant") {
+                    label = category.count > 1 ? "Infants" : "Infant"
                 } else {
-                    let plural = category.count > 1 ? type + "s" : type
-                    return "\(category.count) \(plural)"
+                    label = category.bandId
                 }
+                parts.append("\(category.count) \(label)")
             }
-            return nil
+        }
+        if parts.isEmpty {
+            // Try to get bandId from selectedPackage's first rate's pricePerAge
+            if let package = selectedPackage,
+               let response = self.response,
+               let result = response.data?.result?.first(where: { $0.subActivityName == package.title }),
+               let rate = result.rates.first,
+               let bandId = rate.price.pricePerAge.first?.bandId {
+                return bandId
+            }
+            return "No participants"
         }
         return parts.joined(separator: ", ")
     }
     
+    
     // Auto-refresh availability when participants change
+//    func refreshAvailabilityAfterParticipantChange() {
+//        // Only refresh if we have the required data from a previous API call
+//        guard let activityCode = currentActivityCode else {
+//            print("🔍 [REFRESH] No activity code available, skipping auto-refresh")
+//            return
+//        }
+//        
+//        // Use stored currency code or fallback to stored response currency or "AED"
+//        let currencyCode = currentCurrencyCode ?? response?.data?.result?.first?.rates.first?.price.currency ?? "AED"
+//        
+//        print("🔍 [REFRESH] Auto-refreshing availability due to participant/date change")
+//        print("   - Activity Code: \(activityCode)")
+//        print("   - Currency: \(currencyCode)")
+//        print("   - Participants: \(participantsSummary)")
+//        print("   - Selected Date: \(formatter.string(from: selectedDateFromCalender))")
+//        
+//        // Call the API with updated participant data
+//        fetchAvailabilities(productCode: activityCode, currencyCode: currencyCode)
+//    }
     func refreshAvailabilityAfterParticipantChange() {
-        // Only refresh if we have the required data from a previous API call
         guard let activityCode = currentActivityCode else {
             print("🔍 [REFRESH] No activity code available, skipping auto-refresh")
             return
         }
-        
-        // Use stored currency code or fallback to stored response currency or "AED"
-        let currencyCode = currentCurrencyCode ?? response?.data?.result?.first?.rates.first?.price.currency ?? "AED"
-        
-        print("🔍 [REFRESH] Auto-refreshing availability due to participant/date change")
-        print("   - Activity Code: \(activityCode)")
-        print("   - Currency: \(currencyCode)")
-        print("   - Participants: \(participantsSummary)")
-        print("   - Selected Date: \(formatter.string(from: selectedDateFromCalender))")
-        
-        // Call the API with updated participant data
+
+        // Ensure categories exist
+        if categories.isEmpty {
+            if !ageBands.isEmpty {
+                print("🔁 [FIX] Rebuilding categories from local ageBands")
+                updateCategoriesFromAgeBands(ageBands)
+            } else if !globalAgeBands.isEmpty {
+                print("🔁 [FIX] Rebuilding categories from globalAgeBands")
+                updateCategoriesFromAgeBands(globalAgeBands)
+            } else {
+                print("⚠️ No age bands available to rebuild categories")
+            }
+        }
+
+        let currencyCode = currentCurrencyCode ??
+            response?.data?.result?.first?.rates.first?.price.currency ?? "AED"
+
+        print("🔍 [REFRESH] Auto-refreshing availability")
         fetchAvailabilities(productCode: activityCode, currencyCode: currencyCode)
     }
+
 }
 
 extension ExperienceAvailabilitySelectOptionsViewModel {
     
     func fetchAvailabilities(productCode: String, currencyCode: String) {
         guard let url = URL(string: Constants.APIURLs.availabilityUrl ) else { return }
+        
+        if ageBands.isEmpty && !globalAgeBands.isEmpty {
+                print("🔁 [SYNC] Local ageBands was empty — syncing from globalAgeBands")
+                ageBands = globalAgeBands
+            }
+            
+        // ✅ Ensure categories are loaded before creating travelerDetails
+        if categories.isEmpty {
+            if !ageBands.isEmpty {
+                print("🔁 [AUTO-FIX] Categories empty — rebuilding from local ageBands")
+                updateCategoriesFromAgeBands(ageBands)
+            } else if !globalAgeBands.isEmpty {
+                print("🔁 [AUTO-FIX] Categories empty — rebuilding from globalAgeBands")
+                updateCategoriesFromAgeBands(globalAgeBands)
+            } else {
+                print("⚠️ [AUTO-FIX] No age bands found (global or local). TravelerDetails will be empty.")
+            }
+        }
+
+        // Debug: Print categories before building travelerDetails
+        print("[DEBUG] Categories before building travelerDetails:")
+        for cat in categories {
+            print("  - \(cat.type) (bandId: \(cat.bandId)), count: \(cat.count), maxLimit: \(cat.maxLimit)")
+        }
         
         // Store both activityCode and currencyCode for later use
         currentActivityCode = productCode
@@ -314,19 +371,14 @@ extension ExperienceAvailabilitySelectOptionsViewModel {
         
         // Create traveler details based on selected participants using dynamic band IDs
         var travelDetails: [TravelerDetail] = []
-        
         for category in categories {
+            print("[DEBUG] Building travelerDetail for \(category.type) (bandId: \(category.bandId)), count: \(category.count)")
             if category.count > 0 {
-                // Use the actual band ID from the age bands API response
                 let ageBand = category.bandId.isEmpty ? category.type.uppercased() : category.bandId
                 travelDetails.append(TravelerDetail(ageBand: ageBand, travelerCount: category.count))
             }
         }
-        
-        // Fallback to 1 adult if no participants selected
-        if travelDetails.isEmpty {
-            travelDetails = [TravelerDetail(ageBand: "ADULT", travelerCount: 1)]
-        }
+        print("[DEBUG] Final travelerDetails array: \(travelDetails)")
         
         let requestBody = AvailabilityRequest(
             activityCode: productCode,
@@ -334,6 +386,7 @@ extension ExperienceAvailabilitySelectOptionsViewModel {
             checkInDate: formatter.string(from: selectedDateFromCalender),
             travelerDetails: travelDetails
         )
+        print("requestBody for availability \(requestBody)")
         
         print("🔍 [API REQUEST] Sending traveler details:")
         for detail in travelDetails {
@@ -343,29 +396,36 @@ extension ExperienceAvailabilitySelectOptionsViewModel {
         let headers = [
             Constants.APIHeaders.contentTypeKey: Constants.APIHeaders.contentTypeValue,
             Constants.APIHeaders.authorizationKey: TokenProvider.getAuthHeader() ?? "",
-            Constants.APIHeaders.tokenKey: encryptedPayloadMain,
+            Constants.APIHeaders.tokenKey: ssoTokenGlobal,
             Constants.APIHeaders.siteId: ssoSiteIdGlobal,
             "track_id": "eb325ead-60be-4651-b6a5-4182dcd9824f"
         ]
-            
+        
         // Pass the closure as the last argument
         NetworkManager.shared.post(
             url: url,
             body: requestBody,
             headers: headers,
             completion: { (result: Result<AvailabilityApiResponse, Error>) in
-                // Use explicit type in async to avoid DispatchWorkItem error
                 DispatchQueue.main.async(execute: {
-                    // Set loading to false when API call completes
                     self.isLoading = false
-                    
                     switch result {
                     case .success(let data):
                         self.response = data
-                        self.setApiResponse(self.response?.data)
-                        print("response in availability:", data)
+                        // Check for error status and code
+                        if data.status == false || data.statusCode != 200 {
+                            self.errorMessage = Constants.ErrorMessages.somethingWentWrong
+                            self.showErrorView = true
+
+                        } else {
+                            self.setApiResponse(self.response?.data)
+                            self.showErrorView = false
+                            print("🔍 [API RESPONSE] Availability data received successfully\(data)")
+                        }
                     case .failure(let error):
                         self.errorMessage = error.localizedDescription
+                        self.errorMessage = Constants.ErrorMessages.somethingWentWrong
+                        self.showErrorView = true
                         print("Error:", error)
                     }
                 })
@@ -375,24 +435,20 @@ extension ExperienceAvailabilitySelectOptionsViewModel {
     
     func setApiResponse(_ responseData: AvailabilityData?) {
         guard let data = responseData else { return }
-
-        // Store availability UID in global variable from CommonDataFromEncrypt.swift
+        
         avalabulityUid = data.uid ?? ""
         print(avalabulityUid)
         print("praveen avalabulityUid")
         
-        // Always store track_id & uid for checkout
         let trackId = data.trackId ?? ""
         let uid = data.uid ?? ""
         print("🔍 TrackId:", trackId, "UID:", uid)
-
+        
         guard let resultArray = data.result, !resultArray.isEmpty else {
-            // No packages, but we can still pass UID/track_id to checkout
-            packages = [] // Clear packages
+            packages = []
             return
         }
-
-        // Process packages as usual
+        
         packages = resultArray.enumerated().map { index, item in
             let times = item.rates.map { $0.time }
             let firstRate = item.rates.first
@@ -407,16 +463,15 @@ extension ExperienceAvailabilitySelectOptionsViewModel {
                 pricingDescription: pricingDescriptions,
                 totalAmount: "\(totalAmount)",
                 selectedTime: nil,
-                isExpanded: index == 0, // Expand first package by default
+                isExpanded: index == 0,
                 isInfoExpanded: false,
                 supplierName: nil,
                 subActivityCode: subActivityCode,
                 activityCode: currentActivityCode,
-                availabilityKey: item.availabilityKey // <-- FIXED: use availabilityKey
+                availabilityKey: item.availabilityKey
             )
         }
         
-        // Store values from the selected package (or first package if none selected)
         updateSelectedPackageData()
     }
     
@@ -433,7 +488,6 @@ extension ExperienceAvailabilitySelectOptionsViewModel {
             }
         }
         
-        // Update global variables whenever expansion changes
         updateSelectedPackageData()
     }
 }

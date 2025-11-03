@@ -53,6 +53,7 @@ final class ExperienceListViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     @Published var searchText: String = ""
+    @Published var showErrorView: Bool = false
     
     private let service: ExperienceListService
     
@@ -104,6 +105,17 @@ final class ExperienceListViewModel: ObservableObject {
                 self.isLoading = false
                 switch result {
                 case .success(let response):
+                    // ✅ Added logic to check for error status & code (same as reference)
+                    if response.status == false || response.statusCode != 200 {
+                        self.errorMessage = Constants.ErrorMessages.somethingWentWrong
+                        self.showErrorView = true
+                       
+                        return
+                    } else {
+                        self.showErrorView = false
+                    }
+                    
+                    // Existing logic remains unchanged
                     if let responseData = response.data {
                         self.searchDestination = response
                         var mappedExperiences = self.mapResponseToUIModels(responseData)
@@ -118,12 +130,16 @@ final class ExperienceListViewModel: ObservableObject {
                     } else {
                         self.errorMessage = Constants.ErrorMessages.noDataInResponse
                     }
+
                 case .failure(let error):
-                    self.errorMessage = error.localizedDescription
+                    self.errorMessage = Constants.ErrorMessages.somethingWentWrong
+                    self.showErrorView = true
+                    
                 }
             }
         }
     }
+
     
     // MARK: - Internal Helpers (accessible to SortViewModel)
     func mapResponseToUIModels(_ responseData: SearchDataModel) -> [ExperienceListModel] {
@@ -153,7 +169,7 @@ struct SearchRequestBuilder {
         productCodes: [String]
     ) -> SearchRequestModel {
         let filters = SearchFilters(
-            limit: 50,
+            limit: 700,
             offset: 0,
             priceRange: [],
             rating: [],

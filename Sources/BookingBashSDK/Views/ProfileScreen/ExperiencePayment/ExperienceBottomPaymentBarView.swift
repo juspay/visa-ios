@@ -56,6 +56,7 @@ struct ExperienceBottomPaymentBarView: View {
 //                                .onTapGesture {
 //                                    infoButtontapped()
 //                                }
+//                        }
 //                        } else {
 //                            Image(Constants.Icons.info)
 //                                .resizable()

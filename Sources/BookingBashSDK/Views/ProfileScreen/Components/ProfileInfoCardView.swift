@@ -38,13 +38,13 @@ struct ProfileInfoCardView: View {
             
             HStack(spacing: 12) {
                
-                if let mobile = ImageLoader.bundleImage(named: Constants.GuestDetailsFormConstants.mobile) {
-                    mobile
-                        .resizable()
-                        .frame(width: 20, height: 20)
-                        .foregroundStyle(Color(hex: Constants.HexColors.neutral))
-                    
-                }
+                if let mobile = ImageLoader.bundleImage(named: Constants.Icons.mobile) {
+                                    mobile
+                                        .resizable()
+                                        .frame(width: 24, height: 24)
+                                        .foregroundStyle(Color(hex: Constants.HexColors.neutral))
+                                    
+                                }
                 Text("\(profile.mobileCountryCode) \(profile.mobileNumber)")
                     .font(.custom(Constants.Font.openSansSemiBold, size: 14))
                     .bold()

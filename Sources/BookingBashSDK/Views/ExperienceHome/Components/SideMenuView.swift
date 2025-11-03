@@ -6,17 +6,18 @@ struct SideMenuView: View {
             VStack(alignment: .leading, spacing: 24) {
                 
                 // Profile Section
-                HStack(spacing: 12) {
+                HStack(spacing: 6) {
                     
                     Group {
                         if let profileImage = ImageLoader.bundleImage(named: Constants.SideMenuConstants.iconProfile) {
                             profileImage
                                 .resizable()
-                                .frame(width: 40, height: 40)
+                                .frame(width: 24, height: 24)
                         }
                     }
                     
                     Text(String(format: Constants.SideMenuConstants.greetingText, firstName))
+                        .lineLimit(1)
                         .font(.custom(Constants.Font.lexendBold, size: 14))
                         .foregroundColor(.black)
                 }
@@ -24,7 +25,7 @@ struct SideMenuView: View {
                 .padding(.horizontal, 20)
                 
                 // Menu Items
-                VStack(spacing: 16) {
+                VStack(spacing: 8) {
                     //  Navigate to MyTransactionView
                     NavigationLink(destination: MyTransactionView()) {
                         MenuRow(icon: Constants.Icons.activity, title: Constants.SideMenuConstants.myTransactions)

@@ -37,6 +37,7 @@ struct Booking: Codable, Identifiable {
     let bookingRef: String
     let status: TransactionStatus
     let productTitle: String
+    var travellerSummary: String? = nil
     let productCode: String
     let travelDate: Date
     let currency: String
@@ -87,6 +88,8 @@ struct Booking: Codable, Identifiable {
         createdDate = travelDateFormatter.date(from: createdDateString) ?? Date()
         bookingDate = createdDate
         travellers = try container.decode(TransactionTravellerInfo.self, forKey: .travellers)
+//        travellerSummary = Booking.formatTravellerSummary(travellers)
+
         price = try container.decode(TransactionPriceDetails.self, forKey: .price)
     }
     
@@ -115,11 +118,37 @@ struct Booking: Codable, Identifiable {
 }
 
 // MARK: - Transaction Traveller Info
+//struct TransactionTravellerInfo: Codable {
+//    let adults: Int
+//    let children: Int
+//    let total: Int
+//}
 struct TransactionTravellerInfo: Codable {
     let adults: Int
     let children: Int
     let total: Int
+    let infants: Int
+
+    enum CodingKeys: String, CodingKey {
+        case adults, children, total , infants
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        adults = try container.decodeIfPresent(Int.self, forKey: .adults) ?? 0
+        children = try container.decodeIfPresent(Int.self, forKey: .children) ?? 0
+        infants = try container.decodeIfPresent(Int.self, forKey: .infants) ?? 0
+        total = try container.decodeIfPresent(Int.self, forKey: .total) ?? (adults + children)
+    }
+
+    init(adults: Int, children: Int,infants: Int) {
+        self.adults = adults
+        self.children = children
+        self.infants = infants
+        self.total = adults + children
+    }
 }
+
 
 // MARK: - Transaction Price Details
 struct TransactionPriceDetails: Codable {
@@ -195,12 +224,12 @@ enum TransactionTab: String, CaseIterable, Identifiable {
 
 // MARK: - Helpers
 extension Booking {
-    var travellerText: String {
-        var parts: [String] = []
-        if travellers.adults > 0 { parts.append("\(travellers.adults) Adult\(travellers.adults > 1 ? "s" : "")") }
-        if travellers.children > 0 { parts.append("\(travellers.children) Child\(travellers.children > 1 ? "ren" : "")") }
-        return parts.joined(separator: ", ")
-    }
+//    var travellerText: String {
+//        var parts: [String] = []
+//        if travellers.adults > 0 { parts.append("\(travellers.adults) Adult\(travellers.adults > 1 ? "s" : "")") }
+//        if travellers.children > 0 { parts.append("\(travellers.children) Child\(travellers.children > 1 ? "ren" : "")") }
+//        return parts.joined(separator: ", ")
+//    }
     
     var timeText: String {
         let formatter = DateFormatter()
@@ -224,5 +253,31 @@ extension Booking {
     var savingsPercentage: Decimal? {
         guard let strikeout = price.strikeout else { return nil }
         return Decimal(strikeout.savingPercentage)
+    }
+}
+extension Booking {
+    var travellerText: String {
+        var parts: [String] = []
+        
+        // Adults from travellers.adults
+        if travellers.adults > 0 {
+            parts.append("\(travellers.adults) Adult\(travellers.adults > 1 ? "s" : "")")
+        }
+        
+        // Children: Prefer travellers.children, but fallback to price.pricePerAge
+        var childrenCount = travellers.children
+        if childrenCount == 0 {
+            childrenCount = price.pricePerAge.first(where: { $0.bandId.uppercased() == "CHILD" })?.count ?? 0
+        }
+        if childrenCount > 0 {
+            parts.append("\(childrenCount) Child\(childrenCount > 1 ? "ren" : "")")
+        }
+
+        // Infants
+        if travellers.infants > 0 {
+            parts.append("\(travellers.infants) Infant\(travellers.infants > 1 ? "s" : "")")
+        }
+        
+        return parts.isEmpty ? "No Participants" : parts.joined(separator: ", ")
     }
 }

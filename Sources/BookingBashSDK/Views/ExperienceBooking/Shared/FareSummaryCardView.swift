@@ -1,9 +1,3 @@
-//
-//  FareSummaryCardView.swift
-//  VisaActivity
-//
-//  Created by Apple on 06/08/25.
-//
 
 import Foundation
 import SwiftUI
@@ -95,7 +89,7 @@ struct FareSummaryCardView: View {
                         .font(.system(size: 15, weight: .bold))
                         .foregroundColor(Color(hex: "#2C3E50"))
                     Spacer()
-                    Text("AED \(totalPrice)")
+                    Text(" \(totalPrice)")
                         .font(.system(size: 16, weight: .bold))
                         .foregroundColor(Color(hex: "#2C3E50"))
                 }

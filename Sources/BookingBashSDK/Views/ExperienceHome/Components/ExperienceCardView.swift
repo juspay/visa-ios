@@ -1,9 +1,4 @@
-//
-//  ExperienceCardView.swift
-//  VisaActivity
-//
-//  Created by Apple on 29/07/25.
-//
+
 
 import SwiftUI
 
@@ -55,7 +50,7 @@ struct ExperienceCardView: View {
                 }
                 
                 VStack(alignment: .leading) {
-                    Text("Starting from \(experience.finalPrice) /Person")
+                    Text("Starting from \(experience.currency) \(experience.finalPrice) /Person")
                         .font(.custom(Constants.Font.openSansBold, size: 14))
                         .foregroundStyle(Color.white)
                         .font(.body)

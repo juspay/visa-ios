@@ -35,9 +35,10 @@ struct AvailabilitySelectionRowView: View {
 
                 if let arrowImage = ImageLoader.bundleImage(named: Constants.Icons.arrowRight) {
                     arrowImage
-                        .resizable()
+                        .renderingMode(.template)
+                        .tint(Color(.white))
                         .frame(width: 20, height: 20)
-                        .foregroundStyle(.white)
+                        
                 }
             }
             .padding(16)

@@ -10,20 +10,34 @@ struct NavigationDestinationModifier: ViewModifier {
             content
                 .navigationDestination(isPresented: $navigateToHome) {
                     HomeDestinationWrapperView()
+                        .navigationBarBackButtonHidden(true)
                 }
         } else {
             content
-                .background(
-                    NavigationLink(
-                        destination: HomeDestinationWrapperView(),
-                        isActive: $navigateToHome
-                    ) {
-                        EmptyView()
-                    }
-                )
+                .navigation(
+                    isActive: $navigateToHome,
+                    id: "home_navigation"
+                ) {
+                    HomeDestinationWrapperView()
+                }
         }
     }
 }
+//struct NavigationDestinationModifier: ViewModifier {
+//    @Binding var navigateToHome: Bool
+//
+//    func body(content: Content) -> some View {
+//        content
+//            .background(
+//                NavigationLink(
+//                    destination: HomeDestinationWrapperView(),
+//                    isActive: $navigateToHome
+//                ) {
+//                    EmptyView()
+//                }
+//                .hidden()
+//            )
+//    }
 
 struct HomeDestinationWrapperView: View {
     @State private var isHomeActive = true

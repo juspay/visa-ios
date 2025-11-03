@@ -19,6 +19,9 @@ struct BookedExperienceDetailInfoTopLocationView: View {
             Text(title)
                 .font(.custom(Constants.Font.openSansBold, size: 14))
                 .foregroundStyle(titleTextColor)
+                .lineLimit(nil) // Allows unlimited lines
+                .fixedSize(horizontal: false, vertical: true)
+            
             
             // Location hidden as per requirement
             // HStack(spacing: 2) {

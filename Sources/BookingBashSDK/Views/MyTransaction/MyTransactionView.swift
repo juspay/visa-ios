@@ -46,6 +46,8 @@ enum MyTransactionRoute: Hashable {
 
 struct MyTransactionView: View {
     @StateObject private var viewModel = TransactionsViewModel()
+    @StateObject private var bookingViewModel = ExperienceBookingConfirmationViewModel()
+
     @Environment(\.presentationMode) var presentationMode
     @State private var selectedTransaction: Booking? = nil
     @State private var cancelledBooking: Booking? = nil
@@ -104,7 +106,7 @@ struct MyTransactionView: View {
                                             selectedTransaction = item
                                         }
                                     }) {
-                                        TransactionRow(item: item)
+                                        TransactionRow(item: item, participantsSummary: bookingViewModel.participantsSummary)
                                     }
                                     .onAppear {
                                         // Load more when the last item appears
@@ -116,9 +118,8 @@ struct MyTransactionView: View {
                             }
                             
                             if viewModel.isLoading {
-                                ProgressView()
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 8)
+                                LoaderView(text: "Loading bookings...")
+
                             }
                         }
                         .padding(.horizontal)
@@ -127,12 +128,19 @@ struct MyTransactionView: View {
                     NavigationLink(
                         destination: Group {
                             if let transaction = selectedTransaction {
+                                let participantText = transaction.travellerText
+                                let time = transaction.time
                                 if let nav = navigationStorage {
                                     ExperienceBookingConfirmationView(orderNo: transaction.orderNo, isFromBookingJourney: false,
-                                                                      booking: transaction )
+                                                                      booking: transaction,
+                                                                      participantsSummary: participantText,
+                                                                      selectedTime: time)
                                     .environmentObject(nav)
                                 } else {
-                                    ExperienceBookingConfirmationView(orderNo: transaction.orderNo, isFromBookingJourney: false)
+                                    ExperienceBookingConfirmationView(orderNo: transaction.orderNo, isFromBookingJourney: false,
+                                                                      booking: transaction,
+                                                                      participantsSummary: participantText,
+                                                                      selectedTime: time)
                                 }
                             } else {
                                 EmptyView()
@@ -157,6 +165,8 @@ struct MyTransactionView: View {
                 viewModel.fetchBookings()
             }
             .navigationBarBackButtonHidden(true)
+            
         }
+        .navigationBarHidden(true)
     }
 }

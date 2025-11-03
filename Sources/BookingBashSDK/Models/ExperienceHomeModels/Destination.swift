@@ -13,8 +13,9 @@ struct Destination: Identifiable {
     let city: String
     let state: String
     let region: String
+    let currency: String
     
-    init(name: String, imageURL: String, destinationId: String, destinationType: Int, locationName: String, city: String, state: String, region: String) {
+    init(name: String, imageURL: String, destinationId: String, destinationType: Int, locationName: String, city: String, state: String, region: String, currency: String) {
         self.name = name
         self.imageName = ""
         self.imageURL = imageURL
@@ -24,6 +25,7 @@ struct Destination: Identifiable {
         self.city = city
         self.state = state
         self.region = region
+        self.currency = currency
     }
     
     init(name: String, imageName: String) {
@@ -36,5 +38,6 @@ struct Destination: Identifiable {
         self.city = ""
         self.state = ""
         self.region = ""
+        self.currency = ""
     }
 }

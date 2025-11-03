@@ -12,6 +12,7 @@ struct BottomSheetView<Content: View>: View {
     let sheetHeight: CGFloat?
     let content: Content
     var productCode: String?
+    var isDragToDismissEnabled: Bool
     
     @State private var dragOffset: CGFloat = 0
     @State private var scrollOffset: CGFloat = 0
@@ -22,12 +23,14 @@ struct BottomSheetView<Content: View>: View {
         isPresented: Binding<Bool>,
         sheetHeight: CGFloat? = nil,
         @ViewBuilder content: () -> Content,
-        productCode: String? = nil
+        productCode: String? = nil,
+        isDragToDismissEnabled: Bool = true
     ) {
         self._isPresented = isPresented
         self.sheetHeight = sheetHeight
         self.content = content()
         self.productCode = productCode
+        self.isDragToDismissEnabled = isDragToDismissEnabled
     }
     
     var body: some View {
@@ -35,9 +38,9 @@ struct BottomSheetView<Content: View>: View {
             if isPresented {
                 Color(hex: Constants.HexColors.secondary).opacity(0.9)
                     .ignoresSafeArea()
-                    .contentShape(Rectangle())     
-                        .onTapGesture {
-                        }
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                    }
                 
                 VStack(spacing: 0) {
                     Spacer()
@@ -73,8 +76,14 @@ struct BottomSheetView<Content: View>: View {
                                 }
                             }
                             .onEnded { value in
-                                if dragOffset > dismissThreshold {
-                                    dismissSheet()
+                                if isDragToDismissEnabled {
+                                    if dragOffset > dismissThreshold {
+                                        dismissSheet()
+                                    } else {
+                                        withAnimation(.spring()) {
+                                            dragOffset = 0
+                                        }
+                                    }
                                 } else {
                                     withAnimation(.spring()) {
                                         dragOffset = 0
@@ -127,4 +136,3 @@ private extension View {
         }
     }
 }
-

@@ -4,6 +4,7 @@ struct PaymentView: View {
     var orderId: String
     var paymentUrl: String
     var participantsSummary: String
+    var selectedTime: String? // <-- Add selectedTime
     @State private var shouldNavigateToConfirmation = false
 
     var body: some View {
@@ -32,7 +33,7 @@ struct PaymentView: View {
             .navigationBarBackButtonHidden(true)
             
             NavigationLink(isActive: $shouldNavigateToConfirmation) {
-                ExperienceBookingConfirmationView(orderNo: orderId, participantsSummary: participantsSummary)
+                ExperienceBookingConfirmationView(orderNo: orderId, participantsSummary: participantsSummary, selectedTime: selectedTime)
                     .navigationBarBackButtonHidden(true)
             } label: { EmptyView() }
         }

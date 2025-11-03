@@ -1,55 +1,58 @@
 import Foundation
 
 final class ExperienceDetailViewModel: ObservableObject {
-    
-    // MARK: - Published State
     @Published var carousalData: [ExperienceDetailCarousalModel] = []
-    @Published var isLoading: Bool = false
-    
-    @Published var experienceDetail: ExperienceDetailModel?
-    @Published var isViewMoreExpanded = false
-    @Published var allFeatures: [FeatureItem] = []
-    
-    @Published var sortRatingsOptions: [SortOption] = [
-        .init(title: "Most Relevant"),
-        .init(title: "Ratings - High to low"),
-        .init(title: "Ratings - Low to high")
-    ]
-    @Published var selectedOption: SortOption?
-    
-    @Published var aboutExperience: AboutExperienceModel? = nil
-    @Published var items: [InfoItem] = []
-    
-    @Published var inclusions: [InfoDetailModel] = []
-    @Published var exclusions: [InfoDetailModel] = []
-    @Published var highlights: [InfoDetailModel] = []
-    @Published var cancellationPolicyData: [InfoDetailModel] = []
-    
-    @Published var reviews: [ReviewsModel] = []
-    @Published var images: [TravellerPhotosModel] = []
-    
-    @Published var price: String = ""
-    @Published var priceValue: Double = 0.0
-    @Published var location: String = ""
-    @Published var priceSuffix: String = "/Person"
-    @Published var buttonText: String = "Check Availability"
-    @Published var errorMessage: String?
-    @Published var apiReviewResponseData: DetailResponseData?
-    @Published var strikeoutPrice = 0.0
-    @Published var savingsPercentage: Double = 0.0
-    @Published var savingsAmount: Double = 0.0
-    @Published var hasDiscount: Bool = false
-    
-    // MARK: - Non-Published Properties
-    var cancellationPolicy: String = ""
-    let icons = ["bolt.fill"]
-    var ageBandsForAvailability: [DetailAgeBand] = []
-    
-    // MARK: - Init
-    init() {
-        selectedOption = sortRatingsOptions.first
-        configureStaticData()
-    }
+      @Published var isLoading: Bool = false
+      
+      @Published var experienceDetail: ExperienceDetailModel?
+      @Published var isViewMoreExpanded = false
+      @Published var allFeatures: [FeatureItem] = []
+      
+      @Published var sortRatingsOptions: [SortOption] = [
+          .init(title: "Most Relevant"),
+          .init(title: "Ratings - High to low"),
+          .init(title: "Ratings - Low to high")
+      ]
+      @Published var selectedOption: SortOption?
+      
+      @Published var aboutExperience: AboutExperienceModel? = nil
+      @Published var items: [InfoItem] = []
+      
+      @Published var inclusions: [InfoDetailModel] = []
+      @Published var exclusions: [InfoDetailModel] = []
+      @Published var highlights: [InfoDetailModel] = []
+      @Published var cancellationPolicyData: [InfoDetailModel] = []
+      
+      @Published var reviews: [ReviewsModel] = []
+      @Published var images: [TravellerPhotosModel] = []
+      
+      @Published var price: String = ""
+      @Published var maxTravelersPerBooking: Int?
+      @Published var priceValue: Double = 0.0
+      @Published var location: String = ""
+      @Published var ageBands: String = ""
+      @Published var priceSuffix: String = "/Person"
+      @Published var buttonText: String = "Check Availability"
+      @Published var errorMessage: String?
+      @Published var apiReviewResponseData: DetailResponseData?
+      @Published var strikeoutPrice = 0.0
+      @Published var savingsPercentage: Double = 0.0
+      @Published var savingsAmount: Double = 0.0
+      @Published var hasDiscount: Bool = false
+      
+     
+      @Published var showErrorOverlay: Bool = false
+      var errorStatusCode: Int? = nil
+      
+      // MARK: - Derived Property
+      var shouldShowErrorOverlay: Bool {
+          return showErrorOverlay
+      }
+
+      // MARK: - Non-Published Properties
+      var cancellationPolicy: String = ""
+      let icons = ["bolt.fill"]
+      var ageBandsForAvailability: [DetailAgeBand] = []
     
     // MARK: - Public Methods
     func fetchReviewData(activityCode: String, currency: String) {
@@ -100,46 +103,60 @@ final class ExperienceDetailViewModel: ObservableObject {
     }
     
     private func fetchExperienceDetails(activityCode: String, currency: String) {
-        guard let url = URL(string: Constants.APIURLs.detailsBaseURL) else {
-            isLoading = false
-            return
-        }
-        
-        let requestBody = ExperienceRequest(
-            activity_code: activityCode,
-            currency: currency
-        )
-        
-        let headers = [
-            Constants.APIHeaders.contentTypeKey: Constants.APIHeaders.contentTypeValue,
-            Constants.APIHeaders.authorizationKey: TokenProvider.getAuthHeader() ?? "",
-            Constants.APIHeaders.siteId: ssoSiteIdGlobal,
-                 Constants.APIHeaders.tokenKey: ssoTokenGlobal
-        ]
-        
-        print(headers)
-        print(requestBody)
-        print("url for details - \(url)")
-        
-        NetworkManager.shared.post(url: url, body: requestBody, headers: headers) { (result: Result<DetailExperienceApiResponse, Error>) in
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
-                self.isLoading = false
-                
-                switch result {
-                case .success(let response):
-                    if let responseData = response.data {
-                        self.setUiData(responseData: responseData)
-                    } else {
-                        print("Error: Empty detail response")
+            guard let url = URL(string: Constants.APIURLs.detailsBaseURL) else {
+                isLoading = false
+                return
+            }
+
+            let requestBody = ExperienceRequest(activity_code: activityCode, currency: currency)
+
+            let headers = [
+                Constants.APIHeaders.contentTypeKey: Constants.APIHeaders.contentTypeValue,
+                Constants.APIHeaders.authorizationKey: TokenProvider.getAuthHeader() ?? "",
+                Constants.APIHeaders.siteId: ssoSiteIdGlobal,
+                Constants.APIHeaders.tokenKey: ssoTokenGlobal
+            ]
+
+            print("url for details - \(url)")
+
+            NetworkManager.shared.post(url: url, body: requestBody, headers: headers) { (result: Result<DetailExperienceApiResponse, Error>) in
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self else { return }
+                    self.isLoading = false
+
+                    switch result {
+                    case .success(let response):
+                        // ✅ Check for API failure (500 or false status)
+                        if response.status == false || response.statusCode != 200 {
+                            self.errorStatusCode = response.statusCode
+                            self.errorMessage = Constants.ErrorMessages.somethingWentWrong
+                            self.showErrorOverlay = true
+                          
+                            return
+                        }
+
+                        // ✅ Handle valid data
+                        if let responseData = response.data {
+                            self.setUiData(responseData: responseData)
+                            self.showErrorOverlay = false
+                            print("✅ DetailExperienceApiResponse received successfully")
+                        } else {
+                            print("⚠️ Empty detail response")
+                            self.errorMessage = "No data found"
+                            self.showErrorOverlay = true
+                        }
+
+                    case .failure(let error):
+                        print("❌ Network error: \(error.localizedDescription)")
+                        self.errorStatusCode = 500
+                        self.errorMessage = Constants.ErrorMessages.somethingWentWrong
+                        self.showErrorOverlay = true
                     }
-                case .failure(let error):
-                    self.errorMessage = error.localizedDescription
                 }
             }
         }
-    }
     
+
     private func updateCarouselWithImages(imageData: ImageListData) {
         var carouselImages: [ExperienceDetailCarousalModel] = []
         
@@ -169,7 +186,7 @@ final class ExperienceDetailViewModel: ObservableObject {
     
     func setUiData(responseData: DetailResponseData?) {
         guard let data = responseData else { return }
-        
+        maxTravelersPerBooking = data.info.bookingRequirements.maxTravelersPerBooking
         // Store the response data for later use
         apiReviewResponseData = data
         
@@ -193,11 +210,13 @@ final class ExperienceDetailViewModel: ObservableObject {
         // Store age bands for passing to availability view
         let ageBands = data.info.ageBands
         ageBandsForAvailability = ageBands
+        
         // Store in global variable for cross-view communication
         globalAgeBands = ageBands
         print("🔍 [DETAILS] Found \(ageBands.count) age bands from details API:")
+        print("🔍 [DETAILS] Found------ \(ageBandsForAvailability) age bands for details API:")
         for ageBand in ageBands {
-            print("   - \(ageBand.description): age \(ageBand.ageFrom)-\(ageBand.ageTo), min: \(ageBand.minTravelersPerBooking), max: \(ageBand.maxTravelersPerBooking)")
+            print("   - \(ageBand.bandID): age \(ageBand.ageFrom)-\(ageBand.ageTo), min: \(ageBand.minTravelersPerBooking), max: \(ageBand.maxTravelersPerBooking)")
         }
         
         // Strikeout price if available
@@ -223,7 +242,7 @@ final class ExperienceDetailViewModel: ObservableObject {
         if !data.info.country.isEmpty {
             locationParts.append(data.info.country)
         }
-        location = locationParts.joined(separator: ", ")
+        location = locationParts.joined(separator: " - ")
         
         // Experience Detail
         experienceDetail = ExperienceDetailModel(
@@ -262,10 +281,7 @@ final class ExperienceDetailViewModel: ObservableObject {
         }
         
         allFeatures = features
-        print("DEBUG: ========================================")
-        print("DEBUG: Total Features count: \(allFeatures.count)")
-        print("DEBUG: All feature titles: \(allFeatures.compactMap { $0.title })")
-        print("DEBUG: ========================================")
+        
         
         // About - include duration in description
         let aboutDescription = "\(data.info.description)\n\nDuration: \(durationDisplay)"
@@ -277,15 +293,6 @@ final class ExperienceDetailViewModel: ObservableObject {
         // Cancellation Policy
         cancellationPolicy = data.info.cancellationPolicy.description
         var cancellationItems = [data.info.cancellationPolicy.description]
-        
-        // Add refund eligibility details
-        for refund in data.info.cancellationPolicy.refundEligibility {
-            if let maxDays = refund.dayRangeMax {
-                cancellationItems.append("\(refund.percentageRefundable)% refund if cancelled between \(refund.dayRangeMin) and \(maxDays) days before")
-            } else {
-                cancellationItems.append("\(refund.percentageRefundable)% refund if cancelled \(refund.dayRangeMin)+ days before")
-            }
-        }
         
         cancellationPolicyData = [
             InfoDetailModel(title: "Cancellation Policy", items: cancellationItems)

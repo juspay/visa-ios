@@ -37,6 +37,8 @@ struct CombinedTitleFirstName: View {
             
             // Right: first name textfield (bare style)
             BareTextField(placeholder: Constants.GuestDetailsFormConstants.enterFirstName, text: $firstName)
+                .disabled(true)
+                .opacity(0.6)
                 .padding(.vertical, 0)
                 .padding(.leading, 12)
             

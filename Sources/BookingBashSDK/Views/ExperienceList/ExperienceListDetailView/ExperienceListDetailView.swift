@@ -68,6 +68,7 @@ struct ExperienceListDetailView: View {
             }
         )
         .onAppear(perform: loadExperiences)
+        
     }
     @ViewBuilder
     private var content: some View {
@@ -78,7 +79,23 @@ struct ExperienceListDetailView: View {
                 Spacer()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else if let errorMessage = viewModel.errorMessage ?? sortViewModel.errorMessage {
+        }
+        else if viewModel.showErrorView {
+            VStack(spacing: 20) {
+                if let noResultImage = ImageLoader.bundleImage(named: Constants.Icons.searchNoResult) {
+                    noResultImage
+                        .resizable()
+                        .frame(width: 124, height: 124)
+                }
+                Text(Constants.ErrorMessages.somethingWentWrong)
+                    .font(.headline)
+                    .foregroundColor(.black)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        else if let errorMessage = viewModel.errorMessage ?? sortViewModel.errorMessage {
             VStack {
                 Spacer()
                 Text(errorMessage)
@@ -91,7 +108,8 @@ struct ExperienceListDetailView: View {
                 Spacer()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else {
+        }
+        else {
             experiencesContent
         }
     }
@@ -158,6 +176,7 @@ struct ExperienceListDetailView: View {
                     .font(.subheadline)
                     .foregroundColor(.gray)
             }
+            
             Spacer()
             Button(action: { showSortSheet = true }) {
                 HStack(spacing: 4) {
@@ -172,6 +191,7 @@ struct ExperienceListDetailView: View {
                 }
             }
         }
+       
     }
     
     private func loadExperiences() {
@@ -215,18 +235,25 @@ struct ExperienceSearchBarView: View {
                     .foregroundStyle(Color(hex: Constants.HexColors.blackStrong))
             }
             Spacer()
-            Image(systemName: Constants.Icons.xmark)
-                .imageScale(.small)
-                .frame(width: 18, height: 18)
-                .foregroundStyle(Color(hex: Constants.HexColors.neutral))
-                .onTapGesture {
-                    searchText = ""
-                    viewModel.searchText = ""
-                }
+            // Show X only when user typed something
+            if !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                Image(systemName: Constants.Icons.xmark)
+                    .imageScale(.small)
+                    .frame(width: 18, height: 18)
+                    .foregroundStyle(Color(hex: Constants.HexColors.neutral))
+                    .onTapGesture {
+                        searchText = ""
+                        viewModel.searchText = ""
+                    }
+                    .transition(.opacity)
+                    .animation(.easeInOut(duration: 0.2), value: searchText)
+            }
         }
+
         .onChange(of: searchText) { newValue in
-            viewModel.searchText = newValue.trimmingCharacters(in: .whitespacesAndNewlines)
+            viewModel.searchText = newValue.drop(while: { $0.isWhitespace }).description
         }
+
         .frame(height: 44)
         .padding(.horizontal, 12)
         .background(

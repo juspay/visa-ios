@@ -2,13 +2,13 @@ import SwiftUI
 
 struct TransactionRow: View {
     let item: Booking
+    let participantsSummary: String
     
     // MARK: - Savings Text Function
     private func createSavingsText(savingAmount: Double, currency: String) -> AttributedString {
         var text = AttributedString(Constants.TransactionRowConstants.youAreSaving)
         text.foregroundColor = .gray
-        
-        var value = AttributedString("\(Int(savingAmount)) \(currency)")
+        var value = AttributedString("\(String(format: "%.2f", savingAmount)) \(currency)")
         value.foregroundColor = Color(hex: Constants.HexColors.greenShade)
         value.font = .system(size: 14, weight: .bold)
         text.append(value)
@@ -20,8 +20,41 @@ struct TransactionRow: View {
             
             // Top: image + title + booking details
             HStack(alignment: .top, spacing: 12) {
-                
-                if let uiImage = UIImage(named: Constants.TransactionRowConstants.placeHolderImage) {
+                //item.
+                if let thumbnailUrl = URL(string: item.thumbnail), !item.thumbnail.isEmpty {
+                    // Display image from API using AsyncImage (iOS 15+)
+                    AsyncImage(url: thumbnailUrl) { phase in
+                        switch phase {
+                        case .empty:
+                            ProgressView()
+                                .frame(width: 76, height: 76)
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 76, height: 76)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                        case .failure:
+                            if let placeholder = ImageLoader.bundleImage(named: Constants.TransactionRowConstants.placeHolderImage) {
+                                placeholder
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 76, height: 76)
+                                    .clipped()
+                                    .clipShape(RoundedCorner(radius: 12, corners: [.topLeft, .bottomLeft]))
+                            }
+                        @unknown default:
+                            if let placeholder = ImageLoader.bundleImage(named: Constants.TransactionRowConstants.placeHolderImage) {
+                                placeholder
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 76, height: 76)
+                                    .clipped()
+                                    .clipShape(RoundedCorner(radius: 12, corners: [.topLeft, .bottomLeft]))
+                            }
+                        }
+                    }
+                } else if let uiImage = UIImage(named: Constants.TransactionRowConstants.placeHolderImage) {
                     Image(uiImage: uiImage)
                         .resizable()
                         .scaledToFill()
@@ -50,7 +83,7 @@ struct TransactionRow: View {
                         Text(Constants.TransactionRowConstants.bookingId)
                             .foregroundColor(.black)
                             .font(.custom("OpenSans-SemiBold", size: 12))
-                        Text(item.bookingRef)
+                        Text(item.orderNo)
                             .foregroundColor(.gray)
                             .font(.custom("OpenSans-SemiBold", size: 12))
                         
@@ -75,31 +108,47 @@ struct TransactionRow: View {
             
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
-                    Label(DateFormatter.shortDate.string(from: item.travelDate), systemImage: Constants.TransactionRowConstants.calendar)
+                    if let calendarIcon = ImageLoader.bundleImage(named: Constants.Icons.calendargray) {
+                        calendarIcon
+                            .resizable()
+                            .frame(width: 20, height: 20)
+                            .foregroundStyle(.secondary)
+                    }
+                    Text(DateFormatter.shortDate.string(from: item.travelDate))
                         .font(.custom("OpenSans-SemiBold", size: 12))
                     Spacer()
-                    if let icon = ImageLoader.bundleImage(named: Constants.Icons.usergray) {
-                        HStack(spacing: 6) {
-                            icon
-                                .resizable()
-                                .frame(width: 20, height: 20)
-                                .foregroundStyle(.secondary)
-                            Text(item.travellerText)
-                                .font(.custom("OpenSans-SemiBold", size: 12))
-                                .foregroundColor(.secondary)
-                        }
-                    } else {
-                        Label(item.travellerText, image: Constants.Icons.usergray)
-                            .font(.custom("OpenSans-SemiBold", size: 12))
-                    }
+//                    if let icon = ImageLoader.bundleImage(named: Constants.Icons.usergray) {
+//                        HStack(spacing: 6) {
+//                            icon
+//                                .resizable()
+//                                .frame(width: 20, height: 20)
+//                                .foregroundStyle(.secondary)
+//                            Text(item.travellerText)
+//                                .font(.custom("OpenSans-SemiBold", size: 12))
+//                                .foregroundColor(.secondary)
+//                        }
+//                    } else {
+//                        Label(participantsSummary, image: Constants.Icons.usergray)
+//                            .font(.custom("OpenSans-SemiBold", size: 12))
+//                    }
                 }
                 
                 .font(.subheadline)
                 .foregroundColor(.secondary)
                 
-                Label(item.timeText, systemImage: Constants.TransactionRowConstants.clock)
-                    .font(.custom("OpenSans-SemiBold", size: 12))
-                    .foregroundColor(.secondary)
+                if !item.time.isEmpty && item.time != "00:00" {
+                    HStack {
+                        if let clockIcon = ImageLoader.bundleImage(named: Constants.Icons.clock) {
+                            clockIcon
+                                .resizable()
+                                .frame(width: 20, height: 20)
+                                .foregroundStyle(.secondary)
+                        }
+                        Text(item.time)
+                            .font(.custom("OpenSans-SemiBold", size: 12))
+                            .foregroundColor(.secondary)
+                    }
+                }
                 
                 if let strikeout = item.price.strikeout {
                     Label {
@@ -110,11 +159,11 @@ struct TransactionRow: View {
                         .font(.custom("OpenSans-SemiBold", size: 12))
                     } icon: {
                         if let savingIcon = ImageLoader.bundleImage(named: Constants.Icons.savingGray) {
-                                                    savingIcon
-                                                        .resizable()
-                                                        .frame(width: 20, height: 20)
-                                                        .colorMultiply(.gray)
-                                                }
+                            savingIcon
+                                .resizable()
+                                .frame(width: 20, height: 20)
+                                .colorMultiply(.gray)
+                        }
                     }
                 }
             }

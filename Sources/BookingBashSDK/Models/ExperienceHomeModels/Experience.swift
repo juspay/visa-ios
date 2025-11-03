@@ -1,9 +1,3 @@
-//
-//  Experience.swift
-//  VisaActivity
-//
-//  Created by Apple on 29/07/25.
-//
 
 import Foundation
 
@@ -16,5 +10,6 @@ struct Experience: Identifiable, Equatable {
     let discount: Int
     let finalPrice: Int
     let productCode: String
+    let currency: String
     
 }

@@ -3,10 +3,12 @@ import SUINavigation
 import SwiftUI
 
 struct CustomCalendarView: View {
-    @StateObject private var viewModel = ExperienceAvailabilitySelectOptionsViewModel()
+    @ObservedObject var viewModel: ExperienceAvailabilitySelectOptionsViewModel
     @State private var shouldNavigateToAvailabilityScreen: Bool = false
-    @State private var showParticipantsSheet: Bool = false
-    @State var shouldPresentCalenderView: Bool = false
+
+    @Binding var showParticipantsSheet: Bool
+    @Binding var shouldPresentCalenderView: Bool
+    var isFromDetailView: Bool = false
 
     var model: ExperienceDetailModel
     @ObservedObject var experienceDetailViewModel: ExperienceDetailViewModel
@@ -14,50 +16,26 @@ struct CustomCalendarView: View {
     let columns = Array(repeating: GridItem(.flexible()), count: 7)
     var productCode: String?
     var currency: String?
-    
+
+    private let weekdays = Calendar.current.shortWeekdaySymbols
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text(Constants.AvailabilityScreenConstants.selectDate)
                 .font(.custom(Constants.Font.openSansBold, size: 14))
                 .foregroundStyle(Color(hex: Constants.HexColors.secondary))
             
-            HStack(spacing: 12) {
-                Button(action: {
-                    viewModel.selectToday()
-                    showParticipantsSheet = true
-                }) {
-                    Text(Constants.AvailabilityScreenConstants.today)
-                        .font(.custom(Constants.Font.openSansSemiBold, size: 14))
-                        .foregroundStyle(Color(hex: Constants.HexColors.secondary))
-                }
-                .frame(height: 34)
-                .buttonStyle(CalendarButtonStyle())
-                
-                Button(action: {
-                    viewModel.selectTomorrow()
-                    showParticipantsSheet = true
-                }) {
-                    Text(Constants.AvailabilityScreenConstants.tomorrow)
-                        .font(.custom(Constants.Font.openSansSemiBold, size: 14))
-                        .foregroundStyle(Color(hex: Constants.HexColors.secondary))
-                }
-                .frame(height: 34)
-                .buttonStyle(CalendarButtonStyle())
-            }
-            
             LazyVGrid(columns: columns) {
                 ForEach(Constants.AvailabilityScreenConstants.weekdays, id: \.self) { day in
                     Text(day)
-                        .font(.custom(Constants.Font.openSansSemiBold, size: 14))
+                        .font(.custom(Constants.Font.openSansSemiBold, size: 12))
                         .foregroundStyle(Color(hex: Constants.HexColors.secondary))
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 6)
                 }
             }
-            .padding(.vertical, 6)
-            .background(Color.gray.opacity(0.08))
-            .cornerRadius(10)
-            
+            .padding(.top, 8)
+
+            // MARK: - Month and Dates
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 16) {
                     ForEach(viewModel.months) { month in
@@ -65,7 +43,7 @@ struct CustomCalendarView: View {
                             Text("\(month.name) \(String(month.year))")
                                 .font(.custom(Constants.Font.openSansBold, size: 14))
                                 .foregroundStyle(Color(hex: Constants.HexColors.blackStrong))
-                            
+
                             LazyVGrid(columns: columns, spacing: 12) {
                                 ForEach(month.days) { day in
                                     CalendarDayView(
@@ -73,7 +51,14 @@ struct CustomCalendarView: View {
                                         isSelected: viewModel.isSameDay(day.date, viewModel.selectedDateFromCalender)
                                     ) {
                                         viewModel.dateSelectedFromCalender(date: day.date)
-                                        showParticipantsSheet = true
+                                        viewModel.refreshAvailabilityAfterParticipantChange()
+
+
+                                        if isFromDetailView {
+                                            shouldNavigateToAvailabilityScreen = true
+                                        } else {
+                                            shouldPresentCalenderView = false
+                                        }
                                     }
                                 }
                             }
@@ -83,28 +68,21 @@ struct CustomCalendarView: View {
             }
         }
         .padding(.horizontal, 16)
-        // Navigate to AvailabilitySelectionMainView after participants are selected
-        .navigation(isActive: $shouldNavigateToAvailabilityScreen, id: Constants.NavigationId.availabilitySelectionMainView) {
+        // Navigation ONLY used for detail flow
+        .navigation(
+            isActive: $shouldNavigateToAvailabilityScreen,
+            id: Constants.NavigationId.availabilitySelectionMainView
+        ) {
             AvailabilitySelectionMainView(
                 experienceAvailabilitySViewModel: viewModel,
                 model: model,
                 experienceDetailViewModel: experienceDetailViewModel,
                 productCode: productCode,
-                currency: currency
+                currency: currency,
+                showParticipantsSheet: $showParticipantsSheet,
+                fromDetailFlow: true
             )
         }
-        // Show participant selection as bottom sheet
-        .overlay(
-            BottomSheetView(isPresented: $showParticipantsSheet) {
-                ParticipantSelectionView(
-                    viewModel: viewModel,
-                    onSelect: {
-                        showParticipantsSheet = false
-                        shouldNavigateToAvailabilityScreen = true
-                    }
-                )
-            }
-        )
     }
 }
 

@@ -179,11 +179,10 @@ final class SearchDestinationViewModel: ObservableObject {
         let calendar = Calendar.current
         let currentDate = Date()
         
-        // Check-in date: current date + 10 days
-        guard let checkInDate = calendar.date(byAdding: .day, value: 20, to: currentDate) else {
+        // Check-in date: current date + 1 days
+        guard let checkInDate = calendar.date(byAdding: .day, value: 1, to: currentDate) else {
             fatalError("Failed to calculate check-in date")
         }
-        
         // Check-out date: check-in date + 2 days
         guard let checkOutDate = calendar.date(byAdding: .day, value: 1, to: checkInDate) else {
             fatalError("Failed to calculate check-out date")
@@ -207,7 +206,7 @@ final class SearchDestinationViewModel: ObservableObject {
             enquiryId: "ENQ_456XYZ",
             productCode: [],
             filters: SearchFilters(
-                limit: 50,
+                limit: 700,
                 offset: 0,
                 priceRange: [],
                 rating: [],
