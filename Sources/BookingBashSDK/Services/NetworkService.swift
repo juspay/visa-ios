@@ -1,10 +1,3 @@
-//
-//  NetworkService.swift
-//  VisaActivity
-//
-//  Created by Apple on 29/07/25.
-//
-
 import Foundation
 
 final class NetworkManager {
@@ -14,7 +7,6 @@ final class NetworkManager {
     // MARK: - Configured JSON Decoder
     private var jsonDecoder: JSONDecoder {
         let decoder = JSONDecoder()
-        // Handle problematic floating-point numbers
         decoder.nonConformingFloatDecodingStrategy = .convertFromString(
             positiveInfinity: "Infinity",
             negativeInfinity: "-Infinity",
@@ -27,7 +19,6 @@ final class NetworkManager {
     func get<T: Codable>(url: URL, headers: [String: String]? = nil, completion: @escaping (Result<T, Error>) -> Void) {
         var request = URLRequest(url: url)
         
-        // Add headers if provided
         if let headers = headers {
             for (key, value) in headers {
                 request.setValue(value, forHTTPHeaderField: key)
@@ -45,14 +36,8 @@ final class NetworkManager {
             }
             do {
                 let decodedData = try self.jsonDecoder.decode(T.self, from: data)
-                print("Decoded Data: \(decodedData)")
                 completion(.success(decodedData))
             } catch {
-                print("Decoding Error: \(error)")
-                // Log the raw JSON for debugging
-                if let jsonString = String(data: data, encoding: .utf8) {
-                    print("Raw JSON: \(jsonString)")
-                }
                 completion(.failure(error))
             }
         }
@@ -65,7 +50,6 @@ final class NetworkManager {
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        // Add headers if provided
         if let headers = headers {
             for (key, value) in headers {
                 request.setValue(value, forHTTPHeaderField: key)
@@ -91,13 +75,7 @@ final class NetworkManager {
             do {
                 let decodedResponse = try self.jsonDecoder.decode(U.self, from: data)
                 completion(.success(decodedResponse))
-                print("Decoded Response: \(decodedResponse)")
             } catch {
-                print("Decoding Error: \(error)")
-                // Log the raw JSON for debugging
-                if let jsonString = String(data: data, encoding: .utf8) {
-                    print("Raw JSON: \(jsonString)")
-                }
                 completion(.failure(error))
             }
         }

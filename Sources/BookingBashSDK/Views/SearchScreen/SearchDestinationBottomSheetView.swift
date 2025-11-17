@@ -4,7 +4,6 @@ struct SearchDestinationBottomSheetView: View {
     @ObservedObject var searchDestinationViewModel: SearchDestinationViewModel
     var onSelectDestination: (SearchRequestModel) -> Void
     @FocusState private var isSearchFieldFocused: Bool
-
     @Binding var isPresented: Bool
     @State private var isContentVisible: Bool = false
 

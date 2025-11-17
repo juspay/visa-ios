@@ -35,7 +35,7 @@ struct BookingFailedView: View {
                     if shouldExpandDetails {
                         FareSummaryCardView(
                             fairSummaryData: experienceBookingConfirmationViewModel.fairSummaryData,
-                            totalPrice: "\(experienceBookingConfirmationViewModel.currency) \(String(format: "%.0f", experienceBookingConfirmationViewModel.totalAmount))",
+                            totalPrice: "\(experienceBookingConfirmationViewModel.currency) \( experienceBookingConfirmationViewModel.totalAmount)",
                             shouldShowTopBanner: false
                         )
                         RefundDetailsCardView(viewModel: experienceBookingConfirmationViewModel)

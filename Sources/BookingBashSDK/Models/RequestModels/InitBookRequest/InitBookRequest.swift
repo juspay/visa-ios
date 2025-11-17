@@ -1,11 +1,6 @@
-//
-//  InitBookRequest.swift
-//  VisaActivity
-//
-//
+
 import Foundation
 
-// MARK: - Init Book Request Structure
 struct InitBookRequest: Codable {
     let booking_details: InitBookingDetails
     let contact_details: InitContactDetails

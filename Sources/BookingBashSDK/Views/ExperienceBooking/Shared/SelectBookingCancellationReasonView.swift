@@ -25,7 +25,6 @@ struct SelectBookingCancellationReasonView: View {
             )
 
             Button(action: {
-                print("\(Constants.BookingStatusScreenConstants.selectedReason) \(String(describing: viewModel.selectedReason?.title))")
                 guard let reasonCode = viewModel.selectedReason?.code else { return }
                 let orderNoToUse = viewModel.bookingBasicDetails.first(where: { $0.key == Constants.BookingStatusScreenConstants.bookingIdKey })?.value ?? orderNo
                 

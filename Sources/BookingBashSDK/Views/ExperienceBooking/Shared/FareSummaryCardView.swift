@@ -7,11 +7,10 @@ struct FareSummaryCardView: View {
     var totalPrice: String
     var shouldShowTopBanner: Bool = true
     var totalLableText: String = "Total Amount Paid"
-    var savingsText: String? // Optional savings text
+    var savingsText: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Top gradient banner with icon and savings text (only show if shouldShowTopBanner is true)
             if shouldShowTopBanner {
                 ZStack {
                     LinearGradient(
@@ -43,16 +42,13 @@ struct FareSummaryCardView: View {
                 .cornerRadius(12, corners: [.topLeft, .topRight])
             }
 
-            // Content section
             VStack(alignment: .leading, spacing: 0) {
-                // Fare summary header
                 Text("Fare summary")
                     .font(.system(size: 16, weight: .bold))
                     .foregroundColor(Color(hex: "#2C3E50"))
                     .padding(.top, 14)
                     .padding(.bottom, 14)
 
-                // Show loading or empty state if no data
                 if fairSummaryData.isEmpty {
                     HStack(alignment: .center, spacing: 8) {
                         Text("Loading fare details...")
@@ -62,7 +58,6 @@ struct FareSummaryCardView: View {
                     }
                     .padding(.bottom, 12)
                 } else {
-                    // Fare items
                     ForEach(fairSummaryData.indices, id: \.self) { index in
                         let fareItem = fairSummaryData[index]
                         HStack(alignment: .center, spacing: 8) {
@@ -78,12 +73,10 @@ struct FareSummaryCardView: View {
                     }
                 }
 
-                // Divider before total
                 Divider()
                     .background(Color(hex: "#E0E0E0"))
                     .padding(.bottom, 14)
 
-                // Total Amount Paid
                 HStack(alignment: .center, spacing: 8) {
                     Text(totalLableText)
                         .font(.system(size: 15, weight: .bold))
@@ -95,7 +88,6 @@ struct FareSummaryCardView: View {
                 }
                 .padding(.bottom, 10)
 
-                // Prices inclusive of taxes
                 Text("Prices inclusive of taxes")
                     .font(.system(size: 11))
                     .foregroundColor(Color(hex: "#95A5A6"))
@@ -110,7 +102,6 @@ struct FareSummaryCardView: View {
     }
 }
 
-// Helper extension already uses RoundedCorner which is defined in ExperienceHome/Components/RoundedCorner.swift
 extension View {
     func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
         clipShape(RoundedCorner(radius: radius, corners: corners))

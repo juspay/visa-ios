@@ -1,13 +1,5 @@
-//
-//  ConfirmationPage.swift
-//  VisaActivity
-//
-//  Created by praveen on 04/09/25.
-//
-
 import Foundation
 
-// MARK: - Payment Response
 struct PaymentApiResponse: Codable {
     let status: Bool
     let statusCode: Int
@@ -20,7 +12,6 @@ struct PaymentApiResponse: Codable {
     }
 }
 
-// MARK: - Payment Data
 struct PaymentData: Codable {
     let trackId: String
     let msg: String
@@ -43,7 +34,6 @@ struct PaymentData: Codable {
     }
 }
 
-// MARK: - Product Info
 struct ProductInfo: Codable {
     let title: String
     let currency: String
@@ -82,7 +72,6 @@ struct ProductPrice: Codable {
     }
 }
 
-// MARK: - Traveller Info
 struct TravellerInfo: Codable {
     let travelDate: String
     let title: String
@@ -117,7 +106,6 @@ struct TravellerInfo: Codable {
     }
 }
 
-// MARK: - Booking Response
 struct ConfirmationBookingResponse: Codable {
     let code: String
     let message: String
@@ -130,7 +118,6 @@ struct ConfirmationBookingResponse: Codable {
     }
 }
 
-// MARK: - Booking Details
 struct BookingDetails: Codable {
     let id: String
     let agentEmail: String
@@ -184,7 +171,6 @@ struct BookingTravellerInfo: Codable {
     }
 }
 
-// MARK: - My Earning
 struct MyEarning: Codable {
     let agentMarkup: Double
     let totalFare: Double

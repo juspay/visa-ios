@@ -288,7 +288,6 @@ struct SuccessProductInfo: Codable {
         case additionalInfo = "additional_info"
         case inclusions, exclusions
         case supplierName = "supplier_name"
-//        case supplierInfo = "supplierInfo"
         case providerSupplierName = "provider_supplier_name"
         case supplier = "supplier_info"
         case pickupDetails = "pickup_details"
@@ -297,7 +296,6 @@ struct SuccessProductInfo: Codable {
         case cancellationPolicy = "cancellation_policy"
     }
     
-    // Custom decoder to handle duration as either String or Dictionary
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
@@ -323,11 +321,9 @@ struct SuccessProductInfo: Codable {
         price = try container.decodeIfPresent(SuccessProductPrice.self, forKey: .price)
         inclusions = try container.decodeIfPresent([Inclusion].self, forKey: .inclusions)
         
-        // Handle exclusions that might be strings instead of objects
         if let exclusionsArray = try? container.decode([Exclusion].self, forKey: .exclusions) {
             exclusions = exclusionsArray
         } else if let exclusionsStringArray = try? container.decode([String].self, forKey: .exclusions) {
-            // Convert strings to Exclusion objects
             exclusions = exclusionsStringArray.map { stringValue in
                 return Exclusion(
                     category: nil,

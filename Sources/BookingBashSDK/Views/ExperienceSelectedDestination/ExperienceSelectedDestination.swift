@@ -2,7 +2,8 @@
 //  Untitled.swift
 //  VisaActivity
 //
-//
+// Not used yet
+
 import SwiftUI
 
 struct ExperienceSelectedDestination: View {
@@ -142,8 +143,7 @@ struct ExperienceSelectedDestination: View {
                     }
                 }
                 .onAppear {
-//                    searchDestinationViewModel.decryptPayload("dummy")
-                    homeViewModel.loadHome(encryptPayload: "encryptPayLoad")
+                    homeViewModel.fetchHomeData()
 
                 }
             }

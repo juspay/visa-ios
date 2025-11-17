@@ -113,7 +113,7 @@ private extension ExperienceBookingConfirmationView {
             )
             FareSummaryCardView(
                 fairSummaryData: viewModel.fairSummaryData,
-                totalPrice: "\(viewModel.currency) \( viewModel.totalAmount)",
+                totalPrice: "\(viewModel.currency) \(viewModel.totalAmount)",
                 savingsText: viewModel.savingsTextforFareBreakup // Pass savings text for banner
             )
             ConfirmationInfoReusableCardView(section: viewModel.cancellationPolicy, showBullets: false)

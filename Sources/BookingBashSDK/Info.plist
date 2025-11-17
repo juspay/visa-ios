@@ -15,5 +15,7 @@
 		<string>Lexend-Bold.ttf</string>
 		<string>Lexend-Medium.ttf</string>
 	</array>
+	<key>UIUserInterfaceStyle</key>
+	<string>Light</string>
 </dict>
 </plist>

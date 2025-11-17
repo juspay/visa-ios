@@ -145,17 +145,6 @@ struct ThemeTemplateView<Header: View, Content: View>: View {
     
     private var logos: some View {
         HStack(spacing: 12) {
-            if let logo = ImageLoader.bundleImage(named: Constants.Icons.logos) {
-                logo
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 40)
-            } else {
-                Image(Constants.Icons.logos)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 40)
-            }
             
             if let bookingBashLogo = ImageLoader.bundleImage(named: Constants.Icons.bookingBash) {
                 bookingBashLogo

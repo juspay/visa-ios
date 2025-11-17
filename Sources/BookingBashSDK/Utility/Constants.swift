@@ -63,7 +63,7 @@ struct Constants {
         static let logoVisa = "logoVisa"
         static let searchNoResult = "SearchNoResult"
         static let backButton = "BackButton"
-        static let logos  = "Logos"
+        
         static let bookingBash = "BookingBashLogo"
         static let vector = "Vector"
         static let mobile = "mobile"
@@ -258,6 +258,11 @@ struct Constants {
         static let emptyMobileNumber = "Please enter a mobile number."
         static let noDataInResponse = "Oops! No data in response"
         static let somethingWentWrong = "Oops! something went wrong."
+    }
+    
+    enum ExperienceHomeViewConstants {
+        static let loadingExperience = "Loading Experiences"
+        static let hasAgreedToPrivacy = "hasAgreedToPrivacy"
     }
     
     enum ExperienceHomeConstants {
@@ -470,5 +475,35 @@ struct Constants {
         static let trackId = "track_id"
         static let siteKey = "site_key"
         static let authorizationKey = "Authorization"
+    }
+    
+    enum CancelBookingBottomSheetConstants {
+        static let title = "Need to Cancel or Amend Your Booking?"
+        static let subtitle = "For any cancellation or amendment requests, please reach out to us at the email or contact number provided below. Our team will be happy to assist you."
+        static let emailLabel = "Email:"
+        static let emailValue = "reservations@bookingbash.com"
+        static let telLabel = "Tel:"
+        static let telValue = "+97148348696"
+        static let backButton = "Back"
+        static let imageName = "cancelBottomSheet"
+    }
+    
+    enum ExperiencePassesCardViewConstants {
+        static let fareSummary = "Fare summary"
+        static let discount = "Discount"
+        static let total = "Total"
+        static let pricesInclusiveOfTaxes = "Prices inclusive of taxes"
+        static let moreInfo = Constants.SharedConstants.moreInfo
+        static let lessInfo = Constants.SharedConstants.lessInfo
+        static let bookThisExperience = Constants.AvailabilityScreenConstants.bookThisExperience
+    }
+    
+    enum PrivacyPolicyConstants {
+        static let title = "Your privacy is our\nresponsibility"
+        static let useOfPersonalData = "Use of Your Personal data"
+        static let personalDataDescription = "We’ll use your personal data (e.g., name, email) to create an account for BookingBash and send you transactional emails related to your bookings."
+        static let consentText = "By clicking \"I Agree,\" you consent to this use of your data."
+        static let exitButton = "Exit"
+        static let agreeButton = "I Agree"
     }
 }

@@ -77,16 +77,7 @@ private extension ExperienceDetailView {
             } else if experienceDetailViewModel.showErrorOverlay || (experienceDetailViewModel.errorStatusCode != nil && experienceDetailViewModel.errorStatusCode != 200) {
                 Spacer()
                 VStack(spacing: 20) {
-                    if let noResultImage = ImageLoader.bundleImage(named: Constants.Icons.searchNoResult) {
-                        noResultImage
-                            .resizable()
-                            .frame(width: 124, height: 124)
-                    }
-                    Text(Constants.ErrorMessages.somethingWentWrong)
-                        .font(.headline)
-                        .foregroundColor(.black)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
+                    ErrorMessageView()
                 }
                 .frame(maxWidth: .infinity)
                 Spacer()
@@ -103,9 +94,6 @@ private extension ExperienceDetailView {
                 } else {
                     Color.clear
                         .frame(height: 0)
-                        .onAppear {
-                            print("DEBUG VIEW: FeatureGridView is HIDDEN - allFeatures is empty")
-                        }
                 }
                 
                 if let aboutExperience = experienceDetailViewModel.aboutExperience {

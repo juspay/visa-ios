@@ -9,6 +9,7 @@ struct ProfileModel {
     let lastName: String
     let passPort: String
 }
+
 struct SavedTravelerModel: Identifiable {
     let id = UUID()
     let name: String

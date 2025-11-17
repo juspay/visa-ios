@@ -51,16 +51,7 @@ struct AllDestinationsView: View {
                         
                         if experienceListViewModel.showErrorView {
                             VStack(spacing: 20) {
-                                if let noResultImage = ImageLoader.bundleImage(named: Constants.Icons.searchNoResult) {
-                                    noResultImage
-                                        .resizable()
-                                        .frame(width: 124, height: 124)
-                                }
-                                Text(Constants.ErrorMessages.somethingWentWrong)
-                                    .font(.headline)
-                                    .foregroundColor(.black)
-                                    .multilineTextAlignment(.center)
-                                    .padding(.horizontal)
+                                ErrorMessageView()
                             }
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                         }
@@ -86,9 +77,9 @@ struct AllDestinationsView: View {
                                     location: destination.city,
                                     checkInDate: checkInDateString,
                                     checkOutDate: checkOutDateString,
-                                    currency: "AED",
-                                    clientId: "CLIENT_ABC123",
-                                    enquiryId: "ENQ_456XYZ",
+                                    currency: "",
+                                    clientId: "",
+                                    enquiryId: "",
                                     productCode: [],
                                     filters: SearchFilters(
                                         limit: 700,

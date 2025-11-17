@@ -15,7 +15,6 @@ import SwiftUI
           }
 
           guard let fileUrl = url else {
-              print("MobileCodes.json not found in any bundle")
               return []
           }
 
@@ -24,7 +23,6 @@ import SwiftUI
               let decoded = try JSONDecoder().decode([MobileCode].self, from: data)
               return decoded
           } catch {
-              print("Failed to decode MobileCodes.json:", error)
               return []
           }
       }

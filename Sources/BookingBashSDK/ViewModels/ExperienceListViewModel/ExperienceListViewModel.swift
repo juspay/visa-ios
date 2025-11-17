@@ -1,67 +1,17 @@
 import Foundation
 
-protocol ExperienceListService {
-    func fetchSearchData(
-        requestBody: SearchRequestModel,
-        completion: @escaping (Result<SearchResponseModel, Error>) -> Void
-    )
-}
-
-// MARK: - Default Service
-final class DefaultExperienceListService: ExperienceListService {
-    private let session = NetworkManager.shared
-    
-    func fetchSearchData(
-        requestBody: SearchRequestModel,
-        completion: @escaping (Result<SearchResponseModel, Error>) -> Void
-    ) {
-        guard let url = URL(string: Constants.APIURLs.searchBaseURL) else {
-            completion(.failure(ServiceError.invalidURL))
-            return
-        }
-        
-        let headers = [
-            Constants.APIHeaders.contentTypeKey: Constants.APIHeaders.contentTypeValue,
-            Constants.APIHeaders.authorizationKey: TokenProvider.getAuthHeader() ?? "",
-            Constants.APIHeaders.siteId: ssoSiteIdGlobal,
-                 Constants.APIHeaders.tokenKey: ssoTokenGlobal
-        ]
-       
-       print("Headers for list view - \(headers)")
-        
-        // Convert to JSON to see exactly what's being sent
-        if let jsonData = try? JSONEncoder().encode(requestBody),
-           let jsonString = String(data: jsonData, encoding: .utf8) {
-            print("📤 [API REQUEST] JSON Payload:\n\(jsonString)")
-        }
-        
-        session.post(url: url, body: requestBody, headers: headers, completion: completion)
-    }
-    
-    enum ServiceError: LocalizedError {
-        case invalidURL
-        var errorDescription: String? { "Invalid URL" }
-    }
-}
-
-// MARK: - ViewModel
 final class ExperienceListViewModel: ObservableObject {
     @Published var experiences: [ExperienceListModel] = []
     @Published var searchDestination: SearchResponseModel?
     @Published var searchRequestModel: SearchRequestModel?
-    @Published var navigateToFilterScreenView : Bool = true
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     @Published var searchText: String = ""
     @Published var showErrorView: Bool = false
-    
     private let service: ExperienceListService
-    
     init(service: ExperienceListService = DefaultExperienceListService()) {
         self.service = service
     }
-    
-    // MARK: - Computed Filtered Experiences
     var filteredExperiences: [ExperienceListModel] {
         guard searchText.count >= 3 else { return experiences }
         return experiences.filter {
@@ -70,8 +20,6 @@ final class ExperienceListViewModel: ObservableObject {
             $0.currency.localizedCaseInsensitiveContains(searchText)
         }
     }
-    
-    // MARK: - Public Methods
     func fetchSearchData(
         destinationId: String,
         destinationType: Int,
@@ -82,10 +30,8 @@ final class ExperienceListViewModel: ObservableObject {
         productCodes: [String] = []
     ) {
         guard let _ = URL(string: Constants.APIURLs.searchBaseURL) else { return }
-        
         isLoading = true
         errorMessage = nil
-        
         let requestBody = SearchRequestBuilder.build(
             destinationId: destinationId,
             destinationType: destinationType,
@@ -95,27 +41,20 @@ final class ExperienceListViewModel: ObservableObject {
             currency: currency,
             productCodes: productCodes
         )
-        
-        // Store the request model for sorting/filtering later
         self.searchRequestModel = requestBody
-        
         service.fetchSearchData(requestBody: requestBody) { [weak self] result in
             DispatchQueue.main.async {
                 guard let self = self else { return }
                 self.isLoading = false
                 switch result {
                 case .success(let response):
-                    // ✅ Added logic to check for error status & code (same as reference)
                     if response.status == false || response.statusCode != 200 {
                         self.errorMessage = Constants.ErrorMessages.somethingWentWrong
                         self.showErrorView = true
-                       
                         return
                     } else {
                         self.showErrorView = false
                     }
-                    
-                    // Existing logic remains unchanged
                     if let responseData = response.data {
                         self.searchDestination = response
                         var mappedExperiences = self.mapResponseToUIModels(responseData)
@@ -130,18 +69,13 @@ final class ExperienceListViewModel: ObservableObject {
                     } else {
                         self.errorMessage = Constants.ErrorMessages.noDataInResponse
                     }
-
-                case .failure(let error):
+                case .failure(_):
                     self.errorMessage = Constants.ErrorMessages.somethingWentWrong
                     self.showErrorView = true
-                    
                 }
             }
         }
     }
-
-    
-    // MARK: - Internal Helpers (accessible to SortViewModel)
     func mapResponseToUIModels(_ responseData: SearchDataModel) -> [ExperienceListModel] {
         responseData.result.map {
             ExperienceListModel(
@@ -184,7 +118,6 @@ struct SearchRequestBuilder {
             featureFlags: [],
             productCode: productCodes
         )
-        
         return SearchRequestModel(
             destinationId: destinationId,
             destinationType: destinationType,
@@ -199,4 +132,3 @@ struct SearchRequestBuilder {
         )
     }
 }
-

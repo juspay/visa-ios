@@ -14,7 +14,7 @@ struct CustomCalendarPicker: View {
                     get: { date },
                     set: { newValue in
                         date = newValue
-                        onDone?() // Automatically call onDone when a date is selected
+                        onDone?()
                     }
                 ),
                 in: (minDate ?? Date.distantPast)...(maxDate ?? Date.distantFuture),
@@ -22,7 +22,7 @@ struct CustomCalendarPicker: View {
             )
             .datePickerStyle(GraphicalDatePickerStyle())
             .labelsHidden()
-            .frame(width: 320, height: 320) // fixed size
+            .frame(width: 320, height: 320) 
             .background(Color.white)
             .cornerRadius(12)
             .shadow(radius: 5)

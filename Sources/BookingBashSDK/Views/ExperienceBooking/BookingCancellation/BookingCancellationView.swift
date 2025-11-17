@@ -1,10 +1,3 @@
-//
-//  BookingCancellationView.swift
-//  VisaActivity
-//
-//  Created by Apple on 07/08/25.
-//
-
 import SwiftUI
 import SUINavigation
 
@@ -37,7 +30,7 @@ struct BookingCancellationView: View {
                     )
                     
                     if shouldExpandDetails {
-                        FareSummaryCardView(fairSummaryData: experienceBookingConfirmationViewModel.fairSummaryData, totalPrice: "\(experienceBookingConfirmationViewModel.currency) \(String(format: "%.0f", experienceBookingConfirmationViewModel.totalAmount))", shouldShowTopBanner: false)
+                        FareSummaryCardView(fairSummaryData: experienceBookingConfirmationViewModel.fairSummaryData, totalPrice: "\(experienceBookingConfirmationViewModel.currency) \(String(format: "%.2f", experienceBookingConfirmationViewModel.totalAmount))", shouldShowTopBanner: false)
                         RefundDetailsCardView(viewModel: experienceBookingConfirmationViewModel)
                         ConfirmationInfoReusableCardView(section: experienceBookingConfirmationViewModel.cancellationPolicy, showBullets: false)
                         ConfirmationInfoReusableCardView(section: experienceBookingConfirmationViewModel.leadTraveller, showBullets: false)

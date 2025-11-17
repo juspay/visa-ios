@@ -6,8 +6,8 @@ struct BookedExperienceDateTimeView: View {
     var shouldShowRefundable: Bool = true
     let selectedDate: String
     let selectedTime: String
-//    let selectedParticipants: String
-
+    //    let selectedParticipants: String
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
@@ -17,13 +17,13 @@ struct BookedExperienceDateTimeView: View {
                     color: color
                 )
                 Spacer()
-//                IconTextRow(
-//                    imageName: Constants.Icons.user,
-//                    text: selectedParticipants,
-//                    color: color
-//                )
+                //                IconTextRow(
+                //                    imageName: Constants.Icons.user,
+                //                    text: selectedParticipants,
+                //                    color: color
+                //                )
             }
-            if !selectedTime.isEmpty {
+            if !selectedTime.isEmpty && selectedTime != "00:00" {
                 IconTextRow(
                     imageName: Constants.Icons.clock,
                     text: selectedTime,
@@ -34,9 +34,9 @@ struct BookedExperienceDateTimeView: View {
                 HStack(spacing: 6) {
                     if let checkIcon = ImageLoader.bundleImage(named: Constants.Icons.greenTick) {
                         checkIcon
-                           
+                        
                             .resizable()
-                           
+                        
                             .frame(width: 20, height: 20)
                     }
                     Text(Constants.BookingStatusScreenConstants.refundable)

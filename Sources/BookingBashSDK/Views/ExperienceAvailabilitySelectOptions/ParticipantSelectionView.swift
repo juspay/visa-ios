@@ -8,26 +8,19 @@ struct ParticipantSelectionView: View {
     
     var body: some View {
         ZStack {
+            // Error State View
             if let response = viewModel.response,
                response.status == false && response.statusCode != 200 {
                 VStack(spacing: 20) {
-                    if let noResultImage = ImageLoader.bundleImage(named: Constants.Icons.searchNoResult) {
-                        noResultImage
-                            .resizable()
-                            .frame(width: 124, height: 124)
-                    }
-                    
-                    Text(Constants.ErrorMessages.somethingWentWrong)
-                        .font(.headline)
-                        .foregroundColor(.black)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
+                    ErrorMessageView()
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color.white)
             } else {
-                // ✅ Normal Participant Selection Content
+                // Normal Participant View
                 VStack(alignment: .leading, spacing: 14) {
+                    
+                    // Error Message
                     if let error = viewModel.errorMessage, !error.isEmpty {
                         Text(error)
                             .foregroundColor(.red)
@@ -35,6 +28,7 @@ struct ParticipantSelectionView: View {
                             .padding(.bottom, 8)
                     }
                     
+                    // Title + Info
                     VStack(alignment: .leading, spacing: 0) {
                         Text(Constants.AvailabilityScreenConstants.participants)
                             .font(.custom(Constants.Font.openSansBold, size: 14))
@@ -46,25 +40,14 @@ struct ParticipantSelectionView: View {
                         .foregroundStyle(Color(hex: Constants.HexColors.neutral))
                     }
                     
-                    ForEach(viewModel.categories) { category in
+                    // Category Rows
+                    ForEach(viewModel.tempCategories) { category in
                         VStack(alignment: .leading, spacing: 4) {
                             HStack(spacing: 16) {
-                                VStack(alignment: .leading) {
+                                VStack(alignment: .leading, spacing: 2) {
                                     Text(category.bandId)
                                         .font(.custom(Constants.Font.openSansBold, size: 12))
                                         .foregroundStyle(Color(hex: Constants.HexColors.secondary))
-                                    
-//                                    if let index = viewModel.categories.firstIndex(where: { $0.id == category.id }),
-//                                       index < detailViewModel.ageBandIDs.count {
-//                                        Text(detailViewModel.ageBandIDs[index])
-//                                            .font(.custom(Constants.Font.openSansBold, size: 12))
-//                                            .foregroundStyle(Color(hex: Constants.HexColors.secondary))
-//                                    } else {
-//                                        Text("N/A")
-//                                            .font(.custom(Constants.Font.openSansBold, size: 12))
-//                                            .foregroundStyle(Color(hex: Constants.HexColors.secondary))
-//                                    }
-
                                     
                                     Text(category.ageRange)
                                         .font(.custom(Constants.Font.openSansRegular, size: 12))
@@ -79,18 +62,20 @@ struct ParticipantSelectionView: View {
                                         .foregroundStyle(Color(hex: Constants.HexColors.secondary))
                                 }
                                 
+                                // Increment / Decrement Buttons
                                 HStack(spacing: 12) {
                                     Button(action: {
-                                        viewModel.decrement(for: category)
+                                        viewModel.decrementTemp(for: category)
                                     }) {
-                                        if let minusImage = ImageLoader.bundleImage(named: Constants.Icons.minus) {
-                                            minusImage
-                                                .resizable()
-                                                .renderingMode(.template)
-                                                .frame(width: 24, height: 24)
-                                                .tint(Color(hex: Constants.HexColors.primary))
-                                                .opacity(category.count <= category.minLimit ? 0.5 : 1.0)
-                                            
+                                        HStack(spacing: 8) {
+                                            if let minusImage = ImageLoader.bundleImage(named: Constants.Icons.minus) {
+                                                minusImage
+                                                    .resizable()
+                                                    .renderingMode(.template)
+                                                    .frame(width: 24, height: 24)
+                                                    .tint(Color(hex: Constants.HexColors.primary))
+                                                    .opacity(category.count <= category.minLimit ? 0.5 : 1.0)
+                                            }
                                             Text("\(category.count)")
                                                 .font(.custom(Constants.Font.openSansBold, size: 14))
                                                 .foregroundStyle(Color(hex: Constants.HexColors.blackStrong))
@@ -99,7 +84,7 @@ struct ParticipantSelectionView: View {
                                     .disabled(category.count <= category.minLimit)
                                     
                                     Button(action: {
-                                        viewModel.increment(for: category)
+                                        viewModel.incrementTemp(for: category)
                                     }) {
                                         if let plusImage = ImageLoader.bundleImage(named: Constants.Icons.plus) {
                                             plusImage
@@ -107,7 +92,7 @@ struct ParticipantSelectionView: View {
                                                 .renderingMode(.template)
                                                 .frame(width: 24, height: 24)
                                                 .tint(Color(hex: Constants.HexColors.primary))
-                                                .opacity((category.count >= category.maxLimit) ? 0.5 : 1.0)
+                                                .opacity(category.count >= category.maxLimit ? 0.5 : 1.0)
                                         }
                                     }
                                     .disabled(category.count >= category.maxLimit)
@@ -116,9 +101,11 @@ struct ParticipantSelectionView: View {
                         }
                         .padding(.vertical, 4)
                     }
+
                     
+                    // Select Button
                     Button(action: {
-                        viewModel.selectParticipants()
+                        viewModel.confirmParticipantSelection()
                         onSelect?()
                     }) {
                         Text(Constants.AvailabilityScreenConstants.select)
@@ -138,7 +125,7 @@ struct ParticipantSelectionView: View {
         .onAppear {
             viewModel.maxTravelersPerBooking = detailViewModel.maxTravelersPerBooking ?? 0
             viewModel.loadDynamicAgeBands()
-            
         }
     }
 }
+

@@ -13,10 +13,10 @@ struct AvailabilityApiResponse: Codable {
 }
 
 struct AvailabilityData: Codable {
-    let trackId: String?  // Made optional to handle failed responses with empty data
-    let uid: String?      // Made optional to handle failed responses with empty data
-    let count: Int?       // Made optional to handle failed responses with empty data
-    let result: [AvailabilityItem]?  // Made optional to handle failed responses with empty data
+    let trackId: String?
+    let uid: String?
+    let count: Int?
+    let result: [AvailabilityItem]? 
 
     enum CodingKeys: String, CodingKey {
         case trackId = "track_id"

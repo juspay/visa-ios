@@ -7,10 +7,8 @@ struct CancelBookingBottomSheet: View {
     var body: some View {
         BottomSheetView(isPresented: $isPresented, sheetHeight: 420) {
             VStack(spacing: 0) {
-                // Custom image with gold border/background
                 ZStack {
-                    
-                    if let image = ImageLoader.bundleImage(named: "cancelBottomSheet") {
+                    if let image = ImageLoader.bundleImage(named: Constants.CancelBookingBottomSheetConstants.imageName) {
                         image
                             .resizable()
                             .aspectRatio(contentMode: .fit)
@@ -21,8 +19,8 @@ struct CancelBookingBottomSheet: View {
                 .padding(.bottom, 16)
                 
                 // Title
-                Text("Need to Cancel or Amend Your Booking?")
-                    .font(.custom("Lexend-Bold", size: 28))
+                Text(Constants.CancelBookingBottomSheetConstants.title)
+                    .font(.custom(Constants.Font.lexendBold, size: 28))
                     .foregroundStyle(Color(hex: Constants.HexColors.blackStrong))
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
@@ -32,8 +30,8 @@ struct CancelBookingBottomSheet: View {
                 
                 // Subtitle and contact info
                 VStack(alignment: .leading, spacing: 0) {
-                    Text("For any cancellation or amendment requests, please reach out to us at the email or contact number provided below. Our team will be happy to assist you.")
-                        .font(.custom("open_sans_regular", size: 14))
+                    Text(Constants.CancelBookingBottomSheetConstants.subtitle)
+                        .font(.custom(Constants.Font.openSansRegular, size: 14))
                         .foregroundColor(Color(hex: Constants.HexColors.neutral))
                         .multilineTextAlignment(.leading)
                         .fixedSize(horizontal: false, vertical: true)
@@ -41,21 +39,21 @@ struct CancelBookingBottomSheet: View {
                         .padding(.bottom, 16)
                     
                     HStack(alignment: .top, spacing: 4) {
-                        Text("Email:")
-                            .font(.custom("Lexend-Bold", size: 15))
+                        Text(Constants.CancelBookingBottomSheetConstants.emailLabel)
+                            .font(.custom(Constants.Font.lexendBold, size: 15))
                             .foregroundColor(Color(hex: Constants.HexColors.neutral))
-                        Text("reservations@bookingbash.com")
-                            .font(.custom("open_sans_regular", size: 15))
+                        Text(Constants.CancelBookingBottomSheetConstants.emailValue)
+                            .font(.custom(Constants.Font.openSansRegular, size: 15))
                             .foregroundColor(Color(hex: Constants.HexColors.neutral))
                     }
                     .padding(.bottom, 2)
                     
                     HStack(alignment: .top, spacing: 4) {
-                        Text("Tel:")
-                            .font(.custom("Lexend-Bold", size: 15))
+                        Text(Constants.CancelBookingBottomSheetConstants.telLabel)
+                            .font(.custom(Constants.Font.lexendBold, size: 15))
                             .foregroundColor(Color(hex: Constants.HexColors.neutral))
-                        Text("+97148348696")
-                            .font(.custom("open_sans_regular", size: 15))
+                        Text(Constants.CancelBookingBottomSheetConstants.telValue)
+                            .font(.custom(Constants.Font.openSansRegular, size: 15))
                             .foregroundColor(Color(hex: Constants.HexColors.neutral))
                     }
                 }
@@ -70,8 +68,8 @@ struct CancelBookingBottomSheet: View {
                     isPresented = false
                     onFinish()
                 }) {
-                    Text("Back")
-                        .font(.custom("Lexend-Medium", size: 18))
+                    Text(Constants.CancelBookingBottomSheetConstants.backButton)
+                        .font(.custom(Constants.Font.lexendMedium, size: 18))
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 48)

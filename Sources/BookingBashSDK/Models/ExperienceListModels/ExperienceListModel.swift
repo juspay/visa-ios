@@ -1,10 +1,3 @@
-//
-//  Experience.swift
-//  VisaActivity
-//
-//  Created by Apple on 30/07/25.
-//
-
 import Foundation
 
 struct ExperienceListModel: Identifiable {
@@ -12,9 +5,9 @@ struct ExperienceListModel: Identifiable {
     let title: String
     let rating: Double
     let reviewCount: Int
-    let price: Double // Changed from Int to Double to preserve exact values
-    let strikeoutPrice: Double? // Changed from Int to Double
-    let savingPercentage: Double? // Percentage saved
+    let price: Double
+    let strikeoutPrice: Double?
+    let savingPercentage: Double?
     let imageName: String
     let productCode: String
     let currency: String

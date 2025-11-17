@@ -1,9 +1,3 @@
-//
-//  CheckoutInfoDetailView.swift
-//  VisaActivity
-//
-//  Created by AI Assistant
-//
 
 import Foundation
 import SwiftUI
@@ -15,19 +9,11 @@ struct CheckoutInfoDetailView: View {
     let experienceName: String
     
     var body: some View {
-        // Add debugging to see what items are actually received
-        let _ = print("🔍 [DETAIL VIEW] CheckoutInfoDetailView received:")
-        let _ = print("   - title: '\(title)'")
-        let _ = print("   - items count: \(items.count)")
-        let _ = print("   - items: \(items)")
-        let _ = print("   - filtered items count: \(items.filter { !$0.isEmpty }.count)")
-        let _ = print("   - filtered items: \(items.filter { !$0.isEmpty })")
         
         // Create fallback content if items are empty
         let displayItems = items.filter { !$0.isEmpty }
         let finalItems: [String] = displayItems.isEmpty ? getFallbackItems(for: title) : displayItems
         
-        let _ = print("🔍 [DETAIL VIEW] Final items to display: \(finalItems)")
         
         return ThemeTemplateView(header: {
             HStack {

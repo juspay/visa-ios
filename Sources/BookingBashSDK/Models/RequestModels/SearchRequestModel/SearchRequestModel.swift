@@ -1,4 +1,3 @@
-// MARK: - SearchRequest
 struct SearchRequestModel: Codable {
     let destinationId: String
     let destinationType: Int
@@ -25,7 +24,6 @@ struct SearchRequestModel: Codable {
     }
 }
 
-// MARK: - SearchFilters
 struct SearchFilters: Codable {
     let limit: Int
     let offset: Int
@@ -57,7 +55,6 @@ struct SearchFilters: Codable {
     }
 }
 
-// MARK: - SortBy
 struct SortBy: Codable {
     let name: String
     let type: String

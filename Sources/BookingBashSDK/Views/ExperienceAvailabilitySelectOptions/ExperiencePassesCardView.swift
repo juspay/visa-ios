@@ -2,7 +2,6 @@ import Foundation
 import SUINavigation
 import SwiftUI
 
-
 struct ExperiencePassesCardView: View {
     var package: Package
     var model: ExperienceDetailModel
@@ -23,7 +22,6 @@ struct ExperiencePassesCardView: View {
         GridItem(.flexible())
     ]
 
-    // Filter valid times
     private var validTimes: [String] {
         package.times.filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
     }
@@ -36,7 +34,6 @@ struct ExperiencePassesCardView: View {
         var items: [FareSummaryItem] = []
         let currency = price.currency
         var total: Double = 0
-        // Age band rows with improved label formatting
         for ageItem in price.pricePerAge {
             let type: String
             switch ageItem.bandId.uppercased() {
@@ -122,7 +119,7 @@ struct ExperiencePassesCardView: View {
 
                         // MARK: - More / Less info toggle
                         if !package.infoItems.isEmpty {
-                            Text(package.isInfoExpanded ? Constants.SharedConstants.lessInfo : Constants.SharedConstants.moreInfo)
+                            Text(package.isInfoExpanded ? Constants.ExperiencePassesCardViewConstants.lessInfo : Constants.ExperiencePassesCardViewConstants.moreInfo)
                                 .font(.custom(Constants.Font.openSansSemiBold, size: 12))
                                 .foregroundColor(Color(hex: Constants.HexColors.primary))
                                 .padding(.top, 8)
@@ -166,7 +163,7 @@ struct ExperiencePassesCardView: View {
 
                         // MARK: - Fare Summary (below time slots)
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Fare summary")
+                            Text(Constants.ExperiencePassesCardViewConstants.fareSummary)
                                 .font(.custom(Constants.Font.openSansBold, size: 14))
                                 .foregroundColor(Color(hex: Constants.HexColors.blackStrong))
                                 .padding(.bottom, 2)
@@ -181,9 +178,8 @@ struct ExperiencePassesCardView: View {
                                         .foregroundColor(Color(hex: Constants.HexColors.blackStrong))
                                 }
                             }
-                            // Always show discount, even if 0
                             HStack {
-                                Text("Discount")
+                                Text(Constants.ExperiencePassesCardViewConstants.discount)
                                     .font(.custom(Constants.Font.openSansRegular, size: 13))
                                     .foregroundColor(Color(hex: Constants.HexColors.blackStrong))
                                 Spacer()
@@ -193,15 +189,17 @@ struct ExperiencePassesCardView: View {
                             }
                             Divider()
                             HStack {
-                                Text("Total")
+                                Text(Constants.ExperiencePassesCardViewConstants.total)
                                     .font(.custom(Constants.Font.openSansBold, size: 15))
                                     .foregroundColor(Color(hex: Constants.HexColors.blackStrong))
                                 Spacer()
+
                                 Text("\(detailedFareSummary.currency) \(String(format: "%.2f", detailedFareSummary.total))")
+
                                     .font(.custom(Constants.Font.openSansBold, size: 15))
                                     .foregroundColor(Color(hex: Constants.HexColors.blackStrong))
                             }
-                            Text("Prices inclusive of taxes")
+                            Text(Constants.ExperiencePassesCardViewConstants.pricesInclusiveOfTaxes)
                                 .font(.custom(Constants.Font.openSansRegular, size: 12))
                                 .foregroundColor(Color(hex: Constants.HexColors.neutral))
                                 .padding(.top, 2)
@@ -213,7 +211,7 @@ struct ExperiencePassesCardView: View {
                             Button(action: {
                                 shouldNavigate = true
                             }) {
-                                Text(Constants.AvailabilityScreenConstants.bookThisExperience)
+                                Text(Constants.ExperiencePassesCardViewConstants.bookThisExperience)
                                     .font(.custom(Constants.Font.openSansBold, size: 12))
                                     .foregroundColor(.white)
                                     .frame(height: 42)
@@ -264,7 +262,7 @@ struct ExperiencePassesCardView: View {
                 subActivityCode: subActivityCode,
                 uid: uid,
                 availabilityKey: availabilityKey,
-                selectedTime: package.selectedTime ?? "" // <-- Pass selectedTime here
+                selectedTime: package.selectedTime ?? ""
             )
         }
     }

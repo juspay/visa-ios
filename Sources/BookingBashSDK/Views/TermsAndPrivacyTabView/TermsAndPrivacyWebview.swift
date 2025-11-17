@@ -1,9 +1,3 @@
-//
-//  TermsAndPrivacyWebview.swift
-//  VisaActivity
-//
-//  Created by Praveen on 16/10/25.
-//
 
 import SwiftUI
 @preconcurrency import WebKit
@@ -60,11 +54,8 @@ struct TermsWebViewRepresentable: UIViewRepresentable {
     
     func updateUIView(_ webView: WKWebView, context: Context) {
         guard let urlObj = URL(string: url) else {
-            print("❌ [WEBVIEW] Invalid URL: \(url)")
             return
         }
-        
-        print("🔍 [WEBVIEW] Loading URL: \(url)")
         
         // Only load if not already loading the same URL
         if webView.url?.absoluteString != url {
@@ -79,15 +70,12 @@ struct TermsWebViewRepresentable: UIViewRepresentable {
     
     class Coordinator: NSObject, WKNavigationDelegate {
         func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
-            print("🔍 [WEBVIEW] Started loading")
         }
         
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            print("🔍 [WEBVIEW] Finished loading")
         }
         
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-            print("❌ [WEBVIEW] Failed to load: \(error.localizedDescription)")
         }
     }
 }

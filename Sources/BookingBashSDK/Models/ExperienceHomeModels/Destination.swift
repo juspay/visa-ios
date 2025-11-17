@@ -33,7 +33,7 @@ struct Destination: Identifiable {
         self.imageName = imageName
         self.imageURL = nil
         self.destinationId = ""
-        self.destinationType = 2  // Default to city type (2) instead of 0
+        self.destinationType = 2  
         self.locationName = name
         self.city = ""
         self.state = ""

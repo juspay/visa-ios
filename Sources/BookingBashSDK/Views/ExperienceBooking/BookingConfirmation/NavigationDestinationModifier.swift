@@ -23,21 +23,6 @@ struct NavigationDestinationModifier: ViewModifier {
         }
     }
 }
-//struct NavigationDestinationModifier: ViewModifier {
-//    @Binding var navigateToHome: Bool
-//
-//    func body(content: Content) -> some View {
-//        content
-//            .background(
-//                NavigationLink(
-//                    destination: HomeDestinationWrapperView(),
-//                    isActive: $navigateToHome
-//                ) {
-//                    EmptyView()
-//                }
-//                .hidden()
-//            )
-//    }
 
 struct HomeDestinationWrapperView: View {
     @State private var isHomeActive = true
@@ -48,10 +33,6 @@ struct HomeDestinationWrapperView: View {
             isActive: $isHomeActive,
             onFinish: globalOnFinishCallback
         )
-        .onAppear {
-            print("🟢 HomeDestinationWrapperView appeared - user returned from booking confirmation")
-            // Removed auto-trigger - let user interact with home page normally
-            // The onFinish callback will be triggered when user taps back button
-        }
+        
     }
 }

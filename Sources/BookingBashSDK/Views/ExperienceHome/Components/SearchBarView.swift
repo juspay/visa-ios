@@ -1,5 +1,3 @@
-
-
 import Foundation
 import SwiftUI
 
@@ -35,7 +33,6 @@ struct SearchBarView: View {
             
             Spacer()
             
-            // 👇 Only show X if actual text (excluding spaces) is not empty
             if !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 Image(systemName: Constants.Icons.xmark)
                     .imageScale(.small)
@@ -55,7 +52,7 @@ struct SearchBarView: View {
             if trimmed.count >= 3 {
                 viewModel.autoSuggestFetchData(searchCity: trimmed) { _ in }
             } else {
-                viewModel.destinations = [] // Clear results if less than 3 characters
+                viewModel.destinations = []
             }
         }
         .frame(height: 44)

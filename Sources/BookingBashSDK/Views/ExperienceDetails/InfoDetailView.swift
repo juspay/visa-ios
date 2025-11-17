@@ -18,12 +18,6 @@ struct InfoDetailView: View {
                 .font(.custom(Constants.Font.openSansBold, size: 14))
                 .foregroundStyle(Color(hex: Constants.HexColors.blackStrong))
                 .padding(.bottom, 4)
-                .onAppear {
-                    print("DEBUG UI: Displaying section '\(section.title)' with \(section.items.count) items")
-                    for (index, item) in section.items.enumerated() {
-                        print("DEBUG UI: Item \(index): '\(item)'")
-                    }
-                }
             if(!section.shortDesciption.isEmpty) {
                 Text(section.shortDesciption)
                     .font(.custom(Constants.Font.openSansSemiBold, size: 12))

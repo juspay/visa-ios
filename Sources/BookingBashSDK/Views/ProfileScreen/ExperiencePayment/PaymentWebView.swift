@@ -19,11 +19,8 @@ struct PaymentWebView: UIViewRepresentable {
         let fullURL = !paymentUrl.isEmpty ? paymentUrl : orderId
         
         guard let url = URL(string: fullURL) else {
-            print("❌ [PAYMENT WEBVIEW] Invalid URL: \(fullURL)")
             return
         }
-        
-        print("🔍 [PAYMENT WEBVIEW] Loading payment URL: \(fullURL)")
         
         // Only load if not already loading the same URL
         if webView.url?.absoluteString != fullURL {
@@ -61,12 +58,8 @@ struct PaymentWebView: UIViewRepresentable {
             }
             let urlString = url.absoluteString.lowercased()
             if urlString.contains("success") {
-                print("✅ [PAYMENT WEBVIEW] Success URL detected: \(urlString)")
-                // Cancel the WebView navigation to prevent race condition
                 decisionHandler(.cancel)
-                // Navigate to confirmation with a delay to ensure WebView state settles
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    print("✅ [PAYMENT WEBVIEW] Navigating to confirmation")
                     self.parent.shouldNavigateToConfirmation = true
                 }
                 return

@@ -5,20 +5,20 @@ import SwiftUI
 struct CustomCalendarView: View {
     @ObservedObject var viewModel: ExperienceAvailabilitySelectOptionsViewModel
     @State private var shouldNavigateToAvailabilityScreen: Bool = false
-
+    
     @Binding var showParticipantsSheet: Bool
     @Binding var shouldPresentCalenderView: Bool
     var isFromDetailView: Bool = false
-
+    
     var model: ExperienceDetailModel
     @ObservedObject var experienceDetailViewModel: ExperienceDetailViewModel
-
+    
     let columns = Array(repeating: GridItem(.flexible()), count: 7)
     var productCode: String?
     var currency: String?
-
+    
     private let weekdays = Calendar.current.shortWeekdaySymbols
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text(Constants.AvailabilityScreenConstants.selectDate)
@@ -34,7 +34,7 @@ struct CustomCalendarView: View {
                 }
             }
             .padding(.top, 8)
-
+            
             // MARK: - Month and Dates
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 16) {
@@ -43,7 +43,7 @@ struct CustomCalendarView: View {
                             Text("\(month.name) \(String(month.year))")
                                 .font(.custom(Constants.Font.openSansBold, size: 14))
                                 .foregroundStyle(Color(hex: Constants.HexColors.blackStrong))
-
+                            
                             LazyVGrid(columns: columns, spacing: 12) {
                                 ForEach(month.days) { day in
                                     CalendarDayView(
@@ -52,8 +52,8 @@ struct CustomCalendarView: View {
                                     ) {
                                         viewModel.dateSelectedFromCalender(date: day.date)
                                         viewModel.refreshAvailabilityAfterParticipantChange()
-
-
+                                        
+                                        
                                         if isFromDetailView {
                                             shouldNavigateToAvailabilityScreen = true
                                         } else {
@@ -68,7 +68,6 @@ struct CustomCalendarView: View {
             }
         }
         .padding(.horizontal, 16)
-        // Navigation ONLY used for detail flow
         .navigation(
             isActive: $shouldNavigateToAvailabilityScreen,
             id: Constants.NavigationId.availabilitySelectionMainView

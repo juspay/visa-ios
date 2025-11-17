@@ -1,10 +1,3 @@
-//
-//  ProfileViewModel.swift
-//  VisaActivity
-//
-//  Created by Apple on 04/09/25.
-//
-
 import Foundation
 import SwiftUI
 
@@ -13,17 +6,15 @@ class ProfileViewModel: ObservableObject {
     @Published var savedTravelers: [SavedTravelerModel] = []
     
     init() {
-        // Create ProfileModel with safe defaults to avoid validation errors
         self.userProfile = ProfileModel(
             name: "\(firstName.isEmpty ? "Guest" : firstName) \(lastName.isEmpty ? "User" : lastName)",
             email: customerEmail.isEmpty ? "" : customerEmail,
             mobileNumber: mobileNumber.isEmpty ? "" : mobileNumber,
-            mobileCountryCode: mobileCountryCode.isEmpty ? "+971" : mobileCountryCode, // Always provide valid country code
+            mobileCountryCode: mobileCountryCode.isEmpty ? "+971" : mobileCountryCode,
             firstName: firstName.isEmpty ? "" : firstName,
             lastName: lastName.isEmpty ? "" : lastName,
-            passPort: "" // Passport can be optional
+            passPort: ""
         )
-        
         self.savedTravelers = [
             SavedTravelerModel(
                 name: "Mr. Manish Kamath",

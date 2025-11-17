@@ -68,7 +68,6 @@ struct CombinedMobileField: View {
                 text: $mobile,
                 keyboardType: .numberPad
             )
-            // Reduced left padding for more space
             .padding(.leading, 6)
         }
         .frame(height: 44)

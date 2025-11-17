@@ -81,31 +81,8 @@ struct ExperienceListDetailView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         else if viewModel.showErrorView {
-            VStack(spacing: 20) {
-                if let noResultImage = ImageLoader.bundleImage(named: Constants.Icons.searchNoResult) {
-                    noResultImage
-                        .resizable()
-                        .frame(width: 124, height: 124)
-                }
-                Text(Constants.ErrorMessages.somethingWentWrong)
-                    .font(.headline)
-                    .foregroundColor(.black)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
-        else if let errorMessage = viewModel.errorMessage ?? sortViewModel.errorMessage {
             VStack {
-                Spacer()
-                Text(errorMessage)
-                    .bold()
-                    .padding(.top, 20)
-                    .font(.custom(Constants.Font.openSansRegular, size: 16))
-                    .foregroundColor(.red)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 20)
-                Spacer()
+                ErrorMessageView()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
@@ -191,7 +168,7 @@ struct ExperienceListDetailView: View {
                 }
             }
         }
-       
+        
     }
     
     private func loadExperiences() {
@@ -249,11 +226,11 @@ struct ExperienceSearchBarView: View {
                     .animation(.easeInOut(duration: 0.2), value: searchText)
             }
         }
-
+        
         .onChange(of: searchText) { newValue in
             viewModel.searchText = newValue.drop(while: { $0.isWhitespace }).description
         }
-
+        
         .frame(height: 44)
         .padding(.horizontal, 12)
         .background(

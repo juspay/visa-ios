@@ -11,8 +11,6 @@ struct AvailabilitySelectionMainView: View {
     var productCode: String?
     var currency: String?
     @Binding var showParticipantsSheet: Bool
-    
-    // new flag (defaults to false)
     var fromDetailFlow: Bool = false
     
     var body: some View {
@@ -35,16 +33,7 @@ struct AvailabilitySelectionMainView: View {
                     VStack {
                         Spacer()
                         VStack(spacing: 20) {
-                            if let noResultImage = ImageLoader.bundleImage(named: Constants.Icons.searchNoResult) {
-                                noResultImage
-                                    .resizable()
-                                    .frame(width: 124, height: 124)
-                            }
-                            Text(Constants.ErrorMessages.somethingWentWrong)
-                                .font(.headline)
-                                .foregroundColor(.black)
-                                .multilineTextAlignment(.center)
-                                .padding(.horizontal)
+                            ErrorMessageView()
                         }
                         Spacer()
                     }
@@ -97,7 +86,6 @@ struct AvailabilitySelectionMainView: View {
                 }
             )
             
-            // Calendar Bottom Sheet (when opening calendar from AvailabilitySelectionView)
             .overlay(
                 BottomSheetView(
                     isPresented: $shouldPresentCalenderView,

@@ -88,8 +88,7 @@ struct GuestDetailsFormView: View {
                 
             )
             .padding(.horizontal, 14)
-            // Disable only first name field (title remains active)
-            .disabled(false) // title dropdown active, name textfield inactive handled internally if needed
+            .disabled(false) 
         }
     }
     

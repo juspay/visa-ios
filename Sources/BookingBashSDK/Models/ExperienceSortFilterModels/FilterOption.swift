@@ -1,10 +1,3 @@
-//
-//  FilterOption.swift
-//  VisaActivity
-//
-//  Created by Apple on 31/07/25.
-//
-
 import Foundation
 
 struct FilterOption: Identifiable, Decodable, Hashable {

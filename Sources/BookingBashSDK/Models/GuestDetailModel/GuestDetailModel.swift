@@ -1,10 +1,3 @@
-//
-//  GuestDetailModel.swift
-//  VisaActivity
-//
-//  Created by apple on 05/09/25.
-//
-
 import Foundation
 
 struct GuestDetails {

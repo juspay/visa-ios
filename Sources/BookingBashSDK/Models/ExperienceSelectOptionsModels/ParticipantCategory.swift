@@ -1,4 +1,3 @@
-
 import Foundation
 
 struct ParticipantCategory: Identifiable {
@@ -13,7 +12,6 @@ struct ParticipantCategory: Identifiable {
     let sortOrder: Int
     let isAdult: Bool
     
-    // Initialize with static data (for backward compatibility)
     init(type: String, ageRange: String, price: Int, count: Int, maxLimit: Int, minLimit: Int = 0, bandId: String = "", sortOrder: Int = 0, isAdult: Bool = false) {
         self.type = type
         self.ageRange = ageRange
@@ -26,11 +24,10 @@ struct ParticipantCategory: Identifiable {
         self.isAdult = isAdult
     }
     
-    // Initialize from DetailAgeBand (from details API response)
     init(from ageBand: DetailAgeBand) {
         self.type = ageBand.description
         self.ageRange = "(Age \(ageBand.ageFrom) to \(ageBand.ageTo))"
-        self.price = 0 // Price will be calculated from availability API
+        self.price = 0 
         self.count = ageBand.minTravelersPerBooking > 0 ? ageBand.minTravelersPerBooking : 0
         self.maxLimit = ageBand.maxTravelersPerBooking
         self.minLimit = ageBand.minTravelersPerBooking

@@ -1,9 +1,3 @@
-//
-//  CustomNavigationBar.swift
-//  VisaActivity
-//
-//  Created by Rohit Sankpal on 24/08/25.
-//
 import SwiftUI
 
 struct CustomNavigationBar: View {

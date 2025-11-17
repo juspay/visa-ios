@@ -63,14 +63,7 @@ struct ExperienceCheckoutView: View {
             // Show No Result Placeholder if API status is false or statusCode != 200
             if checkoutViewModel.showNoResultImage && (checkoutViewModel.errorStatusCode != 200 || checkoutViewModel.errorMessage != nil) {
                 VStack(spacing: 12) {
-                    if let noResultImage = ImageLoader.bundleImage(named: Constants.Icons.searchNoResult) {
-                        noResultImage
-                            .resizable()
-                            .frame(width: 124, height: 124)
-                    }
-                    Text(Constants.ErrorMessages.somethingWentWrong)
-                        .font(.custom(Constants.Font.openSansSemiBold, size: 16))
-                        .foregroundColor(.gray)
+                    ErrorMessageView()
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color.white.opacity(0.95))
@@ -89,28 +82,24 @@ struct ExperienceCheckoutView: View {
         .onAppear {
             onAppear()
             if experienceDetailViewModel.items.isEmpty {
-                print(" Refetching data for checkout screen...")
+                // Refetching data for checkout screen...
                 experienceDetailViewModel.fetchReviewData(
                     activityCode: productCode,
                     currency: currency ?? "AED"
                 )
-                
             }
             // Initialize extraGuests per band
             var guestsDict: [String: [GuestDetails]] = [:]
             for category in availabilityViewModel.categories {
                 let bandId = category.type
                 let count = category.count
-                print("[GuestCountLog] Band: \(bandId), Count from response: \(count)")
                 guestsDict[bandId] = Array(repeating: GuestDetails(), count: max(0, count))
             }
             extraGuests = guestsDict
         }
         .onChange(of: checkoutViewModel.shouldNavigateToPayment) { shouldNavigate in
-            print("🔍 [CHECKOUT VIEW] Navigation state changed to: \(shouldNavigate)")
             if shouldNavigate {
-                print("🔍 [CHECKOUT VIEW] Order ID: \(checkoutViewModel.orderNo ?? "nil")")
-                print("🔍 [CHECKOUT VIEW] Payment URL: \(checkoutViewModel.paymentUrl ?? "nil")")
+                // Navigation state changed, Order ID and Payment URL available
             }
         }
     }
@@ -277,14 +266,10 @@ private extension ExperienceCheckoutView {
 private extension ExperienceCheckoutView {
     func onAppear() {
         checkoutViewModel.setSelectedPackage(package)
-        
         checkoutViewModel.setAvailabilityResponse(availabilityViewModel.response)
-        
         checkoutViewModel.setUid(uid)
         checkoutViewModel.setAvailabilityKey(availabilityKey)
-        
         checkoutViewModel.selectedTravelDate = availabilityViewModel.selectedDateFromCalender
         checkoutViewModel.fetchData()
-
     }
 }
