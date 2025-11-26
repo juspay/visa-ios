@@ -4,12 +4,18 @@ import SwiftUI
 struct BookedExperienceDateTimeView: View {
     let color: Color
     var shouldShowRefundable: Bool = true
+    let loaction: String
     let selectedDate: String
     let selectedTime: String
-    //    let selectedParticipants: String
+    let selectedParticipants: String?
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
+            IconTextRow(
+                imageName: Constants.Icons.map,
+                text: loaction,
+                color: color
+            )
             HStack {
                 IconTextRow(
                     imageName: Constants.Icons.calendargray,
@@ -17,11 +23,14 @@ struct BookedExperienceDateTimeView: View {
                     color: color
                 )
                 Spacer()
-                //                IconTextRow(
-                //                    imageName: Constants.Icons.user,
-                //                    text: selectedParticipants,
-                //                    color: color
-                //                )
+                
+                if let participants = selectedParticipants, !participants.isEmpty {
+                    IconTextRow(
+                        imageName: Constants.Icons.user,
+                        text: participants,
+                        color: color
+                    )
+                }
             }
             if !selectedTime.isEmpty && selectedTime != "00:00" {
                 IconTextRow(
@@ -34,9 +43,8 @@ struct BookedExperienceDateTimeView: View {
                 HStack(spacing: 6) {
                     if let checkIcon = ImageLoader.bundleImage(named: Constants.Icons.greenTick) {
                         checkIcon
-                        
                             .resizable()
-                        
+                            .aspectRatio(contentMode: .fit)
                             .frame(width: 20, height: 20)
                     }
                     Text(Constants.BookingStatusScreenConstants.refundable)

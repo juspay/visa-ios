@@ -144,7 +144,7 @@ extension ExperienceCheckoutViewModel {
                         self.location = "\(data.info?.city ?? "")-\(data.info?.country ?? "")"
                         self.reviewResponse = response
                         self.setUiData(responseData: data)
-                        self.updateCarouselData(from: data)
+//                         self.updateCarouselData(from: data)
                         self.showNoResultImage = false
                     }  else {
                         self.errorMessage = "Unknown API error"
@@ -177,11 +177,12 @@ extension ExperienceCheckoutViewModel {
                 case .success(let response):
                     if let imageData = response.data {
                         self.updateCarouselWithImages(imageData: imageData)
-                    } else {
-                        if let reviewData = self.reviewResponse?.data {
-                            self.carousalData = [ExperienceDetailCarousalModel(imageUrl: reviewData.info?.thumbnail ?? "")]
-                        }
                     }
+//                    else {
+//                        if let reviewData = self.reviewResponse?.data {
+//                            self.carousalData = [ExperienceDetailCarousalModel(imageUrl: reviewData.info?.thumbnail ?? "")]
+//                        }
+//                    }
                 case .failure(_):
                     if let reviewData = self.reviewResponse?.data {
                         self.carousalData = [ExperienceDetailCarousalModel(imageUrl: reviewData.info?.thumbnail ?? "")]
@@ -207,11 +208,12 @@ extension ExperienceCheckoutViewModel {
         }
         if !carouselImages.isEmpty {
             carousalData = carouselImages
-        } else {
-            if let reviewData = reviewResponse?.data {
-                carousalData = [ExperienceDetailCarousalModel(imageUrl: reviewData.info?.thumbnail ?? "")]
-            }
         }
+//        else {
+//            if let reviewData = reviewResponse?.data {
+//                carousalData = [ExperienceDetailCarousalModel(imageUrl: reviewData.info?.thumbnail ?? "")]
+//            }
+//        }
     }
     private func updateCarouselData(from data: ReviewTourDetailData) {
         if let thumbnail = data.info?.thumbnail, !thumbnail.isEmpty {

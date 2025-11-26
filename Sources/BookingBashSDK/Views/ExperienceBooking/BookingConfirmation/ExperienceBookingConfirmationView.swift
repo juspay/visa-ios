@@ -84,7 +84,6 @@ private extension ExperienceBookingConfirmationView {
                 viewDetailsButtonTapped: { shouldExpandDetails = true },
                 isBookingConfirmationScreen: viewModel.bookingStatus == .confirmed,
                 shouldExpandDetails: $shouldExpandDetails,
-//                participantsSummary: participantsSummary,
                 selectedTime: selectedTime
             )
             if shouldExpandDetails { expandedDetailsSection }

@@ -33,11 +33,13 @@ struct Constants {
         static let clock = "Clock"
         static let check = "Check"
         static let greenTick = "green_tick"
+        static let mapWhite = "MapWhite"
         
         static let print = "Print"
         static let download = "Download"
         static let Share = "Share"
         static let map = "Map"
+        static let mapGray = "MapGray"
         static let saving = "Saving"
         static let savingGray = "SavingGray"
         static let checkBoxFilled = "CheckBoxFilled"
@@ -63,10 +65,11 @@ struct Constants {
         static let logoVisa = "logoVisa"
         static let searchNoResult = "SearchNoResult"
         static let backButton = "BackButton"
-        
+        static let logos  = "Logos"
         static let bookingBash = "BookingBashLogo"
         static let vector = "Vector"
         static let mobile = "mobile"
+        static let currency = "Currency"
     }
     
     enum searchScreenConstants {
@@ -258,6 +261,10 @@ struct Constants {
         static let emptyMobileNumber = "Please enter a mobile number."
         static let noDataInResponse = "Oops! No data in response"
         static let somethingWentWrong = "Oops! something went wrong."
+        static let noResultsFound = "Oops! no results found."
+        static let noResultsFoundDescription = "We didn’t find anything.. Try adjusting your search."
+
+        
     }
     
     enum ExperienceHomeViewConstants {
@@ -302,6 +309,7 @@ struct Constants {
         static let myBBProSavings = "My BB-Pro Savings"
         static let myFavorites = "My Favorites"
         static let myProfile = "My Profile"
+        static let currency = "Currency"
         // Image names
         static let iconProfile = "VectorUser"
         static let iconTransactions = "ticket"

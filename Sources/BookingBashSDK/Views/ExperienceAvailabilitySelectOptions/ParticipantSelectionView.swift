@@ -8,26 +8,7 @@ struct ParticipantSelectionView: View {
     
     var body: some View {
         ZStack {
-            // Error State View
-            if let response = viewModel.response,
-               response.status == false && response.statusCode != 200 {
-                VStack(spacing: 20) {
-                    ErrorMessageView()
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.white)
-            } else {
-                // Normal Participant View
                 VStack(alignment: .leading, spacing: 14) {
-                    
-                    // Error Message
-                    if let error = viewModel.errorMessage, !error.isEmpty {
-                        Text(error)
-                            .foregroundColor(.red)
-                            .font(.headline)
-                            .padding(.bottom, 8)
-                    }
-                    
                     // Title + Info
                     VStack(alignment: .leading, spacing: 0) {
                         Text(Constants.AvailabilityScreenConstants.participants)
@@ -120,7 +101,6 @@ struct ParticipantSelectionView: View {
                     .padding(.bottom)
                 }
                 .padding(.horizontal)
-            }
         }
         .onAppear {
             viewModel.maxTravelersPerBooking = detailViewModel.maxTravelersPerBooking ?? 0

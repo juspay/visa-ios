@@ -28,8 +28,8 @@ struct BookingFailedView: View {
                             shouldExpandDetails = true
                         },
                         isBookingConfirmationScreen: false,
-                        shouldExpandDetails: $shouldExpandDetails,
-                       /* participantsSummary: participantsSummary,*/ selectedTime: selectedTime
+                        shouldExpandDetails: $shouldExpandDetails, 
+                       selectedTime: selectedTime
                     )
                     
                     if shouldExpandDetails {

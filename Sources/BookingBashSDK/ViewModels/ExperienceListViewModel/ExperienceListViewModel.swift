@@ -8,10 +8,13 @@ final class ExperienceListViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var searchText: String = ""
     @Published var showErrorView: Bool = false
+
     private let service: ExperienceListService
+
     init(service: ExperienceListService = DefaultExperienceListService()) {
         self.service = service
     }
+
     var filteredExperiences: [ExperienceListModel] {
         guard searchText.count >= 3 else { return experiences }
         return experiences.filter {
@@ -20,6 +23,7 @@ final class ExperienceListViewModel: ObservableObject {
             $0.currency.localizedCaseInsensitiveContains(searchText)
         }
     }
+
     func fetchSearchData(
         destinationId: String,
         destinationType: Int,
@@ -32,6 +36,7 @@ final class ExperienceListViewModel: ObservableObject {
         guard let _ = URL(string: Constants.APIURLs.searchBaseURL) else { return }
         isLoading = true
         errorMessage = nil
+
         let requestBody = SearchRequestBuilder.build(
             destinationId: destinationId,
             destinationType: destinationType,
@@ -42,20 +47,23 @@ final class ExperienceListViewModel: ObservableObject {
             productCodes: productCodes
         )
         self.searchRequestModel = requestBody
+
         service.fetchSearchData(requestBody: requestBody) { [weak self] result in
             DispatchQueue.main.async {
                 guard let self = self else { return }
                 self.isLoading = false
+
                 switch result {
                 case .success(let response):
                     if response.status == false || response.statusCode != 200 {
                         self.errorMessage = Constants.ErrorMessages.somethingWentWrong
                         self.showErrorView = true
+                        self.experiences = []
                         return
-                    } else {
-                        self.showErrorView = false
                     }
+
                     if let responseData = response.data {
+                        self.showErrorView = false
                         self.searchDestination = response
                         var mappedExperiences = self.mapResponseToUIModels(responseData)
                         if let sortBy = self.searchRequestModel?.filters.sort_by {
@@ -68,14 +76,18 @@ final class ExperienceListViewModel: ObservableObject {
                         self.experiences = mappedExperiences
                     } else {
                         self.errorMessage = Constants.ErrorMessages.noDataInResponse
+                        self.showErrorView = true
+                        self.experiences = []
                     }
                 case .failure(_):
                     self.errorMessage = Constants.ErrorMessages.somethingWentWrong
                     self.showErrorView = true
+                    self.experiences = []
                 }
             }
         }
     }
+
     func mapResponseToUIModels(_ responseData: SearchDataModel) -> [ExperienceListModel] {
         responseData.result.map {
             ExperienceListModel(

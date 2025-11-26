@@ -6,7 +6,6 @@ struct BookedExperienceDetailCardView: View {
     let viewDetailsButtonTapped: (() -> Void)?
     var isBookingConfirmationScreen: Bool = true
     @Binding var shouldExpandDetails: Bool
-//    let participantsSummary: String
     let selectedTime: String?
     
     var bookingDate: String {
@@ -40,9 +39,10 @@ struct BookedExperienceDetailCardView: View {
             
             BookedExperienceDateTimeView(
                 color: Color(hex: Constants.HexColors.neutral),
+                loaction: confirmationViewModel.location ?? location,
                 selectedDate: travelDate,
-                selectedTime: selectedTime ?? "-"
-//                selectedParticipants: participantsSummary
+                selectedTime: selectedTime ?? "-",
+                selectedParticipants: nil
             )
             
             if isBookingConfirmationScreen {

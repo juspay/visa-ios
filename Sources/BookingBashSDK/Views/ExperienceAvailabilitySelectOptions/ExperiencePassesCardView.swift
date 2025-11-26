@@ -174,7 +174,7 @@ struct ExperiencePassesCardView: View {
                                         .foregroundColor(Color(hex: Constants.HexColors.blackStrong))
                                     Spacer()
                                     Text(item.value)
-                                        .font(.custom(Constants.Font.openSansSemiBold, size: 13))
+                                        .font(.custom(Constants.Font.openSansRegular, size: 13))
                                         .foregroundColor(Color(hex: Constants.HexColors.blackStrong))
                                 }
                             }

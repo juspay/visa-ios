@@ -22,11 +22,13 @@ struct ContactDetailsCardView: View {
                         if let icon = ImageLoader.bundleImage(named: item.keyIcon) {
                             icon
                                 .resizable()
+                                .aspectRatio(contentMode: .fit)
                                 .frame(width: 20, height: 20)
                                 .foregroundStyle(Color(hex: Constants.HexColors.neutral))
                         } else {
                             Image(item.keyIcon)
                                 .resizable()
+                                .aspectRatio(contentMode: .fit)
                                 .frame(width: 20, height: 20)
                                 .foregroundStyle(Color(hex: Constants.HexColors.neutral))
                         }

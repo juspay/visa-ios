@@ -5,7 +5,7 @@ final class HomeViewModel: ObservableObject {
     @Published var destinations: [Destination] = []
     @Published var experiences: [Experience] = []
     @Published var homeResponseData: HomeResponseModel?
-    @Published var isLoading: Bool = false
+    @Published var isLoading: Bool = true
     @Published var errorMessage: String = ""
     @Published var ssoLoginResponse: SSOLoginResponseModel?
     @Published var isSSOLoginLoading = false

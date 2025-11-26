@@ -44,11 +44,5 @@ struct AvailabilitySelectionView: View {
             )
         }
         .background(Color.clear)
-        .onAppear {
-            viewModel.fetchAvailabilities(
-                productCode: productCode ?? "",
-                currencyCode: currency ?? ""
-            )
-        }
     }
 }

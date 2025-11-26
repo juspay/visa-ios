@@ -1,9 +1,3 @@
-//
-//  xorEncrypt.swift
-//  VisaActivity
-//
-//
-
 import Foundation
 
 extension String {
@@ -20,7 +14,24 @@ extension String {
 
 struct TokenProvider {
     static func getAuthHeader() -> String? {
-        print("AA4cAgpONjtQPjoUKTU+PF5RDzU1ARgFKhIwOiEvLxkhcyE4LQUgHRtTPTwhFjZZJFw9KCwJJwU2FiYTDVIMJiUDDTs9ADAZWn8=".xorDecrypt(key: "BookingBash"))
-        return "AA4cAgpONjtQPjoUKTU+PF5RDzU1ARgFKhIwOiEvLxkhcyE4LQUgHRtTPTwhFjZZJFw9KCwJJwU2FiYTDVIMJiUDDTs9ADAZWn8=".xorDecrypt(key: "BookingBash")
+        var url: URL?
+
+        // 1️⃣ Try Bundle.module first (works only when compiled via Swift Package)
+        #if SWIFT_PACKAGE
+        url = Bundle.module.url(forResource: "Token", withExtension: "plist")
+        #endif
+
+        // 2️⃣ Fallback to Bundle.main (App / Framework usage)
+        if url == nil {
+            url = Bundle.main.url(forResource: "Token", withExtension: "plist")
+        }
+
+        guard let fileUrl = url,
+              let dict = NSDictionary(contentsOf: fileUrl),
+              let encrypted = dict["authHeader"] as? String else {
+            return nil
+        }
+
+        return encrypted.xorDecrypt(key: "BookingBash")
     }
 }

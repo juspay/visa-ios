@@ -33,8 +33,7 @@ let package = Package(
             publicHeadersPath: "."
         ),
         .target(
-            name
-            : "BookingBashSDK",
+            name: "BookingBashSDK",
             dependencies: [
                 .product(name: "SUINavigation", package: "SUINavigation"),
                 .product(name: "SwiftUIIntrospect", package: "SwiftUIIntrospect"),

@@ -10,6 +10,7 @@ struct AllDestinationsView: View {
     @StateObject private var experienceListViewModel = ExperienceListViewModel()
     
     // Filtered destinations based on searchText
+    
     var filteredDestinations: [Destination] {
         let trimmed = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
         
@@ -26,6 +27,7 @@ struct AllDestinationsView: View {
         }
     }
 
+    
     var body: some View {
         GeometryReader { geo in
             ThemeTemplateView(
@@ -36,8 +38,7 @@ struct AllDestinationsView: View {
                 content: {
                     VStack {
                         Spacer()
-                        
-                        // 🔍 Search bar
+                        // Add search bar to search destinations
                         ExperienceSearchBarView(
                             viewModel: experienceListViewModel,
                             searchPlaceholderText: "Search attractions / city",
@@ -45,21 +46,11 @@ struct AllDestinationsView: View {
                         )
                         .padding(.horizontal, 20)
                         .padding(.bottom, 8)
-                        
                         Spacer()
-                        Spacer()
-                        
-                        if experienceListViewModel.showErrorView {
-                            VStack(spacing: 20) {
-                                ErrorMessageView()
-                            }
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        }
-                        else if filteredDestinations.isEmpty {
+                        if filteredDestinations.isEmpty {
                             NoResultsView()
                                 .padding(.top, 100)
-                        }
-                        else {
+                        } else {
                             DestinationGridView(destinations: filteredDestinations, geo: geo) { destination in
                                 // Calculate check-in and check-out dates dynamically
                                 let calendar = Calendar.current
@@ -77,9 +68,9 @@ struct AllDestinationsView: View {
                                     location: destination.city,
                                     checkInDate: checkInDateString,
                                     checkOutDate: checkOutDateString,
-                                    currency: "",
-                                    clientId: "",
-                                    enquiryId: "",
+                                    currency: "AED",
+                                    clientId: "CLIENT_ABC123",
+                                    enquiryId: "ENQ_456XYZ",
                                     productCode: [],
                                     filters: SearchFilters(
                                         limit: 700,
@@ -118,7 +109,7 @@ struct AllDestinationsView: View {
                 if let requestModel = experienceListSearchRequestModel {
                     ExperienceListDetailView(
                         destinationId: requestModel.destinationId,
-                        destinationType: Int(requestModel.destinationType),
+                        destinationType: Int(requestModel.destinationType) ,
                         location: requestModel.location,
                         checkInDate: requestModel.checkInDate,
                         checkOutDate: requestModel.checkOutDate,
@@ -130,4 +121,3 @@ struct AllDestinationsView: View {
         }
     }
 }
-

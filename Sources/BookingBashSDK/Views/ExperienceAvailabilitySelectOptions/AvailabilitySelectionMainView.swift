@@ -12,6 +12,7 @@ struct AvailabilitySelectionMainView: View {
     var currency: String?
     @Binding var showParticipantsSheet: Bool
     var fromDetailFlow: Bool = false
+    @State private var showSheetOnAppear: Bool = false
     
     var body: some View {
         GeometryReader { geo in
@@ -29,18 +30,17 @@ struct AvailabilitySelectionMainView: View {
                 .padding(.bottom, 16)
             }, content: {
                 if let response = experienceAvailabilitySViewModel.response,
-                   response.status == false && response.statusCode != 200 {
+                   response.status == false && response.statusCode != 200, !experienceAvailabilitySViewModel.isLoading  {
                     VStack {
                         Spacer()
                         VStack(spacing: 20) {
-                            ErrorMessageView()
+                            NoResultErrorView()
                         }
                         Spacer()
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Color.white)
-                }
-                else {
+                } else {
                     ExperiencePassesListView(
                         viewModel: experienceAvailabilitySViewModel,
                         experienceDetailViewModel: experienceDetailViewModel,
@@ -52,13 +52,24 @@ struct AvailabilitySelectionMainView: View {
             })
             .navigationBarBackButtonHidden(true)
             .onAppear {
-                if fromDetailFlow {
+                experienceAvailabilitySViewModel.fetchAvailabilities(
+                    productCode: productCode ?? "",
+                    currencyCode: currency ?? ""
+                )
+//                if fromDetailFlow, experienceAvailabilitySViewModel.isAvailabilityResponseFetched, !experienceAvailabilitySViewModel.showErrorView {
+//                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+//                        showParticipantsSheet = true
+//                    }
+//                }
+            }
+            .onChange(of: experienceAvailabilitySViewModel.isAvailabilityResponseFetched) { responseFetched in
+                if responseFetched, fromDetailFlow, !experienceAvailabilitySViewModel.showErrorView, !showSheetOnAppear {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        showSheetOnAppear = true
                         showParticipantsSheet = true
                     }
                 }
             }
-            
             .overlay(
                 BottomSheetView(isPresented: $showParticipantsSheet) {
                     ZStack(alignment: .topTrailing) {
@@ -85,7 +96,6 @@ struct AvailabilitySelectionMainView: View {
                     }
                 }
             )
-            
             .overlay(
                 BottomSheetView(
                     isPresented: $shouldPresentCalenderView,

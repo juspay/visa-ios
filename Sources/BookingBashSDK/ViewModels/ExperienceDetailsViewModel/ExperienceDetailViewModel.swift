@@ -135,9 +135,7 @@ final class ExperienceDetailViewModel: ObservableObject {
         guard let data = responseData else { return }
         maxTravelersPerBooking = data.info.bookingRequirements.maxTravelersPerBooking
         apiReviewResponseData = data
-        if carousalData.isEmpty {
-            carousalData = [ExperienceDetailCarousalModel(imageUrl: data.info.thumbnail)]
-        }
+
         let formattedPrice = String(format: "%.2f", data.price.totalAmount)
         price = "\(data.price.currency) \(formattedPrice)"
         priceValue = data.price.totalAmount
@@ -152,7 +150,7 @@ final class ExperienceDetailViewModel: ObservableObject {
             strikeoutPrice = strikeout.totalAmount
             hasDiscount = true
             savingsAmount = strikeout.savingAmount
-            savingsPercentage = strikeout.savingPercentage
+            savingsPercentage = strikeout.savingPercentage.rounded()
         } else {
             strikeoutPrice = 0.0
             savingsAmount = 0.0
@@ -177,19 +175,21 @@ final class ExperienceDetailViewModel: ObservableObject {
         var features: [FeatureItem] = []
         let durationDisplay = data.info.duration.display
         if !durationDisplay.isEmpty {
-            features.append(FeatureItem(iconName: "bolt.fill", title: durationDisplay))
+            features.append(FeatureItem(iconName: "bolt", title: durationDisplay))
         }
         if let ticketInfo = data.info.ticketInfo {
             if !ticketInfo.ticketTypeDescription.isEmpty {
-                features.append(FeatureItem(iconName: "bolt.fill", title: ticketInfo.ticketTypeDescription))
+                features.append(FeatureItem(iconName: "bolt", title: ticketInfo.ticketTypeDescription))
             }
         }
         allFeatures = features
-        let aboutDescription = "\(data.info.description)\n\nDuration: \(durationDisplay)"
-        aboutExperience = AboutExperienceModel(
-            title: "About this experience",
-            description: aboutDescription
-        )
+        if !data.info.description.isEmpty {
+            let aboutDescription = "\(data.info.description)\n\nDuration: \(durationDisplay)"
+            aboutExperience = AboutExperienceModel(
+                title: "About this experience",
+                description: aboutDescription
+            )
+        }
         cancellationPolicy = data.info.cancellationPolicy.description
         var cancellationItems = [data.info.cancellationPolicy.description]
         cancellationPolicyData = [

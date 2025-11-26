@@ -21,7 +21,8 @@ struct ExperienceCheckoutView: View {
     @State private var showFairSummary = false
     @State private var isConsentBoxChecked = false
     @State private var navigateToConfirmation = false
-    
+    @State private var showCountryCodeList: Bool = false
+
     init(
         checkoutViewModel: ExperienceCheckoutViewModel,
         experienceDetailViewModel: ExperienceDetailViewModel,
@@ -57,6 +58,10 @@ struct ExperienceCheckoutView: View {
             .navigationBarBackButtonHidden(true)
             .safeAreaInset(edge: .bottom) { paymentBarSection }
             .overlay { bottomSheetOverlay }
+            .searchCountryCodeSheet(isPresented: $showCountryCodeList, countries: MobileCodeData.allCodes) { countryCode in
+                guestDetails.mobileCountryCode = countryCode?.dialCode ?? ""
+                guestDetails.mobileNumber = ""
+            }
             toastOverlay
             navigationLinks
             
@@ -123,9 +128,10 @@ private extension ExperienceCheckoutView {
                 BookedExperienceDateTimeView(
                     color: .white,
                     shouldShowRefundable: false,
+                    loaction: checkoutViewModel.location ?? "",
                     selectedDate: checkoutViewModel.formattedSelectedDate(availabilityViewModel.selectedDateFromCalender),
-                    selectedTime: selectedTime
-//                    selectedParticipants: availabilityViewModel.participantsSummary
+                    selectedTime: selectedTime,
+                    selectedParticipants: availabilityViewModel.participantsSummary
                 )
             }
         }
@@ -134,7 +140,7 @@ private extension ExperienceCheckoutView {
     var contentSection: some View {
         VStack(spacing: 16) {
             FeatureGridView(features: experienceDetailViewModel.allFeatures, showAll: $showAll)
-            GuestDetailsFormView(details: $guestDetails)
+            GuestDetailsFormView(details: $guestDetails, showCountryCodeList: $showCountryCodeList)
             
             FareSummaryCardView(
                 fairSummaryData: checkoutViewModel.fairSummaryData,

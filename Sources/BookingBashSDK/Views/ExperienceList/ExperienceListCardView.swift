@@ -129,7 +129,7 @@ struct ExperienceListCardView: View {
                     // Pricing Section
                     VStack(alignment: .leading, spacing: 4) {
                         if let strikeoutPrice = experience.strikeoutPrice,
-                           let savingPercentage = experience.savingPercentage,
+                           let savingPercentage = experience.savingPercentage?.rounded(),
                            strikeoutPrice > experience.price {
                             HStack(spacing: 8) {
                                 Text("\(experience.currency) \(formatPrice(strikeoutPrice))")

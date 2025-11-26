@@ -24,7 +24,7 @@ struct FeatureGridView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Key Features")
+            Text("Know before you go")
                 .font(.custom(Constants.Font.openSansBold, size: 14))
                 .foregroundStyle(Color(hex: Constants.HexColors.blackStrong))
             HStack(alignment: .top) {

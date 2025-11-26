@@ -14,6 +14,7 @@ class ExperienceAvailabilitySelectOptionsViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var isLoading: Bool = false
     @Published var hasInitializedPackages: Bool = false
+    @Published var isAvailabilityResponseFetched: Bool = false
     var currentActivityCode: String?
     var currentCurrencyCode: String?
     @Published var ageBands: [DetailAgeBand] = []
@@ -263,6 +264,9 @@ class ExperienceAvailabilitySelectOptionsViewModel: ObservableObject {
 }
 extension ExperienceAvailabilitySelectOptionsViewModel {
     func fetchAvailabilities(productCode: String, currencyCode: String) {
+        self.showErrorView = false
+        self.errorMessage = nil
+        self.isAvailabilityResponseFetched = false
         guard let url = URL(string: Constants.APIURLs.availabilityUrl ) else { return }
         if ageBands.isEmpty && !globalAgeBands.isEmpty {
                 ageBands = globalAgeBands
@@ -304,6 +308,7 @@ extension ExperienceAvailabilitySelectOptionsViewModel {
             headers: headers,
             completion: { (result: Result<AvailabilityApiResponse, Error>) in
                 DispatchQueue.main.async(execute: {
+                    self.isAvailabilityResponseFetched = true
                     self.isLoading = false
                     switch result {
                     case .success(let data):
@@ -312,8 +317,9 @@ extension ExperienceAvailabilitySelectOptionsViewModel {
                             self.errorMessage = Constants.ErrorMessages.somethingWentWrong
                             self.showErrorView = true
                         } else {
+//                            self.showErrorView = false
+//                            self.errorMessage = nil
                             self.setApiResponse(self.response?.data)
-                            self.showErrorView = false
                         }
                     case .failure(let error):
                         self.errorMessage = error.localizedDescription

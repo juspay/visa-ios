@@ -17,7 +17,7 @@ final class DefaultHomeService: HomeService {
         let headers = [
             Constants.APIHeaders.contentTypeKey: Constants.APIHeaders.contentTypeValue,
             Constants.APIHeaders.authorizationKey: TokenProvider.getAuthHeader() ?? "",
-            Constants.APIHeaders.siteId: Constants.SharedConstants.siteId
+            Constants.APIHeaders.siteId: ssoSiteIdGlobal
         ]
         
         session.get(url: url, headers: headers, completion: completion)

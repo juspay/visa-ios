@@ -20,6 +20,7 @@ struct IconTextRow: View {
                 icon
                     .resizable()
                     .renderingMode(.template)
+                    .aspectRatio(contentMode: .fit)
                     .frame(width: 20, height: 20)
                     .foregroundStyle(color)
             }

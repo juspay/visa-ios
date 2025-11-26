@@ -252,7 +252,7 @@ extension Booking {
     // Savings percentage from price data
     var savingsPercentage: Decimal? {
         guard let strikeout = price.strikeout else { return nil }
-        return Decimal(strikeout.savingPercentage)
+        return Decimal(strikeout.savingPercentage).rounded()
     }
 }
 extension Booking {

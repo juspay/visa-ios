@@ -33,9 +33,10 @@ struct SectionView: View {
                     }) {
                         HStack(spacing: 12) {
 
-                            if let mapImage = ImageLoader.bundleImage(named: Constants.Icons.map) {
+                            if let mapImage = ImageLoader.bundleImage(named: Constants.Icons.mapGray) {
                                 mapImage
                                     .resizable()
+                                    .foregroundColor(.gray)
                                     .frame(width: 20, height: 20)
                                     .foregroundStyle(.gray)
                             }

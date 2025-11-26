@@ -5,7 +5,8 @@ struct ExperienceListDetailView: View {
     @State private var selectedCurrency = ""
     @State private var showSortSheet = false
     @State private var listItemTapped = false
-    
+    @State private var scrollToTopTrigger = false
+
     @StateObject private var viewModel: ExperienceListViewModel
     @StateObject private var sortViewModel: SortViewModel
     
@@ -48,28 +49,40 @@ struct ExperienceListDetailView: View {
     }
     
     var body: some View {
-        Group {
-            if useThemeTemplate {
-                ThemeTemplateView(header: { MainTopHeaderView(headerText: "") }) {
+        ZStack(alignment: .bottomTrailing) {
+            Group {
+                if useThemeTemplate {
+                    ThemeTemplateView(needsScroll: false,
+                                      header: { MainTopHeaderView(headerText: "") }) {
+                        content
+                    }
+                } else {
                     content
                 }
-            } else {
-                content
             }
-        }
-        .navigationBarBackButtonHidden(true)
-        
-        .navigation(isActive: $listItemTapped, id: Constants.NavigationId.experienceDetailView) {
-            ExperienceDetailView(productCode: selectedProductCode, currency: selectedCurrency)
-        }
-        .overlay(
-            BottomSheetView(isPresented: $showSortSheet) {
-                SortView(viewModel: sortViewModel, onOptionSelected: { showSortSheet = false })
+            .navigationBarBackButtonHidden(true)
+            .navigation(isActive: $listItemTapped, id: Constants.NavigationId.experienceDetailView) {
+                ExperienceDetailView(productCode: selectedProductCode, currency: selectedCurrency)
             }
-        )
-        .onAppear(perform: loadExperiences)
-        
+            .overlay(
+                BottomSheetView(isPresented: $showSortSheet) {
+                    SortView(viewModel: sortViewModel, onOptionSelected: { showSortSheet = false })
+                }
+            )
+            .onAppear(perform: loadExperiences)
+            
+//            Button {
+//                scrollToTopTrigger.toggle()
+//            } label: {
+//                Image(systemName: "arrowshape.up.circle")
+//                    .resizable()
+//                    .frame(width: 24, height: 24)
+//                    .foregroundColor(.yellow)
+//                    .padding()
+//            }
+        }
     }
+
     @ViewBuilder
     private var content: some View {
         if viewModel.isLoading || sortViewModel.isLoading {
@@ -122,29 +135,44 @@ struct ExperienceListDetailView: View {
         .padding(.horizontal, 20)
         .padding(.top, 12)
     }
-    
+
     private var experiencesList: some View {
-        VStack(spacing: 16) {
-            Text(Constants.ExperienceListDetailViewConstants.exploreExperiencesText)
-                .font(.headline)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.leading, 10)
-            
-            headerRow
-            
-            LazyVStack(spacing: 20) {
-                ForEach(displayedExperiences, id: \.productCode) { experience in
-                    ExperienceListCardView(experience: experience)
-                        .onTapGesture {
-                            selectedProductCode = experience.productCode
-                            selectedCurrency = experience.currency
-                            listItemTapped = true
+        ScrollViewReader { proxy in
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: 16) {
+                    // MARK: – Top anchor for scrolling
+                    Color.clear
+                        .frame(height: 0)
+                        .id("SCROLL_TO_TOP")
+
+                    Text(Constants.ExperienceListDetailViewConstants.exploreExperiencesText)
+                        .font(.headline)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.leading, 10)
+
+                    headerRow
+
+                    LazyVStack(spacing: 20) {
+                        ForEach(displayedExperiences, id: \.productCode) { experience in
+                            ExperienceListCardView(experience: experience)
+                                .onTapGesture {
+                                    selectedProductCode = experience.productCode
+                                    selectedCurrency = experience.currency
+                                    listItemTapped = true
+                                }
                         }
+                    }
+                }
+            }
+            .onChange(of: scrollToTopTrigger) { _ in
+                // Whenever `scrollToTopTrigger` changes, scroll to top
+                withAnimation(.easeInOut) {
+                    proxy.scrollTo("SCROLL_TO_TOP", anchor: .top)
                 }
             }
         }
     }
-    
+
     private var headerRow: some View {
         HStack {
             HStack(spacing: 6) {

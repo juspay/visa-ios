@@ -1,10 +1,3 @@
-//
-//  PaymentFailedView.swift
-//  VisaActivity
-//
-//  Created by Apple on 07/08/25.
-//
-
 import Foundation
 import SwiftUI
 import SUINavigation
@@ -43,7 +36,7 @@ struct PaymentFailedView: View {
                         ConfirmationInfoReusableCardView(section: experienceBookingConfirmationViewModel.cancellationPolicy, showBullets: false)
                         ConfirmationInfoReusableCardView(section: experienceBookingConfirmationViewModel.leadTraveller, showBullets: false)
                         ConfirmationInfoReusableCardView(section: experienceBookingConfirmationViewModel.inclusions, showBullets: true)
-//                        
+                        
                         ContactDetailsCardView(contactDetailsModel: experienceBookingConfirmationViewModel.personContactDetails, title: Constants.BookingStatusScreenConstants.contactDetails)
                         ConfirmationInfoReusableCardView(section: experienceBookingConfirmationViewModel.additionalInformation, showBullets: true)
                     }

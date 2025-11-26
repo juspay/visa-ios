@@ -25,6 +25,24 @@ extension View {
             searchDestinationViewModel.destinations.removeAll()
         }
     }
+
+    func searchCountryCodeSheet(isPresented: Binding<Bool>,
+                                countries: [MobileCode],
+                                onCountryCodeSelection: @escaping (MobileCode?) -> Void)  -> some View  {
+        overlay {
+            if isPresented.wrappedValue {
+                let screenHeight = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?
+                    .screen.bounds.height ?? 0
+                
+                BottomSheetView(isPresented: isPresented, sheetHeight: screenHeight * 0.9) {
+                    SearchCountryBottomSheetView(countries: countries,
+                                                 isPresented: isPresented,
+                                                 onSelectCode: onCountryCodeSelection)
+                    
+                }
+            }
+        }
+    }
 }
 
 // MARK: - Skip Confirmation Sheet
@@ -110,7 +128,6 @@ extension View {
 
                     BottomSheetView(
                         isPresented: isPresented,
-                        sheetHeight: screenHeight * 0.50,
                         content: {
                             VStack(spacing: 0) {
                                 if let policyImage = ImageLoader.bundleImage(named: Constants.Icons.sheild) {
@@ -126,7 +143,6 @@ extension View {
                                     .foregroundColor(Color(hex: Constants.HexColors.blackStrong))
                                     .multilineTextAlignment(.center)
                                     .padding(.top, 16)
-                                    .padding(.bottom, 20)
 
                                 VStack(alignment: .center, spacing: 8) {
                                     Text(Constants.PrivacyPolicyConstants.useOfPersonalData)
@@ -180,13 +196,13 @@ extension View {
                                 }
                                 .frame(maxWidth: .infinity)
                                 .padding(.horizontal, 4)
-                                .padding(.vertical, 12)
+                                .padding(.top, 12)
                             }
-                            .padding(.vertical, 0)
                             .padding(.horizontal, 25)
                             .background(Color.white)
                             .cornerRadius(20)
                             .highPriorityGesture(DragGesture())
+                            .frame(maxHeight: .infinity, alignment: .top)
                         },
                         productCode: nil,
                         isDragToDismissEnabled: false

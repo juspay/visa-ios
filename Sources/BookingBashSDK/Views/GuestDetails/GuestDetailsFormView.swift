@@ -5,6 +5,7 @@ struct GuestDetailsFormView: View {
     @StateObject private var profileViewModel = ProfileViewModel()
     @State private var mobileError: String? = nil
     @Binding var details: GuestDetails
+    @Binding var showCountryCodeList: Bool
     private let codes = MobileCodeData.allCodes
     
     private let titleMenu = [
@@ -127,6 +128,7 @@ struct GuestDetailsFormView: View {
                 .padding(.horizontal, 14)
             CombinedMobileField(
                 codes: codes,
+                showCountryCodeList: $showCountryCodeList,
                 selectedCode: $details.mobileCountryCode,
                 mobile: $details.mobileNumber,
                 onCodeChange: {

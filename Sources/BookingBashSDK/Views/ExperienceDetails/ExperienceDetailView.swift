@@ -56,10 +56,12 @@ private extension ExperienceDetailView {
             } else if experienceDetailViewModel.errorMessage != nil {
                 EmptyView()
             } else {
-                ExperienceTopImageCarousalListView(
-                    experienceDetailCarousalModel: experienceDetailViewModel.carousalData
-                )
-                .padding(.trailing, -15)
+                if experienceDetailViewModel.carousalData.count > 0 {
+                    ExperienceTopImageCarousalListView(
+                        experienceDetailCarousalModel: experienceDetailViewModel.carousalData
+                    )
+                    .padding(.trailing, -15)
+                }
 
                 if let model = experienceDetailViewModel.experienceDetail {
                         ExperienceDetailInfoTopView(model: model)

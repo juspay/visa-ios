@@ -22,7 +22,7 @@ struct ExperienceDetailInfoTopLocationView: View {
                     mapImage
                         .resizable()
                         .renderingMode(.template)
-                        .frame(width: 16, height: 16)
+                        .frame(width: 20, height: 20)
                         .foregroundStyle(.white)
                 }
                 

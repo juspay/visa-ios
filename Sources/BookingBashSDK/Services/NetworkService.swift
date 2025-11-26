@@ -24,7 +24,8 @@ final class NetworkManager {
                 request.setValue(value, forHTTPHeaderField: key)
             }
         }
-        
+        print("\n \n urlRequest curlString:- \(request.curlString)")
+    
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
                 completion(.failure(error))
@@ -36,6 +37,7 @@ final class NetworkManager {
             }
             do {
                 let decodedData = try self.jsonDecoder.decode(T.self, from: data)
+                print("================ \n Response: \(decodedData) \n =====")
                 completion(.success(decodedData))
             } catch {
                 completion(.failure(error))
@@ -63,6 +65,8 @@ final class NetworkManager {
             return
         }
         
+        print("urlRequest curlString:- \(request.curlString)")
+        
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
                 completion(.failure(error))
@@ -74,6 +78,7 @@ final class NetworkManager {
             }
             do {
                 let decodedResponse = try self.jsonDecoder.decode(U.self, from: data)
+                print("================ \n Response: \(decodedResponse) \n =====")
                 completion(.success(decodedResponse))
             } catch {
                 completion(.failure(error))
