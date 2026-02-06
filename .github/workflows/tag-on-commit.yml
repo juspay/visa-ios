@@ -56,37 +56,8 @@ jobs:
           
           echo "bump_type=$BUMP_TYPE" >> $GITHUB_OUTPUT
 
-      - name: Check if tag exists
-        id: tag_check
-        if: steps.version.outputs.version != ''
-        run: |
-          VERSION="${{ steps.version.outputs.version }}"
-          if git rev-parse "$VERSION" >/dev/null 2>&1; then
-            echo "exists=true" >> $GITHUB_OUTPUT
-            echo "Tag $VERSION already exists"
-          else
-            echo "exists=false" >> $GITHUB_OUTPUT
-            echo "Tag $VERSION does not exist"
-          fi
-
-      - name: Update VERSION and create tag
-        if: steps.version.outputs.version != '' && steps.tag_check.outputs.exists == 'false'
-        run: |
-          VERSION="${{ steps.version.outputs.version }}"
-          VERSION_NO_V="${VERSION#v}"
-          
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          
-          # Update VERSION file
-          echo "$VERSION_NO_V" > VERSION
-          
-          # Generate version files
-          chmod +x scripts/generate-version.sh
-          ./scripts/generate-version.sh
-          
-          # Validate
-          if [Bump version and create tag
+      - name: Bump version and create tag
+        id: bump
         if: steps.version.outputs.bump_type != 'none'
         run: |
           BUMP_TYPE="${{ steps.version.outputs.bump_type }}"
@@ -110,12 +81,24 @@ jobs:
           # Amend commit to add [skip ci]
           git commit --amend -m "chore: bump version to v$NEW_VERSION [skip ci]"
           
-          # Push commit and tagbump_type != 'none'
+          # Push commit and tag
+          git push origin main
+          git push origin "v$NEW_VERSION"
+          
+          echo "✅ Successfully bumped version to $NEW_VERSION and pushed tag v$NEW_VERSION"
+          echo "new_version=v$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        if: steps.version.outputs.bump_type != 'none'
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.version.outputs.new_version }}
-          release_name: Release ${{ steps.version.outputs.new_version }}
+          tag_name: ${{ steps.bump.outputs.new_version }}
+          release_name: Release ${{ steps.bump.outputs.new_version }}
           body: |
-            Release ${{ steps.version.outputs.new_
+            Release ${{ steps.bump.outputs.new_version }}
+            
+            Commit: ${{ steps.commit.outputs.message }}
+          draft: false
+          prerelease: false
