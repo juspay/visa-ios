@@ -31,6 +31,7 @@ struct AvailabilityItem: Codable {
     let availabilityKey: String
     let subActivityName: String
     let subActivityDescription: String
+    let activityExternalCode: String?
     let rates: [AvailabilityRate]
 
     enum CodingKeys: String, CodingKey {
@@ -38,6 +39,7 @@ struct AvailabilityItem: Codable {
         case availabilityKey = "availability_key"
         case subActivityName = "sub_activity_name"
         case subActivityDescription = "sub_activity_description"
+        case activityExternalCode = "activity_external_code"
         case rates
     }
 }
@@ -48,11 +50,13 @@ struct AvailabilityRate: Codable {
     let commission: Double
     let subActivityCode: String?
     let price: AvailabilityPrice
+    let availableTickets: Int
 
     enum CodingKeys: String, CodingKey {
         case available, time, commission
         case subActivityCode = "sub_activity_code"
         case price
+        case availableTickets = "available_tickets"
     }
 }
 
@@ -76,16 +80,18 @@ struct AvailabilityPrice: Codable {
     }
 }
 
+// MARK: - Strikeout
 struct StrikeoutPrice: Codable {
-    let baseRate: Double
-    let taxes: Double
-    let totalAmount: Double
-    let savingAmount: Double
+    let baseRate: Double?
+    let taxes: Double?
+    let totalAmount: Double?
+    let savingPercentage, savingAmount: Double?
 
     enum CodingKeys: String, CodingKey {
         case baseRate = "base_rate"
         case taxes
         case totalAmount = "total_amount"
+        case savingPercentage = "saving_percentage"
         case savingAmount = "saving_amount"
     }
 }

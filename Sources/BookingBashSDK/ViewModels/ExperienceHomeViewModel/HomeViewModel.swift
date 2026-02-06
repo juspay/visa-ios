@@ -2,23 +2,25 @@ import Foundation
 import Combine
 
 final class HomeViewModel: ObservableObject {
-    @Published var destinations: [Destination] = []
     @Published var experiences: [Experience] = []
-    @Published var homeResponseData: HomeResponseModel?
     @Published var isLoading: Bool = true
     @Published var errorMessage: String = ""
     @Published var ssoLoginResponse: SSOLoginResponseModel?
     @Published var isSSOLoginLoading = false
-    
-    private var allExperiences: [Experience] = []
-    private let loadCount = 5
+    @Published var homeResponseData: HomeResponseModel?
+    @Published var destinations: [Destination] = []
+    @Published var currencyListData: CurrencyListDataModel? = nil
+    @Published var allExperiences: [Experience] = []
+    @Published var showMenu = false
+
+    private let loadCount = 700
     private let service: HomeService
     private var cancellables = Set<AnyCancellable>()
     
     init(service: HomeService = DefaultHomeService()) {
         self.service = service
     }
-    
+
     func fetchHomeData() {
         isLoading = true
         errorMessage = ""
@@ -37,7 +39,7 @@ final class HomeViewModel: ObservableObject {
             }
         }
     }
-    
+
     func performSSOLogin(encryptedToken: String) {
         isSSOLoginLoading = true
         errorMessage = ""
@@ -55,7 +57,7 @@ final class HomeViewModel: ObservableObject {
                         self.errorMessage = Constants.ErrorMessages.somethingWentWrong
                     }
                     
-                case .failure(let error):
+                case .failure(_):
                     self.errorMessage = Constants.ErrorMessages.somethingWentWrong
                 }
             }
@@ -73,9 +75,11 @@ final class HomeViewModel: ObservableObject {
             .sink { [weak self] response in
                 guard let self = self else { return }
                 if response.status == true {
-                    self.fetchHomeData()
+                    self.getCurrencyListData {
+                        self.fetchHomeData()
+                    }
                 } else {
-                    onError(Constants.ErrorMessages.somethingWentWrong)
+                    onError(Constants.ErrorMessages.authFail)
                 }
             }
             .store(in: &cancellables)
@@ -85,52 +89,52 @@ final class HomeViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink { error in
                 guard !error.isEmpty else { return }
-                onError(Constants.ErrorMessages.somethingWentWrong)
+                onError(Constants.ErrorMessages.authFail)
             }
             .store(in: &cancellables)
     }
     
     private func processHomeResponse(_ response: HomeResponseModel) {
+        let exploreDestinationNew = response.data?.body?.mobile?
+            .first(where: { $0.bannerData == "VAC-ExploreDestinationNew" })?
+            .data
+
+        destinations = exploreDestinationNew?.map { apiDestination in
+            return Destination(name: apiDestination.name ?? "",
+                               imageURL: ((ssoLoginResponse?.data.siteUrl ?? Constants.APIURLs.baseURL) + "/shared/api/media/" + (apiDestination.mobileBanner ?? "")),
+                               destinationId: apiDestination.destinationID ?? "",
+                               destinationType: apiDestination.destinationType ?? 0)
+        } ?? []
+
+        let epicExpCompNewDynamic = response.data?.body?.mobile?
+            .first(where: { $0.bannerData == "VAC-Epic Experience" })?
+            .data
         
-        destinations = response.data.popularDestinations.enumerated().map { index, apiDestination in
-            return Destination(
-                name: apiDestination.title,
-                imageURL: apiDestination.image,
-                destinationId: apiDestination.destinationId,
-                destinationType: apiDestination.destinationType,
-                locationName: apiDestination.locationName,
-                city: apiDestination.city,
-                state: apiDestination.state,
-                region: apiDestination.region,
-                currency: response.data.currency
-            )
+        allExperiences = epicExpCompNewDynamic?.map { activity in
+            let priceModel: HomePriceModel? = {
+                    if case .price(let model) = activity.price {
+                        return model
+                    }
+                    return nil
+                }()
+            return Experience(imageURL: activity.thumbnail ?? "",
+                              title: activity.title ?? "",
+                              originalPrice:  priceModel?.strikeout?.totalAmount ?? priceModel?.totalAmount ?? 0.00,
+                              discount: priceModel?.strikeout?.savingPercentage ?? 0.00,
+                              finalPrice: priceModel?.totalAmount ?? 0.00,
+                              productCode: activity.activityCode ?? "",
+                              currency: priceModel?.currency ?? currencyGlobal,
+                              pricingModel: priceModel?.pricingModel ?? "")
+        } ?? []
+        let termsAndConditionsEndPoint = response.data?.footer?.menu.first(where: { $0.text ==  "Terms & Conditions" })?.url ?? ""
+        if let siteUrl = ssoLoginResponse?.data.siteUrl {
+            termsAndConditionsUrlGlobal = siteUrl + termsAndConditionsEndPoint
+            let privacyPolicyEndPoint = response.data?.footer?.menu.first(where: { $0.text ==  "Privacy Policy" })?.url ?? ""
+            privacyPolicyUrlGlobal = siteUrl + privacyPolicyEndPoint
         }
-        
-        allExperiences = response.data.featuredActivities.enumerated().map { index, activity in
-            
-            let productCode = activity.activityCode ?? activity.productId ?? activity.destinationId
-            
-            return Experience(
-                imageURL: activity.thumbnail,
-                country: activity.destinationName,
-                title: activity.title,
-                originalPrice: Int(activity.price.strikeout?.totalAmount ?? activity.price.totalAmount),
-                discount: activity.price.strikeout?.savingPercentage ?? 0,
-                finalPrice: Int(activity.price.totalAmount),
-                productCode: productCode, currency: activity.price.currency
-            )
-        }
-        termsAndConditionsUrlGlobal = response.data.pageUrls.termsAndConditions
-        privacyPolicyUrlGlobal = response.data.pageUrls.privacyPolicy
-        loadMoreExperiences()
+        experiences = allExperiences
     }
-    
-    func loadMoreExperiences() {
-        let remaining = allExperiences.dropFirst(experiences.count)
-        let nextChunk = remaining.prefix(loadCount)
-        experiences.append(contentsOf: nextChunk)
-    }
-    
+
     private func setError(_ message: String) {
         errorMessage = message
     }
@@ -143,5 +147,59 @@ final class HomeViewModel: ObservableObject {
         mobileNumber = response.data.mobileNumber
         customerEmail = response.data.email
         mobileCountryCode = response.data.countryCode
+    }
+}
+
+extension HomeViewModel {
+    func getCurrencyListData(completion: @escaping () -> Void) {
+        service.getCurrencyListData { [weak self] result in
+            guard let self = self else {
+                completion()
+                return
+            }
+            switch result {
+            case .success(let response):
+                DispatchQueue.main.async {
+
+                    self.currencyListData = response?.currencyListData
+
+                    // 1️⃣ Check UserDefaults first
+                    if let savedCurrency: String = UserDefaultsManager.shared.get(for: UserDefaultsKey.activeCurrency.rawValue) {
+                        currencyGlobal = savedCurrency
+                        completion()
+                        return
+                    }
+
+                    // 2️⃣ Fallback to API mapping
+                    if let otherCurrencies = response?.currencyListData?.other,
+                       let popularCurrencies = response?.currencyListData?.popular {
+
+                        let allCurrencies = otherCurrencies + popularCurrencies
+
+                        let apiActiveCurrency =
+                            allCurrencies.first {
+                                $0.status?.lowercased() == "active"
+                            }?.code ?? currencyGlobal
+
+                        currencyGlobal = apiActiveCurrency
+
+                        // 3️⃣ Store for next launch
+                        UserDefaultsManager.shared.set(apiActiveCurrency, for: UserDefaultsKey.activeCurrency.rawValue)
+                    }
+
+                    completion()
+                }
+
+            case .failure(_):
+                DispatchQueue.main.async {
+
+                    // 4️⃣ Final fallback
+                    let fallbackCurrency = currencyGlobal
+                    currencyGlobal = fallbackCurrency
+
+                    completion()
+                }
+            }
+        }
     }
 }

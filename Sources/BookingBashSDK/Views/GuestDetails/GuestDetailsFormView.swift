@@ -1,12 +1,13 @@
 import SwiftUI
 
 struct GuestDetailsFormView: View {
-    @State private var isExpanded = true
     @StateObject private var profileViewModel = ProfileViewModel()
     @State private var mobileError: String? = nil
     @Binding var details: GuestDetails
     @Binding var showCountryCodeList: Bool
     private let codes = MobileCodeData.allCodes
+    @Binding var showError: Bool
+    @Binding var isExpanded: Bool
     
     private let titleMenu = [
         Constants.GuestDetailsFormConstants.title,
@@ -26,7 +27,7 @@ struct GuestDetailsFormView: View {
         .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray.opacity(0.35)))
         .clipShape(RoundedRectangle(cornerRadius: 10))
         .frame(maxWidth: .infinity, alignment: .leading)
-        .onAppear {
+        .onAppearOnce {
             initializeMobileData()
         }
     }
@@ -85,12 +86,19 @@ struct GuestDetailsFormView: View {
             CombinedTitleFirstName(
                 titleOptions: titleMenu,
                 selectedTitle: $details.title,
-                firstName: $details.firstName
-                
+                firstName: $details.firstName,
+                showError: $showError
             )
             .padding(.horizontal, 14)
-            .disabled(false) 
+            .disabled(false)
+            if showError, details.title.isEmpty {
+                Text("Select title")
+                    .font(.custom(Constants.Font.openSansRegular, size: 10))
+                    .foregroundStyle(Color(hex: Constants.HexColors.error))
+                    .padding(.horizontal, 14)
+            }
         }
+        .id(CheckoutScrollID.firstName)
     }
     
     private var lastNameSection: some View {
@@ -131,11 +139,11 @@ struct GuestDetailsFormView: View {
                 showCountryCodeList: $showCountryCodeList,
                 selectedCode: $details.mobileCountryCode,
                 mobile: $details.mobileNumber,
+                showError: $showError,
                 onCodeChange: {
                     details.mobileNumber = ""
                 }
             )
-            .padding(.horizontal, 14)
             // Keep this editable (do not disable)
             .onChange(of: details.mobileNumber) { newValue in
                 if let selected = codes.first(where: { $0.dialCode == details.mobileCountryCode }) {
@@ -154,7 +162,20 @@ struct GuestDetailsFormView: View {
                     }
                 }
             }
+            if showError {
+                if details.mobileNumber.isEmpty {
+                    Text("Mobile number is required to continue")
+                        .font(.custom(Constants.Font.openSansRegular, size: 10))
+                        .foregroundStyle(Color(hex: Constants.HexColors.error))
+                } else if !isValidNumber()  {
+                    Text("Please enter a valid mobile number")
+                        .font(.custom(Constants.Font.openSansRegular, size: 10))
+                        .foregroundStyle(Color(hex: Constants.HexColors.error))
+               }
+            }
         }
+        .id(CheckoutScrollID.mobile)
+        .padding(.horizontal, 14)
     }
 
     // MARK: - Helper Methods
@@ -167,6 +188,12 @@ struct GuestDetailsFormView: View {
                 .font(.system(size: 14))
                 .foregroundColor(.red)
         }
+    }
+    
+    private func errorMessage(_ error: String) -> some View {
+        Text(error)
+            .font(.custom(Constants.Font.openSansRegular, size: 10))
+            .foregroundStyle(Color(hex: Constants.HexColors.error))
     }
     
     private func initializeMobileData() {
@@ -199,5 +226,13 @@ struct GuestDetailsFormView: View {
         if !profileViewModel.userProfile.mobileNumber.isEmpty {
             details.mobileNumber = profileViewModel.userProfile.mobileNumber
         }
+    }
+
+    func isValidNumber() -> Bool {
+        let MobileCode = codes.first(where: { $0.dialCode == details.mobileCountryCode })
+        if details.mobileNumber.count != MobileCode?.maxCharLimit {
+           return false
+        }
+        return true
     }
 }

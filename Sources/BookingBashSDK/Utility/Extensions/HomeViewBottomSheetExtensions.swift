@@ -4,6 +4,7 @@ import SwiftUI
 extension View {
     func searchSheet(
         isPresented: Binding<Bool>,
+        destinations: [Destination],
         searchDestinationViewModel: SearchDestinationViewModel,
         onSelectDestination: @escaping (SearchRequestModel) -> Void
     ) -> some View {
@@ -14,8 +15,9 @@ extension View {
                 BottomSheetView(isPresented: isPresented, sheetHeight: screenHeight * 0.9) {
                     SearchDestinationBottomSheetView(
                         searchDestinationViewModel: searchDestinationViewModel,
-                        onSelectDestination: onSelectDestination,
-                        isPresented: isPresented
+                        destinations: destinations,
+                        isPresented: isPresented,
+                        onSelectDestination: onSelectDestination
                     )
                 }
             }
@@ -38,7 +40,6 @@ extension View {
                     SearchCountryBottomSheetView(countries: countries,
                                                  isPresented: isPresented,
                                                  onSelectCode: onCountryCodeSelection)
-                    
                 }
             }
         }
@@ -212,4 +213,3 @@ extension View {
         }
     }
 }
-

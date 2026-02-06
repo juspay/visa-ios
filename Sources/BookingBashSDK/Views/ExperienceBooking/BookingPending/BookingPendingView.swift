@@ -21,7 +21,6 @@ struct BookingPendingView: View {
                     BookingBasicDetailsCardView(basicBookingDetailsModel: experienceBookingConfirmationViewModel.bookingBasicDetails)
                     
                     BookedExperienceDetailCardView(
-                        experienceViewModel: ExperienceAvailabilitySelectOptionsViewModel(),
                         confirmationViewModel: experienceBookingConfirmationViewModel,
                         viewDetailsButtonTapped: {
                             shouldExpandDetails = true
@@ -34,7 +33,7 @@ struct BookingPendingView: View {
                     )
                     
                     if shouldExpandDetails {
-                        FareSummaryCardView(fairSummaryData: experienceBookingConfirmationViewModel.fairSummaryData, totalPrice: "\(experienceBookingConfirmationViewModel.currency) \(String(format: "%.0f", experienceBookingConfirmationViewModel.totalAmount))", shouldShowTopBanner: false)
+                        FareSummaryCardView(fairSummaryData: experienceBookingConfirmationViewModel.fairSummaryData, totalPrice: "\(experienceBookingConfirmationViewModel.currency) \(experienceBookingConfirmationViewModel.totalAmount.commaSeparated())", shouldShowTopBanner: false)
                         ConfirmationInfoReusableCardView(section: experienceBookingConfirmationViewModel.cancellationPolicy, showBullets: false)
                         ConfirmationInfoReusableCardView(section: experienceBookingConfirmationViewModel.leadTraveller, showBullets: false)
                         ConfirmationInfoReusableCardView(section: experienceBookingConfirmationViewModel.inclusions, showBullets: true)
@@ -49,16 +48,6 @@ struct BookingPendingView: View {
                 BackToHomeButtonView() {
                     navigationStorage?.popToRoot()
                 }
-            }
-        }
-        .overlay {
-            if showCancelBottomSheet {
-                CancelBookingBottomSheet(
-                    isPresented: $showCancelBottomSheet,
-                    onFinish: {
-                        showCancelBottomSheet = false
-                    }
-                )
             }
         }
     }

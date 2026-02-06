@@ -1,7 +1,7 @@
 import Foundation
 
 // MARK: - SuccessPageResponse
-struct SuccessPageResponse: Codable {
+struct BookingDetailsResponse: Codable {
     let status: Bool
     let statusCode: Int?
     let data: SuccessPageData?
@@ -192,6 +192,7 @@ struct SuccessTravellerInfo: Codable {
     let tourCode: String?
     let travellerDetail: [SuccessTravellerDetail]?
     let specialRequest: String?
+    let cancelFee: CancelFee?
     
     enum CodingKeys: String, CodingKey {
         case travelDate = "travel_date"
@@ -209,6 +210,7 @@ struct SuccessTravellerInfo: Codable {
         case tourCode = "tour_code"
         case travellerDetail = "traveller_detail"
         case specialRequest = "special_request"
+        case cancelFee = "cancel_fee"
     }
 }
 
@@ -220,6 +222,28 @@ struct SuccessTravellerDetail: Codable {
     enum CodingKeys: String, CodingKey {
         case firstName = "first_name"
         case lastName = "last_name"
+    }
+}
+
+// MARK: - CancelFee
+struct CancelFee: Codable {
+    let activityCancellationFee, cancellationFee, discountAdjusted, otherFee: Double?
+    let refundAmount: Double?
+    let cancelFeeRefundAmount: Double?
+    let totalAmount: Double?
+    let pgCurrency: String?
+    let pgRefundAmount: Double?
+
+    enum CodingKeys: String, CodingKey {
+        case activityCancellationFee = "activity_cancellation_fee"
+        case cancellationFee = "cancellation_fee"
+        case discountAdjusted = "discount_adjusted"
+        case otherFee = "other_fee"
+        case refundAmount
+        case cancelFeeRefundAmount = "refund_amount"
+        case totalAmount = "total_amount"
+        case pgCurrency = "pg_currency"
+        case pgRefundAmount = "pg_refund_amount"
     }
 }
 
@@ -348,7 +372,6 @@ struct SuccessProductInfo: Codable {
     }
 }
 
-
 struct AdditionalInfo: Codable {
     let type: String?
     let description: String?
@@ -359,16 +382,22 @@ struct SuccessProductPrice: Codable {
     let baseRate: Double?
     let taxes: Double?
     let totalAmount: Double?
+    let pricePerAge: [PricePerAge]
     let strikeout: SuccessStrikeout?
     let currency: String?
     let roeBase: Double?
-    
+    let priceType: String?
+    let pgPrice: PGPrice?
+
     enum CodingKeys: String, CodingKey {
         case baseRate = "base_rate"
         case taxes
         case totalAmount = "total_amount"
         case strikeout, currency
         case roeBase = "roe_base"
+        case priceType = "price_type"
+        case pricePerAge = "price_per_age"
+        case pgPrice = "pg_price"
     }
 }
 
@@ -378,12 +407,14 @@ struct SuccessStrikeout: Codable {
     let taxes: Double?
     let totalAmount: Double?
     let savingPercentage: Double?
+    let savingAmount: Double?
     
     enum CodingKeys: String, CodingKey {
         case baseRate = "base_rate"
         case taxes
         case totalAmount = "total_amount"
         case savingPercentage = "saving_percentage"
+        case savingAmount = "saving_amount"
     }
 }
 
@@ -411,7 +442,6 @@ struct PickupDetail: Codable {
     }
 }
 
-
 // MARK: - LanguageDetail
 struct LanguageDetail: Codable {
     let name: String?
@@ -419,7 +449,16 @@ struct LanguageDetail: Codable {
 
 // MARK: - CancellationPolicy
 struct CancellationPolicy: Codable {
-    let description: String?
+    let refundable, cancelIfBadWeather: Bool?
+    let type, description: String?
+    let cancelIfInsufficientTravelers: Bool?
+
+    enum CodingKeys: String, CodingKey {
+        case refundable
+        case cancelIfBadWeather = "cancel_if_bad_weather"
+        case type, description
+        case cancelIfInsufficientTravelers = "cancel_if_insufficient_travelers"
+    }
 }
 
 // MARK: - SuccessEarning

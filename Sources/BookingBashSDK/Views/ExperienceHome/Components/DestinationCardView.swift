@@ -20,42 +20,43 @@ struct DestinationCardView: View {
                         .clipped()
                 case .failure:
                     // Fallback image if network fails
-                    Image(systemName: "photo")
+                    if let arrow = ImageLoader.bundleImage(named: Constants.Icons.destinatioPlaceholder) {
+                     arrow
                         .resizable()
-                        .scaledToFit()
+                        .scaledToFill()
                         .frame(width: itemWidth, height: 200)
-                        .foregroundColor(.gray)
+                        .clipped()
+                         .foregroundColor(Color(hex: Constants.HexColors.primary))
+                 }
                 @unknown default:
                     EmptyView()
                 }
             }
-            .overlay(
-                LinearGradient(
-                    gradient: Gradient(colors: [Color.black.opacity(0.6), Color.clear]),
-                    startPoint: .bottom,
-                    endPoint: .center
-                )
-                .frame(height: 80)
-                .frame(maxWidth: .infinity)
-                .clipped()
-                .cornerRadius(8),
-                alignment: .bottom
-            )
+            .clipShape(RoundedRectangle(cornerRadius: 8))
             
+            // MARK: - Gradient Overlay
+            LinearGradient(
+                gradient: Gradient(colors: [Color.black.opacity(0.6), Color.clear]),
+                startPoint: .bottom,
+                endPoint: .center
+            )
+            .frame(width: itemWidth, height: 80)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .offset(y: 0)
+            
+            // MARK: - Text
             Text(destination.name)
                 .font(.custom(Constants.Font.openSansBold, size: 16))
-                .foregroundStyle(Color.white)
-                .multilineTextAlignment(.leading)
+                .foregroundColor(.white)
                 .lineLimit(3)
                 .truncationMode(.tail)
-                .frame(width: itemWidth, alignment: .leading)
-                .fixedSize(horizontal: false, vertical: true)
+                .frame(alignment: .leading)
                 .padding(.horizontal, 4)
                 .padding(.bottom, 10)
-
         }
+        .frame(width: itemWidth, height: 200)
         .background(Color.white.opacity(0.05))
-        .cornerRadius(8)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
         .overlay(
             RoundedRectangle(cornerRadius: 8)
                 .stroke(Color.white.opacity(0.2), lineWidth: 0.5)

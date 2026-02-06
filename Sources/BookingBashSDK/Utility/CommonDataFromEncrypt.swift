@@ -28,3 +28,5 @@ var ssoTokenGlobal: String = ""
 var ssoSiteIdGlobal: String = ""
 var globalOnFinishCallback: () -> Void = {
 }
+var currencyGlobal: String = "AED"
+var environmentType: String = "sandbox" //  "sandbox" | "production"

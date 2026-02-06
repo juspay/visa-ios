@@ -9,8 +9,8 @@ import SwiftUI
 
 struct ExperienceTopImageCarousalCardView: View {
     let experienceDetailCarousalModel: ExperienceDetailCarousalModel
-    @State private var showFullImage = false
-    
+    let onTap: () -> Void
+
     var body: some View {
         HStack {
             AsyncImage(url: URL(string: experienceDetailCarousalModel.imageUrl)) { image in
@@ -21,26 +21,20 @@ struct ExperienceTopImageCarousalCardView: View {
                         .resizable()
                         .scaledToFill()
                 } else {
-                    Color.gray // or a placeholder image
+                    Color.gray
                 }
             }
             .frame(width: 245, height: 150)
             .onTapGesture {
-                showFullImage = true
+                onTap()
             }
         }
         .clipShape(RoundedRectangle(cornerRadius: 8))
-        .fullScreenCover(isPresented: $showFullImage) {
-            FullScreenImageView(
-                imageURL: URL(string: experienceDetailCarousalModel.imageUrl),
-                isPresented: $showFullImage
-            )
-        }
     }
 }
 
 #Preview {
     ExperienceTopImageCarousalCardView(
-        experienceDetailCarousalModel: ExperienceDetailCarousalModel(imageUrl: Constants.Icons.nature)
+        experienceDetailCarousalModel: ExperienceDetailCarousalModel(imageUrl: Constants.Icons.nature), onTap: {}
     )
 }

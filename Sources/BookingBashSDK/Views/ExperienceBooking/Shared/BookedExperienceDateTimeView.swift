@@ -3,19 +3,21 @@ import SwiftUI
 
 struct BookedExperienceDateTimeView: View {
     let color: Color
-    var shouldShowRefundable: Bool = true
-    let loaction: String
+    var shouldShowRefundable: Bool? = nil
+    let location: String?
     let selectedDate: String
     let selectedTime: String
     let selectedParticipants: String?
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            IconTextRow(
-                imageName: Constants.Icons.map,
-                text: loaction,
-                color: color
-            )
+            if let location = location {
+                IconTextRow(
+                    imageName: Constants.Icons.map,
+                    text: location,
+                    color: color
+                )
+            }
             HStack {
                 IconTextRow(
                     imageName: Constants.Icons.calendargray,
@@ -31,6 +33,7 @@ struct BookedExperienceDateTimeView: View {
                         color: color
                     )
                 }
+                Spacer()
             }
             if !selectedTime.isEmpty && selectedTime != "00:00" {
                 IconTextRow(
@@ -39,16 +42,23 @@ struct BookedExperienceDateTimeView: View {
                     color: color
                 )
             }
-            if shouldShowRefundable {
+            
+            // MARK: - Refundable / Non-Refundable Section
+            if let shouldShowRefundable {
+                let iconName = shouldShowRefundable ? Constants.Icons.greenTick : Constants.Icons.redCross
+                let titleText = shouldShowRefundable ? Constants.BookingStatusScreenConstants.refundable
+                : Constants.BookingStatusScreenConstants.nonRefundable
+                let textColor: Color = shouldShowRefundable ? .green : .red
+                
                 HStack(spacing: 6) {
-                    if let checkIcon = ImageLoader.bundleImage(named: Constants.Icons.greenTick) {
-                        checkIcon
+                    if let icon = ImageLoader.bundleImage(named: iconName) {
+                        icon
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 20, height: 20)
                     }
-                    Text(Constants.BookingStatusScreenConstants.refundable)
-                        .foregroundStyle(.green)
+                    Text(titleText)
+                        .foregroundColor(textColor)
                         .font(.custom(Constants.Font.openSansSemiBold, size: 12))
                 }
             }

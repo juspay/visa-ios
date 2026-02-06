@@ -7,6 +7,8 @@ struct AllDestinationsView: View {
     @State private var searchText = ""
     @State private var navigateToExperienceList = false
     @State private var experienceListSearchRequestModel: SearchRequestModel?
+    @State private var countryName: String = ""
+
     @StateObject private var experienceListViewModel = ExperienceListViewModel()
     
     // Filtered destinations based on searchText
@@ -21,12 +23,10 @@ struct AllDestinationsView: View {
         
         // Filter results only when 3 or more letters are typed
         return destinations.filter {
-            $0.city.localizedCaseInsensitiveContains(trimmed) ||
-            $0.name.localizedCaseInsensitiveContains(trimmed) ||
-            $0.region.localizedCaseInsensitiveContains(trimmed)
+            $0.name.localizedCaseInsensitiveContains(trimmed)
+//            ||$0.name.localizedCaseInsensitiveContains(trimmed) ||$0.region.localizedCaseInsensitiveContains(trimmed)
         }
     }
-
     
     var body: some View {
         GeometryReader { geo in
@@ -52,6 +52,7 @@ struct AllDestinationsView: View {
                                 .padding(.top, 100)
                         } else {
                             DestinationGridView(destinations: filteredDestinations, geo: geo) { destination in
+                                countryName = destination.name
                                 // Calculate check-in and check-out dates dynamically
                                 let calendar = Calendar.current
                                 let currentDate = Date()
@@ -65,10 +66,9 @@ struct AllDestinationsView: View {
                                 let requestModel = SearchRequestModel(
                                     destinationId: destination.destinationId,
                                     destinationType: Int(destination.destinationType),
-                                    location: destination.city,
                                     checkInDate: checkInDateString,
                                     checkOutDate: checkOutDateString,
-                                    currency: "AED",
+                                    currency: currencyGlobal,
                                     clientId: "CLIENT_ABC123",
                                     enquiryId: "ENQ_456XYZ",
                                     productCode: [],
@@ -109,12 +109,12 @@ struct AllDestinationsView: View {
                 if let requestModel = experienceListSearchRequestModel {
                     ExperienceListDetailView(
                         destinationId: requestModel.destinationId,
-                        destinationType: Int(requestModel.destinationType) ,
-                        location: requestModel.location,
+                        destinationType: Int(requestModel.destinationType),
                         checkInDate: requestModel.checkInDate,
                         checkOutDate: requestModel.checkOutDate,
                         currency: requestModel.currency,
-                        productCodes: requestModel.productCode
+                        productCodes: requestModel.productCode,
+                        countryName: countryName
                     )
                 }
             }

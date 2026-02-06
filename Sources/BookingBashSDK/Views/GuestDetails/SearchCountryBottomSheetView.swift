@@ -48,9 +48,11 @@ struct SearchCountryBottomSheetView: View {
                     .transaction { $0.animation = nil }
 
                 VStack {
+                    Spacer()
                     if filteredCountries.isEmpty {
-                        NoResultsView()
-                            .padding(.top, 100)
+                        VStack {
+                            
+                        }
                     } else {
                         ScrollView(showsIndicators: false) {
                             LazyVStack(alignment: .leading, spacing: 0) {
@@ -85,6 +87,7 @@ struct SearchCountryBottomSheetView: View {
                                     .contentShape(Rectangle())
                                     .onTapGesture {
                                         selectedCountry = country
+                                        UIApplication.shared.endEditing()
                                     }
                                     if country.id != filteredCountries.last?.id {
                                         Rectangle()
@@ -97,21 +100,23 @@ struct SearchCountryBottomSheetView: View {
                         }
                     }
 
-                    Button(action: {
-                        onSelectCode(selectedCountry)
-                        isPresented = false
-                    }) {
-                        Text("Continue")
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .font(.custom(Constants.Font.openSansBold, size: 12))
-                            .foregroundStyle(.white)
-                            .background(Color(hex: Constants.HexColors.primary))
-                            .cornerRadius(4)
-
+                    if !filteredCountries.isEmpty {
+                        Button(action: {
+                            onSelectCode(selectedCountry)
+                            isPresented = false
+                        }) {
+                            Text("Continue")
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .font(.custom(Constants.Font.openSansBold, size: 12))
+                                .foregroundStyle(.white)
+                                .background(Color(hex: Constants.HexColors.primary))
+                                .cornerRadius(4)
+                            
+                        }
+                        .buttonStyle(.plain)
+                        .padding([.horizontal, .bottom])
                     }
-                    .buttonStyle(.plain)
-                    .padding([.horizontal, .bottom])
                 }
                 .background(Color(hex: Constants.HexColors.surfaceWeakest))
                 .clipShape(RoundedRectangle(cornerRadius: 16))
@@ -123,6 +128,7 @@ struct SearchCountryBottomSheetView: View {
         .onAppear {
             isContentVisible = true
         }
+        .dismissKeyboardOnTap()
     }
 }
 

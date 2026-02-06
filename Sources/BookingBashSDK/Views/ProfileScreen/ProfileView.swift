@@ -9,8 +9,7 @@ struct ProfileView: View {
 
     var body: some View {
         ThemeTemplateView(header: {
-            VStack(alignment: .leading, spacing: 16) {
-                
+            VStack(alignment: .leading) {
                 HStack(spacing: 8) {
                     if let icon = ImageLoader.bundleImage(named: Constants.Icons.user) {
                         icon
@@ -24,6 +23,7 @@ struct ProfileView: View {
                 }
                 .padding(.horizontal, 12)
             }
+            .padding(.top, 16)
         }, content: {
             VStack(spacing: 20) {
                 // User Profile Card

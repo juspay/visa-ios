@@ -43,10 +43,11 @@ struct ExperienceDetailBottomBarView: View {
                         .foregroundStyle(Color(hex: Constants.HexColors.neutral))
                     
                     HStack(spacing: 2) {
-                        Text("AED")
+                        Text(currencyGlobal)
                             .font(.system(size: 18, weight: .bold))
                             .foregroundStyle(Color(hex: Constants.HexColors.secondary))
-                        Text(String(format: "%.2f", viewModel.priceValue))
+//                        Text(String(format: "%.2f", viewModel.priceValue))
+                        Text(viewModel.priceValue.commaSeparated())
                             .font(.system(size: 18, weight: .bold))
                             .foregroundStyle(Color(hex: Constants.HexColors.secondary))
                         Text(Constants.DetailScreenConstants.perPerson)

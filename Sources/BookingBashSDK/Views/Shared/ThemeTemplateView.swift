@@ -10,6 +10,8 @@ import SwiftUI
 import SUINavigation
 @_spi(Advanced) import SwiftUIIntrospect
 
+typealias ScrollAnchorID = AnyHashable
+
 struct ThemeTemplateView<Header: View, Content: View>: View {
     let header: () -> Header
     let content: () -> Content
@@ -19,11 +21,13 @@ struct ThemeTemplateView<Header: View, Content: View>: View {
     @Environment(\.dismiss) private var dismiss
     
     var needsScroll: Bool
+    @Binding var scrollToID: ScrollAnchorID?
     var onBack: (() -> Void)? = nil
     var hideBackButton: Bool
     
     init(
         needsScroll: Bool = true,
+        scrollToID: Binding<ScrollAnchorID?> = .constant(nil),
         headerHasPadding: Bool = true,
         contentHasRoundedCorners : Bool = true,
         hideBackButton: Bool = false,
@@ -35,6 +39,7 @@ struct ThemeTemplateView<Header: View, Content: View>: View {
         self.contentHasRoundedCorners = contentHasRoundedCorners
         self.content = content
         self.needsScroll = needsScroll
+        self._scrollToID = scrollToID
         self.headerHasPadding = headerHasPadding
         self.hideBackButton = hideBackButton
         self.onBack = onBack
@@ -53,11 +58,25 @@ struct ThemeTemplateView<Header: View, Content: View>: View {
                 
                 Group {
                     if needsScroll {
-                        ScrollView(.vertical, showsIndicators: false) {
-                            mainBody
-                        }
-                        .introspect(.scrollView, on: .iOS(.v15...)) { scrollView in
-                            scrollView.bounces = false
+                        ScrollViewReader { proxy in
+                            ScrollView(.vertical, showsIndicators: false) {
+                                mainBody
+                            }
+                            .introspect(.scrollView, on: .iOS(.v15...)) { scrollView in
+                                scrollView.bounces = false
+                            }
+                            .onChange(of: scrollToID) { id in
+                                guard let id else { return }
+
+                                withAnimation(.easeInOut) {
+                                    proxy.scrollTo(id, anchor: .center)
+                                }
+
+                                // reset so it can be triggered again
+                                DispatchQueue.main.async {
+                                    scrollToID = nil
+                                }
+                            }
                         }
                     } else {
                         mainBody
@@ -81,9 +100,9 @@ struct ThemeTemplateView<Header: View, Content: View>: View {
                     HStack {
                         if !hideBackButton {
                             backButton
+                            Spacer()
+                            logos
                         }
-                        Spacer()
-                        logos
                     }
                     .padding(.horizontal, 15)
                     .padding(.top, 12)

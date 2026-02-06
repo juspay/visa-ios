@@ -17,7 +17,7 @@ struct SimilarExperiencesView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 15) {
                     ForEach(experienceDetailCarousalModel) { carousal in
-                        ExperienceTopImageCarousalCardView(experienceDetailCarousalModel: carousal)
+                        ExperienceTopImageCarousalCardView(experienceDetailCarousalModel: carousal, onTap: {})
                     }
                 }
             }

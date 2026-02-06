@@ -128,9 +128,11 @@ struct TransactionTravellerInfo: Codable {
     let children: Int
     let total: Int
     let infants: Int
+    let families: Int
+    let People: Int
 
     enum CodingKeys: String, CodingKey {
-        case adults, children, total , infants
+        case adults, children, total , infants, families, People
     }
 
     init(from decoder: Decoder) throws {
@@ -138,13 +140,17 @@ struct TransactionTravellerInfo: Codable {
         adults = try container.decodeIfPresent(Int.self, forKey: .adults) ?? 0
         children = try container.decodeIfPresent(Int.self, forKey: .children) ?? 0
         infants = try container.decodeIfPresent(Int.self, forKey: .infants) ?? 0
+        families = try container.decodeIfPresent(Int.self, forKey: .families) ?? 0
+        People = try container.decodeIfPresent(Int.self, forKey: .People) ?? 0
         total = try container.decodeIfPresent(Int.self, forKey: .total) ?? (adults + children)
     }
 
-    init(adults: Int, children: Int,infants: Int) {
+    init(adults: Int, children: Int,infants: Int, families: Int, People: Int) {
         self.adults = adults
         self.children = children
         self.infants = infants
+        self.families = families
+        self.People = People
         self.total = adults + children
     }
 }
@@ -157,7 +163,7 @@ struct TransactionPriceDetails: Codable {
     let totalAmount: Double
     let strikeout: TransactionStrikeoutPrice?
     let currency: String
-    let roeBase: Double
+    let roeBase: Double?
     let priceType: String
     let pricePerAge: [TransactionPricePerAge]
     
@@ -212,6 +218,7 @@ enum TransactionStatus: String, Codable {
     case cancelled = "CANCELLED"
     case completed = "COMPLETED"
     case failed = "FAILED"
+    case refunded = "REFUNDED"
 }
 
 // MARK: - Tabs
@@ -241,6 +248,7 @@ extension Booking {
     // Convenience properties for accessing traveller data
     var adults: Int { travellers.adults }
     var children: Int { travellers.children }
+    var families: Int { travellers.families }
     var totalTravellers: Int { travellers.total }
     
     // Savings amount from price data
@@ -263,7 +271,7 @@ extension Booking {
         if travellers.adults > 0 {
             parts.append("\(travellers.adults) Adult\(travellers.adults > 1 ? "s" : "")")
         }
-        
+    
         // Children: Prefer travellers.children, but fallback to price.pricePerAge
         var childrenCount = travellers.children
         if childrenCount == 0 {
@@ -271,6 +279,10 @@ extension Booking {
         }
         if childrenCount > 0 {
             parts.append("\(childrenCount) Child\(childrenCount > 1 ? "ren" : "")")
+        }
+
+        if travellers.families > 0 {
+            parts.append("\(travellers.families) \(travellers.families > 1 ? "Families" : "Family")")
         }
 
         // Infants

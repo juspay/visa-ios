@@ -1,9 +1,9 @@
 import SwiftUI
 
 struct BookedExperienceDetailCardView: View {
-    @ObservedObject var experienceViewModel: ExperienceAvailabilitySelectOptionsViewModel
     @ObservedObject var confirmationViewModel: ExperienceBookingConfirmationViewModel
     let viewDetailsButtonTapped: (() -> Void)?
+    var cancelBookingButtonTapped: (() -> Void)? = nil
     var isBookingConfirmationScreen: Bool = true
     @Binding var shouldExpandDetails: Bool
     let selectedTime: String?
@@ -39,10 +39,11 @@ struct BookedExperienceDetailCardView: View {
             
             BookedExperienceDateTimeView(
                 color: Color(hex: Constants.HexColors.neutral),
-                loaction: confirmationViewModel.location ?? location,
+                shouldShowRefundable: confirmationViewModel.bookingDetailsResponse?.data?.bookingDetails?.productInfo?.cancellationPolicy?.refundable ?? false,
+                location: confirmationViewModel.location,
                 selectedDate: travelDate,
                 selectedTime: selectedTime ?? "-",
-                selectedParticipants: nil
+                selectedParticipants: confirmationViewModel.participantsSummary
             )
             
             if isBookingConfirmationScreen {
@@ -56,8 +57,16 @@ struct BookedExperienceDetailCardView: View {
             }
             
             if !shouldExpandDetails {
-                ActionButton(title: Constants.BookingStatusScreenConstants.viewDetails) {
-                    viewDetailsButtonTapped?()
+                HStack(spacing: 12) {
+                    ActionButton(title: Constants.BookingStatusScreenConstants.viewDetails) {
+                        viewDetailsButtonTapped?()
+                    }
+                    
+                    if confirmationViewModel.bookingStatus == .confirmed, let travelDate =  confirmationViewModel.travelDate, travelDate.isTravelDateTodayOrFuture() {
+                        ActionButton(title: Constants.BookingStatusScreenConstants.cancelBooking) {
+                            cancelBookingButtonTapped?()
+                        }
+                    }
                 }
                 .padding(.top, 12)
             }

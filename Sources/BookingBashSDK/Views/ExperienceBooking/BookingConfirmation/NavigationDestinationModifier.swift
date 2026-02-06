@@ -31,7 +31,8 @@ struct HomeDestinationWrapperView: View {
         ExperienceHomeView(
             encryptPayLoadMainapp: encryptedPayloadMain,
             isActive: $isHomeActive,
-            onFinish: globalOnFinishCallback
+            onFinish: globalOnFinishCallback,
+            environment: environmentType
         )
         
     }

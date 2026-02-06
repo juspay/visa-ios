@@ -28,15 +28,18 @@ struct AvailabilitySelectionView: View {
                     onTap: onDateTap
                 )
                 
-                SeparatorLine(color: Color(hex: Constants.HexColors.neutral))
-                    .padding(.horizontal)
-                
-                AvailabilitySelectionRowView(
-                    iconName: Constants.Icons.user,
-                    title: Constants.AvailabilityScreenConstants.participants,
-                    value: viewModel.participantsSummary,
-                    onTap: onParticipantsTap
-                )
+                if let response = viewModel.response,
+                   response.status == true && response.statusCode == 200{
+                    SeparatorLine(color: Color(hex: Constants.HexColors.neutral))
+                        .padding(.horizontal)
+                    
+                    AvailabilitySelectionRowView(
+                        iconName: Constants.Icons.user,
+                        title: Constants.AvailabilityScreenConstants.participants,
+                        value: viewModel.participantsSummary,
+                        onTap: onParticipantsTap
+                    )
+                }
             }
             .background(
                 RoundedRectangle(cornerRadius: 12)

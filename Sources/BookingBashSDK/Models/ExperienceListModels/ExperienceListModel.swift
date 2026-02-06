@@ -1,6 +1,6 @@
 import Foundation
 
-struct ExperienceListModel: Identifiable {
+struct ExperienceListModel: Identifiable, Equatable {
     let id = UUID()
     let title: String
     let rating: Double
@@ -11,4 +11,9 @@ struct ExperienceListModel: Identifiable {
     let imageName: String
     let productCode: String
     let currency: String
+    
+    static func == (lhs: ExperienceListModel, rhs: ExperienceListModel) -> Bool {
+            return lhs.id == rhs.id
+            // OR compare all necessary fields
+        }
 }

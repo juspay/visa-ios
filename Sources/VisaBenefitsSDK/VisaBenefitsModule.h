@@ -2,7 +2,7 @@
 //  VisaBenefitsModule.h
 //  JuspayBankSDK
 //
-//  Created by Harsh Garg on 11/09/25.
+//  Created by Namit Goel on 11/09/25.
 //
 
 #import <Foundation/Foundation.h>

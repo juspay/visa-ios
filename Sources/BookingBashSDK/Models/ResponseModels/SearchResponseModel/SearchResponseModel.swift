@@ -76,9 +76,9 @@ struct SearchResultModel: Codable {
     let destinationName: String
     let specialOfferAvailable: Bool
     let confirmationType: String
-    let itineraryType: String
+    let itineraryType: String?
     let featureFlags: [String]
-    let categories: [Int]
+//    let categories: [Int]?
 
     enum CodingKeys: String, CodingKey {
         case activityCode = "activity_code"
@@ -94,7 +94,7 @@ struct SearchResultModel: Codable {
         case confirmationType = "confirmation_type"
         case itineraryType = "itinerary_type"
         case featureFlags = "feature_flags"
-        case categories
+//        case categories
     }
     
     init(from decoder: Decoder) throws {
@@ -115,9 +115,9 @@ struct SearchResultModel: Codable {
         destinationName = try container.decode(String.self, forKey: .destinationName)
         specialOfferAvailable = try container.decode(Bool.self, forKey: .specialOfferAvailable)
         confirmationType = try container.decode(String.self, forKey: .confirmationType)
-        itineraryType = try container.decode(String.self, forKey: .itineraryType)
+        itineraryType = try container.decodeIfPresent(String.self, forKey: .itineraryType)
         featureFlags = try container.decode([String].self, forKey: .featureFlags)
-        categories = try container.decode([Int].self, forKey: .categories)
+//        categories = try container.decodeIfPresent([Int].self, forKey: .categories)
     }
     
     func encode(to encoder: Encoder) throws {
@@ -136,7 +136,7 @@ struct SearchResultModel: Codable {
         try container.encode(confirmationType, forKey: .confirmationType)
         try container.encode(itineraryType, forKey: .itineraryType)
         try container.encode(featureFlags, forKey: .featureFlags)
-        try container.encode(categories, forKey: .categories)
+//        try container.encode(categories, forKey: .categories)
     }
 }
 
@@ -148,7 +148,7 @@ struct PriceDetails: Codable {
     let totalAmount: Double
     let strikeout: Strikeout?
     let currency: String
-    let roeBase: Double
+    let roeBase: Double?
 
     enum CodingKeys: String, CodingKey {
         case pricingModel = "pricing_model"
@@ -186,38 +186,31 @@ struct PriceDetails: Codable {
     }
 }
 
-// MARK: - Strikeout
 struct Strikeout: Codable {
     let baseRate: Double
     let taxes: Double
     let totalAmount: Double
     let savingPercentage: Double
+    let savingAmount: Double?
 
     enum CodingKeys: String, CodingKey {
         case baseRate = "base_rate"
         case taxes
         case totalAmount = "total_amount"
         case savingPercentage = "saving_percentage"
+        case savingAmount = "saving_amount"
     }
-    
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        
-        // Use safe double decoding for all numeric fields
         baseRate = try container.decodeSafeDouble(forKey: .baseRate)
         taxes = try container.decodeSafeDouble(forKey: .taxes)
         totalAmount = try container.decodeSafeDouble(forKey: .totalAmount)
         savingPercentage = try container.decodeSafeDouble(forKey: .savingPercentage)
-    }
-    
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(baseRate, forKey: .baseRate)
-        try container.encode(taxes, forKey: .taxes)
-        try container.encode(totalAmount, forKey: .totalAmount)
-        try container.encode(savingPercentage, forKey: .savingPercentage)
+        savingAmount = try container.decodeSafeDoubleIfPresent(forKey: .savingAmount)
     }
 }
+
 
 // MARK: - Duration
 struct DurationModel: Codable {
@@ -239,7 +232,7 @@ struct SearchFiltersResponse: Codable {
     let reviewCount: [ReviewCountFilter]?
     let categories: [CategoryFilter]?
     let language: [String]?
-    let itineraryType: [String]?
+    let itineraryType: [ItineraryType]?
     let ticketType: [String]?
     let confirmationType: [ConfirmationTypeFilter]?
     let featureFlags: [FeatureFlagFilter]?
@@ -255,6 +248,18 @@ struct SearchFiltersResponse: Codable {
         case confirmationType = "confirmation_type"
         case featureFlags = "feature_flags"
         case productCode = "product_code"
+    }
+}
+
+struct ItineraryType: Codable {
+    let itineraryType: String?
+    let name: String?
+    let count: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case itineraryType = "itinerary_type"
+        case name
+        case count
     }
 }
 
@@ -356,28 +361,29 @@ struct CategoryFilter: Codable {
 }
 
 struct ConfirmationTypeFilter: Codable {
-    let confirmationType: String
-    let count: Int
+    let confirmationType: String?
+    let count: Int?
     
     enum CodingKeys: String, CodingKey {
-        case confirmationType = "name"
+        case confirmationType = "confirmation_type"
         case count
     }
 }
 
 struct FeatureFlagFilter: Codable {
-    let featureFlag: String
-    let count: Int
+    let featureFlag: String?
+    let name: String?
+    let count: Int?
     
     enum CodingKeys: String, CodingKey {
-        case featureFlag = "name"
-        case count
+        case featureFlag = "feature_flag"
+        case name, count
     }
 }
 
 struct ProductCodeFilter: Codable {
-    let productCode: String
-    let count: Int
+    let productCode: String?
+    let count: Int?
     
     enum CodingKeys: String, CodingKey {
         case productCode = "name"

@@ -2,8 +2,6 @@
 //  ImageListResponse.swift
 //  VisaActivity
 //
-//  Created by Praveen on 11/10/25.
-//
 
 import Foundation
 

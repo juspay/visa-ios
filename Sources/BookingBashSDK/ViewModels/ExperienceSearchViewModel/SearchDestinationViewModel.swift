@@ -154,10 +154,9 @@ final class SearchDestinationViewModel: ObservableObject {
         return SearchRequestModel(
             destinationId: id,
             destinationType: type,
-            location: name,
             checkInDate: checkInDateString,
             checkOutDate: checkOutDateString,
-            currency: "AED",
+            currency: currencyGlobal,
             clientId: "",
             enquiryId: "",
             productCode: [],

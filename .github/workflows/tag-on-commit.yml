@@ -30,61 +30,31 @@ jobs:
           echo "tag=$LATEST_TAG" >> $GITHUB_OUTPUT
           echo "Latest tag: $LATEST_TAG"
 
-      - name: Parse commit type and calculate new version
+      - name: Determine version bump type
         id: version
         run: |
           COMMIT_MSG="${{ steps.commit.outputs.message }}"
-          LATEST_TAG="${{ steps.latest_tag.outputs.tag }}"
-          
-          # Remove 'v' prefix if present
-          CURRENT_VERSION=${LATEST_TAG#v}
-          
-          # Split version into parts
-          IFS='.' read -ra VERSION_PARTS <<< "$CURRENT_VERSION"
-          MAJOR=${VERSION_PARTS[0]:-0}
-          MINOR=${VERSION_PARTS[1]:-0}
-          PATCH=${VERSION_PARTS[2]:-0}
-          
-          echo "Current version: $MAJOR.$MINOR.$PATCH"
           
           # Check commit message format and determine version bump
           if [[ $COMMIT_MSG =~ ^break:.*|^feat!:.*|BREAKING[[:space:]]CHANGE ]]; then
-            # Breaking change - bump major version
-            MAJOR=$((MAJOR + 1))
-            MINOR=0
-            PATCH=0
             BUMP_TYPE="major"
             echo "Breaking change detected - bumping major version"
           elif [[ $COMMIT_MSG =~ ^feat: ]]; then
-            # New feature - bump minor version
-            MINOR=$((MINOR + 1))
-            PATCH=0
             BUMP_TYPE="minor"
             echo "Feature detected - bumping minor version"
           elif [[ $COMMIT_MSG =~ ^fix: ]]; then
-            # Bug fix - bump patch version
-            PATCH=$((PATCH + 1))
             BUMP_TYPE="patch"
             echo "Fix detected - bumping patch version"
           elif [[ $COMMIT_MSG =~ ^chore: ]]; then
-            # No version bump for chores
             echo "Chore detected - no version bump"
-            echo "version=" >> $GITHUB_OUTPUT
-            echo "bump_type=none" >> $GITHUB_OUTPUT
-            exit 0
+            BUMP_TYPE="none"
           else
-            # Unknown format - no version bump
             echo "Unknown commit format - no version bump"
             echo "Expected format: fix:, feat:, break:, or chore:"
-            echo "version=" >> $GITHUB_OUTPUT
-            echo "bump_type=none" >> $GITHUB_OUTPUT
-            exit 0
+            BUMP_TYPE="none"
           fi
           
-          NEW_VERSION="v$MAJOR.$MINOR.$PATCH"
-          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
           echo "bump_type=$BUMP_TYPE" >> $GITHUB_OUTPUT
-          echo "New version: $NEW_VERSION"
 
       - name: Check if tag exists
         id: tag_check
@@ -99,31 +69,53 @@ jobs:
             echo "Tag $VERSION does not exist"
           fi
 
-      - name: Create and push tag
+      - name: Update VERSION and create tag
         if: steps.version.outputs.version != '' && steps.tag_check.outputs.exists == 'false'
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          COMMIT_MSG="${{ steps.commit.outputs.message }}"
+          VERSION_NO_V="${VERSION#v}"
           
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
-          git tag -a "$VERSION" -m "Release $VERSION: $COMMIT_MSG"
-          git push origin "$VERSION"
+          # Update VERSION file
+          echo "$VERSION_NO_V" > VERSION
           
-          echo "Created and pushed tag: $VERSION"
-
-      - name: Create GitHub Release
-        if: steps.version.outputs.version != '' && steps.tag_check.outputs.exists == 'false'
+          # Generate version files
+          chmod +x scripts/generate-version.sh
+          ./scripts/generate-version.sh
+          
+          # Validate
+          if [Bump version and create tag
+        if: steps.version.outputs.bump_type != 'none'
+        run: |
+          BUMP_TYPE="${{ steps.version.outputs.bump_type }}"
+          
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Run script to increment version and generate files
+          chmod +x scripts/generate-version.sh
+          ./scripts/generate-version.sh "$BUMP_TYPE" --auto
+          
+          # Get the new version
+          NEW_VERSION=$(cat VERSION)
+          
+          # Validate
+          if [ ! -f "Sources/VisaBenefitsSDK/VisaBenefitsVersion.h" ]; then
+            echo "Error: Failed to generate version files"
+            exit 1
+          fi
+          
+          # Amend commit to add [skip ci]
+          git commit --amend -m "chore: bump version to v$NEW_VERSION [skip ci]"
+          
+          # Push commit and tagbump_type != 'none'
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.version.outputs.version }}
-          release_name: Release ${{ steps.version.outputs.version }}
+          tag_name: ${{ steps.version.outputs.new_version }}
+          release_name: Release ${{ steps.version.outputs.new_version }}
           body: |
-            Release ${{ steps.version.outputs.version }}
-            
-            Commit: ${{ steps.commit.outputs.message }}
-          draft: false
-          prerelease: false
+            Release ${{ steps.version.outputs.new_

@@ -3,30 +3,50 @@
 import SwiftUI
 
 struct ExperienceCardView: View {
-    let experience: Experience
+    @Binding var experience: Experience
     var cardHeight: CGFloat = 230
-    var cardWidth: CGFloat = 400
+
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             GeometryReader { geometry in
-                AsyncImage(url: URL(string: experience.imageURL)) { image in
-                    image
-                        .resizable()
-                        .frame(width: geometry.size.width)
-                        .frame(height: 250)
-                        .clipped()
-                } placeholder: {
-                    Rectangle()
-                        .fill(Color.gray.opacity(0.3))
-                        .frame(width: geometry.size.width)
-                        .frame(height: 250)
-                        .overlay(
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                        )
+                AsyncImage(url: URL(string: experience.imageURL)) { phase in
+                    switch phase {
+                    case .empty:
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.3))
+                            .frame(width: geometry.size.width, height: cardHeight)
+                            .overlay(
+                                ProgressView()
+                                    .progressViewStyle(.circular)
+                            )
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: geometry.size.width, height: cardHeight)
+                            .clipped()
+
+                    case .failure:
+                        if let arrow = ImageLoader.bundleImage(named: Constants.Icons.epicxEperiencesPlaceholder) {
+                         arrow
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: geometry.size.width, height: cardHeight)
+                            .clipped()
+                     }
+
+                    default:
+                        if let arrow = ImageLoader.bundleImage(named: Constants.Icons.epicxEperiencesPlaceholder) {
+                         arrow
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: geometry.size.width, height: cardHeight)
+                            .clipped()
+                     }
+                    }
                 }
             }
-            
+
             LinearGradient(
                 gradient: Gradient(colors: [
                     Color.black.opacity(0.6),
@@ -38,30 +58,42 @@ struct ExperienceCardView: View {
             )
             .frame(height: 130)
             .frame(maxWidth: .infinity)
-            
-            VStack(alignment: .leading, spacing: 10) {
-                VStack(alignment: .leading) {
 
-                    Text(experience.title)
-                        .font(.custom(Constants.Font.openSansBold, size: 14))
-                        .foregroundStyle(Color.white)
-                        .font(.headline)
-                        .lineLimit(1)
-                }
-                
-                VStack(alignment: .leading) {
-                    Text("Starting from \(experience.currency) \(experience.finalPrice) /Person")
-                        .font(.custom(Constants.Font.openSansBold, size: 14))
-                        .foregroundStyle(Color.white)
-                        .font(.body)
+            VStack(alignment: .leading, spacing: 16) {
+                Text(experience.title)
+                    .font(.custom(Constants.Font.openSansBold, size: 14))
+                    .foregroundColor(.white)
+                    .lineLimit(2)
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(spacing: 2) {
+                        Text("\(experience.currency) \(experience.originalPrice.commaSeparated())")
+                            .font(.custom(Constants.Font.openSansRegular, size: 12))
+                            .foregroundColor(.white)
+                            .strikethrough()
+                        
+                        Text("You save \(Int(experience.discount.rounded()))%")
+                            .font(.custom(Constants.Font.openSansBold, size: 12))
+                            .foregroundColor(.white)
+                    }
+                    
+                    HStack(spacing: 2) {
+                        Text("\(experience.currency) \(experience.finalPrice.commaSeparated())")
+                            .font(.custom(Constants.Font.openSansBold, size: 12))
+                            .foregroundColor(.white)
+                        Text("/\(experience.pricingModel.capitalized)")
+                            .font(.custom(Constants.Font.openSansRegular, size: 12))
+                            .foregroundColor(.white)
+                    }
+
                 }
             }
             .padding(.horizontal, 12)
             .padding(.bottom, 10)
         }
-        .frame(height: 250)
+        .frame(height: cardHeight)
         .frame(maxWidth: .infinity)
         .background(Color.white)
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .contentShape(Rectangle())
     }
 }

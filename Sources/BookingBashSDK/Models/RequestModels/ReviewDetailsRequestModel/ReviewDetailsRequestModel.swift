@@ -5,6 +5,7 @@ struct ReviewDetailsRequestModel: Codable {
     let enquiryId: String
     let activityCode: String
     let rateCode: String
+    let currency: String
     
     enum CodingKeys: String, CodingKey {
         case uid
@@ -13,5 +14,6 @@ struct ReviewDetailsRequestModel: Codable {
         case enquiryId = "enquiry_id"
         case activityCode = "activity_code"
         case rateCode = "rate_code"
+        case currency
     }
 }

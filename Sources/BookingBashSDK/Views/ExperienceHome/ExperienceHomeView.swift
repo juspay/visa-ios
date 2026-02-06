@@ -10,18 +10,35 @@ struct ExperienceHomeView: View {
     @State private var navigateToLaunchPage = false
     @State private var selectedDestination: Destination?
     @State private var experienceListSearchRequestModel: SearchRequestModel?
-    @State private var showMenu = false
+//    @State private var showMenu = false
     @State private var showSkipSheet = false
     @State private var showPrivacyPolicySheet = false
     @State private var hasShownPrivacyPolicyThisSession = false
     @State private var cancellables = Set<AnyCancellable>()
     @State private var showSSOError = false
     @State private var ssoErrorMessage = ""
-    
+    @State private var selectedCountry = ""
+    @State private var navigationToListFromSearch = false
+
     let encryptPayLoadMainapp: String
     @Binding var isActive: Bool
+    let environment: String
     var onFinish: () -> Void
     
+    public init(
+        encryptPayLoadMainapp: String,
+        isActive: Binding<Bool>,
+        onFinish: @escaping () -> Void,
+        environment: String // "sandbox" or "production"
+    ) {
+        self.encryptPayLoadMainapp = encryptPayLoadMainapp
+        self._isActive = isActive
+        self.onFinish = onFinish
+        self.environment = environment
+        
+        ConfigurationManager.shared.configure(for: environment)
+    }
+
     var body: some View {
         GeometryReader { geo in
             ThemeTemplateView(
@@ -29,7 +46,6 @@ struct ExperienceHomeView: View {
                 content: {
                     ZStack {
                         if homeViewModel.isLoading {
-                            
                             VStack {
                                 LoaderView(text: Constants.ExperienceHomeViewConstants.loadingExperience)
                             }
@@ -39,7 +55,7 @@ struct ExperienceHomeView: View {
                             
                         } else {
                             contentStack
-                            if showMenu { sideMenu }
+                            if homeViewModel.showMenu { sideMenu }
                         }
                         
                         // SSO error UI overlay
@@ -48,7 +64,8 @@ struct ExperienceHomeView: View {
                                 .edgesIgnoringSafeArea(.all)
                             Spacer()
                             VStack(spacing: 20) {
-                                ErrorMessageView()
+                                ErrorMessageView(errorMessage: .authFail)
+                                    .padding(.top, 60)
                                 Button(action: {
                                     handleAppExit()
                                 }) {
@@ -70,6 +87,9 @@ struct ExperienceHomeView: View {
                 onBack: { showSkipSheet = true }
             )
             .onAppear {
+                navigationToListFromSearch = false
+            }
+            .onAppearOnce {
                 let hasAgreed = UserDefaults.standard.bool(forKey: Constants.ExperienceHomeViewConstants.hasAgreedToPrivacy)
                 
                 if hasAgreed {
@@ -91,6 +111,15 @@ struct ExperienceHomeView: View {
                 // Store these globally once (for navigation)
                 encryptedPayloadMain = encryptPayLoadMainapp
                 globalOnFinishCallback = onFinish
+                environmentType = environment
+            }
+            .onReceive(
+                NotificationCenter.default.publisher(for: .currencyDidChange)
+            ) { notification in
+                if let currency = notification.userInfo?["currency"] as? String {
+                    print("Currency changed to:", currency)
+                    homeViewModel.fetchHomeData()
+                }
             }
             .navigationBarBackButtonHidden(true)
             .navigationLinks(
@@ -98,15 +127,21 @@ struct ExperienceHomeView: View {
                 navigateToAllDestinations: $navigateToAllDestinations,
                 navigateToExperienceList: $navigateToExperienceList,
                 searchDestinationViewModel: searchDestinationViewModel,
-                destinations: homeViewModel.destinations
+                destinations: homeViewModel.destinations,
+                selectedCountry: selectedDestination?.name ?? "",
+                navigationToListFromSearch: navigationToListFromSearch
             )
             .searchSheet(
                 isPresented: $isSearchSheetPresented,
+                destinations: homeViewModel.destinations,
                 searchDestinationViewModel: searchDestinationViewModel
             ) { requestModel in
                 isSearchSheetPresented = false
                 experienceListSearchRequestModel = requestModel
-                DispatchQueue.main.async { navigateToExperienceList = true }
+                DispatchQueue.main.async {
+                    navigateToExperienceList = true
+                    navigationToListFromSearch = true
+                }
             }
             .skipConfirmationSheet(
                 isPresented: $showSkipSheet,
@@ -161,7 +196,7 @@ private extension ExperienceHomeView {
         TopBarView {
             withAnimation { isSearchSheetPresented = true }
         } onHamburgerTap: {
-            withAnimation { showMenu.toggle() }
+            withAnimation { homeViewModel.showMenu.toggle() }
         }
     }
     
@@ -193,20 +228,20 @@ private extension ExperienceHomeView {
                 title: Constants.HomeScreenConstants.epicExperiencesHeader,
                 showViewAll: false
             )
-            ExperienceListView(experiences: homeViewModel.experiences)
+            ExperienceListView(experiences: $homeViewModel.experiences)
         }
     }
     
     var sideMenu: some View {
         HStack {
-            SideMenuView()
+            SideMenuView(viewModel: homeViewModel)
                 .frame(width: 340)
                 .transition(.move(edge: .leading))
             Spacer()
         }
         .background(
             Color.black.opacity(0.3)
-                .onTapGesture { withAnimation { showMenu.toggle() } }
+                .onTapGesture { withAnimation { homeViewModel.showMenu.toggle() } }
         )
     }
 }
@@ -218,7 +253,9 @@ private extension View {
         navigateToAllDestinations: Binding<Bool>,
         navigateToExperienceList: Binding<Bool>,
         searchDestinationViewModel: SearchDestinationViewModel,
-        destinations: [Destination]
+        destinations: [Destination],
+        selectedCountry: String,
+        navigationToListFromSearch: Bool
     ) -> some View {
         if #available(iOS 16.0, *) {
             return self
@@ -233,11 +270,12 @@ private extension View {
                         ExperienceListDetailView(
                             destinationId: requestModel.destinationId,
                             destinationType: requestModel.destinationType,
-                            location: requestModel.location,
                             checkInDate: requestModel.checkInDate,
                             checkOutDate: requestModel.checkOutDate,
                             currency: requestModel.currency,
-                            productCodes: requestModel.productCode
+                            productCodes: requestModel.productCode,
+                            countryName: selectedCountry,
+                            navigationToListFromSearch: navigationToListFromSearch
                         )
                     }
                 }
@@ -260,11 +298,12 @@ private extension View {
                         ExperienceListDetailView(
                             destinationId: requestModel.destinationId,
                             destinationType: requestModel.destinationType,
-                            location: requestModel.location,
                             checkInDate: requestModel.checkInDate,
                             checkOutDate: requestModel.checkOutDate,
                             currency: requestModel.currency,
-                            productCodes: requestModel.productCode
+                            productCodes: requestModel.productCode,
+                            countryName: selectedCountry ,
+                            navigationToListFromSearch: navigationToListFromSearch
                         )
                     }
                 }

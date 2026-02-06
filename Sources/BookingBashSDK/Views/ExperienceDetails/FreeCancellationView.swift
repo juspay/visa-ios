@@ -27,13 +27,9 @@ struct FreeCancellationView: View {
                         .font(.custom(Constants.Font.openSansSemiBold, size: 12))
                         .foregroundStyle(Color(hex: Constants.HexColors.neutral))
                     
-                    Button(action: {
-                        
-                    }, label: {
-                        Text(Constants.DetailScreenConstants.viewCancellationPolicy)
-                            .font(.custom(Constants.Font.openSansSemiBold, size: 12))
-                            .foregroundStyle(Color(hex: Constants.HexColors.primary))
-                    })
+                    Text(Constants.DetailScreenConstants.viewCancellationPolicy)
+                        .font(.custom(Constants.Font.openSansSemiBold, size: 12))
+                        .foregroundStyle(Color(hex: Constants.HexColors.primary))
                 }
             }
         }

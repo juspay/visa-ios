@@ -2,13 +2,45 @@ import SwiftUI
 
 struct TransactionRow: View {
     let item: Booking
-    let participantsSummary: String
+    var participantsSummary: String = ""
+
+    init(item: Booking) {
+        self.item = item
+        let pricePerAge = item.price.pricePerAge
+
+        let parts: [String] = pricePerAge.compactMap { item in
+            guard item.count > 0 else { return nil }
+
+            let label: String
+
+            switch item.bandId.uppercased() {
+            case "ADULT":
+                label = item.count == 1 ? "Adult" : "Adults"
+            case "CHILD":
+                label = item.count == 1 ? "Child" : "Children"
+            case "INFANT":
+                label = item.count == 1 ? "Infant" : "Infants"
+            case "FAMILY":
+                label = item.count == 1 ? "Family" : "Families"
+            case "PERSON":
+                label = item.count == 1 ? "Person" : "People"
+            case "CUSTOM":
+                label = "Custom"
+            default:
+                label = item.count == 1 ? item.bandId.capitalized : "\(item.bandId.capitalized)s"
+            }
+
+            return "\(item.count) \(label)"
+        }
+
+        participantsSummary = parts.isEmpty ? "No participants" : parts.joined(separator: ", ")
+    }
     
     // MARK: - Savings Text Function
     private func createSavingsText(savingAmount: Double, currency: String) -> AttributedString {
         var text = AttributedString(Constants.TransactionRowConstants.youAreSaving)
         text.foregroundColor = .gray
-        var value = AttributedString("\(String(format: "%.2f", savingAmount)) \(currency)")
+        var value = AttributedString("\(savingAmount.commaSeparated()) \(currency)")
         value.foregroundColor = Color(hex: Constants.HexColors.greenShade)
         value.font = .system(size: 14, weight: .bold)
         text.append(value)
@@ -117,20 +149,22 @@ struct TransactionRow: View {
                     Text(DateFormatter.shortDate.string(from: item.travelDate))
                         .font(.custom("OpenSans-SemiBold", size: 12))
                     Spacer()
-//                    if let icon = ImageLoader.bundleImage(named: Constants.Icons.usergray) {
-//                        HStack(spacing: 6) {
-//                            icon
-//                                .resizable()
-//                                .frame(width: 20, height: 20)
-//                                .foregroundStyle(.secondary)
-//                            Text(item.travellerText)
-//                                .font(.custom("OpenSans-SemiBold", size: 12))
-//                                .foregroundColor(.secondary)
-//                        }
-//                    } else {
-//                        Label(participantsSummary, image: Constants.Icons.usergray)
-//                            .font(.custom("OpenSans-SemiBold", size: 12))
-//                    }
+
+                    if let icon = ImageLoader.bundleImage(named: Constants.Icons.usergray) {
+                        HStack(spacing: 6) {
+                            icon
+                                .resizable()
+                                .frame(width: 20, height: 20)
+                                .foregroundStyle(.secondary)
+                            Text(participantsSummary)
+                                .font(.custom("OpenSans-SemiBold", size: 12))
+                                .foregroundColor(.secondary)
+                        }
+                    } else {
+                        Label(participantsSummary, image: Constants.Icons.usergray)
+                            .font(.custom("OpenSans-SemiBold", size: 12))
+                    }
+                    Spacer()
                 }
                 
                 .font(.subheadline)
@@ -175,7 +209,7 @@ struct TransactionRow: View {
                     .font(.custom("OpenSans-SemiBold", size: 12))
                     .foregroundColor(.gray)
                 
-                Text(item.status.rawValue.capitalized)
+                Text(getStatusValue())
                     .font(.custom("OpenSans-SemiBold", size: 12))
                     .padding(.vertical, 4)
                     .padding(.horizontal, 10)
@@ -193,5 +227,15 @@ struct TransactionRow: View {
                         .stroke(Color(.systemGray4), lineWidth: 1)
                 )
         )
+    }
+
+    func getStatusValue() -> String {
+        switch item.status {
+        case .confirmed,.pending, .completed, .failed:
+            return item.status.rawValue.capitalized
+
+        case .cancelled, .refunded:
+            return "Cancelled"
+        }
     }
 }

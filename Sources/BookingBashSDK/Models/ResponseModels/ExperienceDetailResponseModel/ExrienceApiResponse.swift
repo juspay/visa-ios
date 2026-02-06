@@ -55,6 +55,7 @@ struct DetailInfo: Codable {
     let ratings: Double
     let reviewCount: Int
     let languageName: String
+    let knowBeforeYouGo: String?
 
     enum CodingKeys: String, CodingKey {
         case title, available
@@ -77,6 +78,7 @@ struct DetailInfo: Codable {
         case reviews, ratings
         case reviewCount = "review_count"
         case languageName = "language_name"
+        case knowBeforeYouGo = "know_before_you_go"
     }
     
     init(from decoder: Decoder) throws {
@@ -109,7 +111,7 @@ struct DetailInfo: Codable {
         reviews = try container.decode(DetailReviews.self, forKey: .reviews)
         reviewCount = try container.decode(Int.self, forKey: .reviewCount)
         languageName = (try? container.decode(String.self, forKey: .languageName)) ?? ""
-        
+        knowBeforeYouGo = (try? container.decode(String.self, forKey: .knowBeforeYouGo)) ?? ""
         // Handle ratings as either Int or Double
         if let ratingsInt = try? container.decode(Int.self, forKey: .ratings) {
             ratings = Double(ratingsInt)
@@ -187,7 +189,7 @@ struct DetailPrice: Codable {
     let taxes: Double
     let totalAmount: Double
     let currency: String
-    let roeBase: Double
+    let roeBase: Double?
     let priceType: String
     let strikeout: DetailStrikeout
 
@@ -381,12 +383,14 @@ struct DetailCancellationPolicy: Codable {
     let type, description: String
     let cancelIfBadWeather, cancelIfInsufficientTravelers: Bool
     let refundEligibility: [DetailRefundEligibility]
+    let refundable : Bool?
 
     enum CodingKeys: String, CodingKey {
         case type, description
         case cancelIfBadWeather = "cancel_if_bad_weather"
         case cancelIfInsufficientTravelers = "cancel_if_insufficient_travelers"
         case refundEligibility = "refund_eligibility"
+        case refundable
     }
 }
 

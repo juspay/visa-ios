@@ -15,6 +15,7 @@ struct Constants {
         static let error = "F95757"
         static let blueShade = "163049"
         static let greenShade = "32B817"
+        static let yellowShade = "E4B700"
     }
     
     enum Icons {
@@ -34,6 +35,7 @@ struct Constants {
         static let check = "Check"
         static let greenTick = "green_tick"
         static let mapWhite = "MapWhite"
+        static let redCross = "RedCross"
         
         static let print = "Print"
         static let download = "Download"
@@ -70,11 +72,17 @@ struct Constants {
         static let vector = "Vector"
         static let mobile = "mobile"
         static let currency = "Currency"
+        static let currencyWhite = "CurrencyWhite"
+        static let noTransactionResult = "NoTransactionResult"
+        static let destinatioPlaceholder = "destinatioPlaceholder"
+        static let epicxEperiencesPlaceholder = "epicxEperiencesPlaceholder"
+        static let changeValue = "changeValue"
+        static let wallet = "Wallet"
+        static let greenCheckFill = "greenCheckFill"
+        static let upload = "Upload"
     }
     
     enum searchScreenConstants {
-        static let noResultFound = "Oops! no results found."
-        static let noResultFoundSubTitle = "We didn’t find anything. Try adjusting your search"
         static let clear = "Clear"
         static let searchResults = "Search Results"
         static let recentSearches = "Recent Searches"
@@ -135,6 +143,7 @@ struct Constants {
         static let addItineraryToCalendar = "Add  Itinerary to Calendar"
         static let backToHome = "Back to Home"
         static let refundable = "Refundable"
+        static let nonRefundable = "Non-refundable"
         static let forSupplierVoucher = "For supplier voucher"
         static let clickHere = "Click here"
         static let viewDetails = "View Details"
@@ -144,39 +153,46 @@ struct Constants {
         static let totalRefunded = "Total amount to be refunded"
         static let refundAmount = "Refund Amount"
         static let refundText = "The amount will be refunded in your account in 2–5 working days"
+        static let refundAmountText =
+        "Refunds will be processed within 2–5 working days and in the same currency as your booking %@ %@."
         static let cancelNow = "Cancel now"
         static let dot = "•"
         static let experienceDetails = "Experience details"
-        static let totalAmountPaid = "Total Amount Paid"
+        static let totalAmount = "Total Amount"
         static let savingFormat = "You are saving %@ AED"
-        static let fareSummary = "Fare summary"
+        static let fareSummary = "Fare Summary"
         static let pricesWithTaxes = "Prices inclusive of taxes"
         static let refundDetails = "Refund details"
         static let refundProcessed = "Refund Processed"
+        static let refundNote = "Refund Note"
         static let deduction = "Deduction"
         static let totalRefundProcessed = "Total refund processed"
+        static let totalAmountToBeRefunded = "Total amount to be refunded"
         static let selectCancellationReason = "Select cancellation reason"
         static let selectedReason = "Selected reason:"
         static let loadingCancellationReasons = "Loading cancellation reasons..."
         static let failedToLoadCancellationReasons = "Failed to load cancellation reasons: %@"
         static let retry = "Retry"
         static let noCancellationReasonsAvailable = "No cancellation reasons available"
+        static let next = "Next"
         
         static let bookingIdKey = "Booking ID"
         static let cancelBookingFailed = "Failed to cancel booking."
+        static let cancelBookingTitle = "Cancel booking"
     }
     
     enum CheckoutPageConstants {
         static let agree = "I agree to the "
-        static let termsConditions = "Terms and Conditions"
+        static let termsConditions = "Terms & Conditions"
         static let andText = " and "
-        static let privacyPolicy = "Privacy Policy"
+        static let privacy = "Privacy"
+        static let policy = "Policy"
         static let checkoutHeaderText = "Add guest details & review booking"
         static let total = "Total"
         static let termsAndConditionsTapped = "Terms and condition tapped"
         static let privacyPolicyTapped = "Privacy policy tapped"
         static let saveContinue = "Save & Continue"
-        static let consentBoxError = "Please agree to the Terms & Conditions and Privacy Policy before continuing."
+        static let consentBoxError = "Please accept the Terms & Conditions and Privacy Policy."
         
     }
     
@@ -184,7 +200,7 @@ struct Constants {
         static let startingFrom = "Starting from"
         static let tickets = "Tickets"
         static let perPerson = "/Person"
-        static let viewCancellationPolicy = "Refer cancellation policy for details"
+        static let viewCancellationPolicy = "For more information, please refer cancellation policy"
         static let MostPopularDays = "Most popular days"
         static let reviewsText = "Reviews (%d)"
         static let sortBy = "Sort by: "
@@ -198,16 +214,16 @@ struct Constants {
         static let aed = "AED"
         static let youSave = "You save %d%%"
         static let perPersonText = "/Person"
-        static let exploreDestinations = "Explore destinations"
+        static let exploreDestinations = "Explore Destinations"
         static let loadMore = "Load More..."
         static let viewAll = "View All"
-        static let searchDestination = "Search Destination..."
+        static let searchDestination = "Experiences | City | Country"
         static let cancelBookingText = "Do you want to skip the booking?"
         static let skip = "Yes, Skip"
         static let stay = "Stay"
-        static let exploreDestinationsHeaderText = "Explore destinations"
+        static let exploreDestinationsHeaderText = "Explore Destinations"
         static let exploreCitiesHeaderText = "Explore cities"
-        static let epicExperiencesHeader = "Epic experiences worldwide"
+        static let epicExperiencesHeader = "Epic Experiences Worldwide"
         static let epicExperiences = "Epic experiences"
     }
     
@@ -230,7 +246,8 @@ struct Constants {
         static let experienceListDetailView = "ExperienceListDetailView"
         static let filterScreenView = "FilterScreenView"
         static let experienceBookingStatusScreenView = "ExperienceBookingStatusScreenView"
-        
+        static let currencyListView = "CurrencyListView"
+        static let bookingQuestions = "BookingQuestions"
     }
     
     enum SharedConstants {
@@ -242,29 +259,30 @@ struct Constants {
         static let viewLess = "View less"
         static let viewMore = "View more"
         static let botoomSheetScrollId = "scroll"
-        static let siteId = "68b585760e65320801973737"
         static let sso_siteKey =  "6894a033d9fde373304f80dewxyz"
     }
     
     enum ErrorMessages {
-        static let failedToDecode = "Failed to decode: %@"
-        static let failedToDecrypt = "Failed to decrypt: %@"
-        static let decodingError = "Failed to decode"
-        static let decryptionError = "Failed to decrypt"
-        static let networkError = "Network request failed"
-        static let invalidResponse = "Invalid response received"
-        static let dataParsingError = "Failed to parse data"
-        static let unexpectedError = "An unexpected error occurred"
-        static let invalidURL = "Invalid URL"
-        static let invalidResponseFormat = "Invalid response format:"
-        static let invalidCountryCodeOrMobile = "Invalid country code or Mobile Number."
-        static let emptyMobileNumber = "Please enter a mobile number."
-        static let noDataInResponse = "Oops! No data in response"
-        static let somethingWentWrong = "Oops! something went wrong."
-        static let noResultsFound = "Oops! no results found."
-        static let noResultsFoundDescription = "We didn’t find anything.. Try adjusting your search."
-
-        
+        static let failedToDecode = "We couldn’t load the details for this experience. Please refresh the page or try again in a moment."
+        static let failedToDecrypt = "This information is temporarily unavailable. Please try again shortly."
+        static let decodingError = "The experience details couldn’t be displayed. Please try again."
+        static let decryptionError = "We’re unable to show this information right now. Please try again later."
+        static let networkError = "You’re not connected to the internet. Please check your connection and try again."
+        static let invalidResponse = "We didn’t receive the correct details from the supplier. Please try again."
+        static let dataParsingError = "The experience information is incomplete. Please refresh or try another option."
+        static let unexpectedError = "This action couldn’t be completed right now. Please try again later."
+        static let invalidURL = "This page is no longer available. Please return and try another option."
+        static let invalidResponseFormat = "We received information we couldn’t display. Please try again."
+        static let invalidCountryCodeOrMobile = "The mobile number entered is not valid. Please check and try again."
+        static let emptyMobileNumber = "Mobile number is required to continue."
+        static let noDataInResponse = "This experience currently has no available details."
+        static let somethingWentWrong = "This request could not be completed. Please try again."
+        static let noResultsFound = "No experiences match your search."
+        static let noResultsFoundDescription = "Try changing your dates, location, or filters."
+        static let noMatchFound = "This experience is not available for your selected dates."
+        static let noMatchFoundDescription = "Try selecting different dates or explore similar experiences."
+        static let authFail = "We couldn’t redeem the offer.\nPlease go back and try again to complete the redemption."
+        static let  noMatchingCurrency = "No matching currency found"
     }
     
     enum ExperienceHomeViewConstants {
@@ -312,7 +330,7 @@ struct Constants {
         static let currency = "Currency"
         // Image names
         static let iconProfile = "VectorUser"
-        static let iconTransactions = "ticket"
+         static let iconTransactions = "ticket"
         static let iconSavings = "bag"
         static let iconFavorites = "heart"
         static let iconProfileMenu = "person"
@@ -320,27 +338,32 @@ struct Constants {
     }
     
     enum APIURLs {
-        static let baseURL = "https://travelapi.bookingbash.com"
+        static var baseURL: String {
+            return ConfigurationManager.shared.baseURL
+        }
         static let decryptURL = "https://auth.bookingbash.com/decrypt"
-        static let ssoLoginURL = baseURL + "/services/api/sso/2.0/login"
-        static let autoSuggestBaseURL = baseURL + "/services/api/activities/2.0/autosuggest"
-        static let searchBaseURL = baseURL + "/services/api/activities/2.0/search"
-        static let homeBaseURL = baseURL + "/services/api/shared/2.0/home"
-        static let availabilityUrl = baseURL +  "/services/api/activities/2.0/availability"
+        static let ssoLoginURL = baseURL + "/api/sso/2.0/login"
+        static let autoSuggestBaseURL = baseURL + "/api/activities/2.0/autosuggest"
+        static let searchBaseURL = baseURL + "/api/activities/2.0/search"
+        static let homeBaseURL = baseURL + "/api/shared/2.0/home"
+        static let newhomeBaseURL = baseURL + "/api/shared/config/\(ssoSiteIdGlobal)/home"
+        static let availabilityUrl = baseURL +  "/api/activities/2.0/availability"
 
         
-        static let bookingBaseURL = baseURL + "/services/api/activities/2.0/booking"
-        static let bookingListURL = baseURL + "/services/api/activities/2.0/booking-list"
-        static let transactionBaseURL = baseURL + "/services/api/activities/2.0/transaction"
-        static let reviewDetailsURL = baseURL + "/services/api/activities/2.0/review-details"
-        static let initBookURL = baseURL + "/services/api/activities/2.0/initbook"
-        static let bookStatusURL = baseURL + "/services/api/activities/2.0/book"
-        static let bookingDetailsURL = baseURL + "/services/api/activities/2.0/booking-details"
-        static let cancelReasonURL = baseURL + "/services/api/activities/2.0/cancel-reason"
-        static let cancelBookingURL = baseURL + "/services/api/activities/2.0/cancel"
-        static let detailsBaseURL = baseURL + "/services/api/activities/2.0/details"
-        static let imageListURL = baseURL + "/services/api/activities/2.0/image/list"
-       
+        static let bookingBaseURL = baseURL + "/api/activities/2.0/booking"
+        static let bookingListURL = baseURL + "/api/activities/2.0/booking-list"
+        static let transactionBaseURL = baseURL + "/api/activities/2.0/transaction"
+        static let reviewDetailsURL = baseURL + "/api/activities/2.0/review-details"
+        static let initBookURL = baseURL + "/api/activities/2.0/initbook"
+        static let bookStatusURL = baseURL + "/api/activities/2.0/book"
+        static let bookingDetailsURL = baseURL + "/api/activities/2.0/booking-details"
+        static let cancelReasonURL = baseURL + "/api/activities/2.0/cancel-reason"
+        static let cancelBookingURL = baseURL + "/api/activities/2.0/cancel"
+        static let detailsBaseURL = baseURL + "/api/activities/2.0/details"
+        static let imageListURL = baseURL + "/api/activities/2.0/image/list"
+        static let currencyListURL = baseURL + "/api/shared/currencylist"
+       static let preCancelBooking = baseURL + "/api/activities/2.0/precancel"
+        static let priceCheck = baseURL + "/api/activities/2.0/price-check"
     }
     
     enum TransactionRowConstants {
@@ -360,6 +383,8 @@ struct Constants {
         static let myTransactionsTitle = "My Transactions"
         static let docTextSystemImage = "doc.text"
         static let noBookingsFormat = "No %@ bookings"
+        static let noTransactionResult = "Looks like there are no transactions."
+        static let bookExperience = "Book Experience"
     }
     
     enum API {
@@ -372,8 +397,8 @@ struct Constants {
         static let addGuestDetails = "Guest  Details"
         static let requiredMark = "*"
         static let infoText = "We'll use this information to send you confirmation and updates about your booking."
-        static let firstName = "First name"
-        static let lastName = "Last name"
+        static let firstName = "First Name"
+        static let lastName = "Last Name"
         static let weight = "Weight (in KG)"
         static let height = "Height (in CM)"
         static let passportNumber = "Passport number"
@@ -430,8 +455,8 @@ struct Constants {
         // Text messages
         static let loading = "Loading..."
         static let loadingExperiences = "Loading experiences..."
-        static let searchPlaceholder = "Search experiences near..."
-        static let exploreExperiencesText = "Explore experiences near and far "
+        static let searchPlaceholder = "Search Experiences"
+        static let exploreExperiencesText = "Explore Experiences"
         static let noExperienceFound = "No experience found"
         static let experienceFoundSingular = "experience found"
         static let experienceFoundPlural = "experiences found"
@@ -483,6 +508,7 @@ struct Constants {
         static let trackId = "track_id"
         static let siteKey = "site_key"
         static let authorizationKey = "Authorization"
+        static let accessToken = "access_token"
     }
     
     enum CancelBookingBottomSheetConstants {
@@ -494,10 +520,14 @@ struct Constants {
         static let telValue = "+97148348696"
         static let backButton = "Back"
         static let imageName = "cancelBottomSheet"
+        static let unabelCancelImage = "UnabelCancel"
+        static let cancelBookingFailedTitle = "Unable to cancel your booking. Please try again."
+        static let cancelBookingFailedDescription = "For any cancellation or amendment requests, please reach out to us at the email or contact number provided below.\n\nOur team will be happy to assist you."
+        static let backToHome = "Back to Home"
     }
     
     enum ExperiencePassesCardViewConstants {
-        static let fareSummary = "Fare summary"
+        static let fareSummary = "Fare Summary"
         static let discount = "Discount"
         static let total = "Total"
         static let pricesInclusiveOfTaxes = "Prices inclusive of taxes"

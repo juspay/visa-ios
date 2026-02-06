@@ -2,7 +2,7 @@
 //  VisaBenefitsBridge.m
 //  JuspayBankSDK
 //
-//  Created by Harsh Garg on 11/09/25.
+//  Created by Namit Goel on 11/09/25.
 //
 
 #import "VisaBenefitsBridge.h"
@@ -24,6 +24,10 @@
 }
 
 - (void)launchBookingBash:(NSString *)encryptedPayload :(NSString *)callback {
+    [self launchBookingBashWithEnv :encryptedPayload :callback :@"production"];
+}
+
+- (void)launchBookingBashWithEnv:(NSString *)encryptedPayload :(NSString *)callback :(NSString *)environment {
     // Get the base view controller from bridge component
     UIViewController *baseViewController = [_bridgeComponent getBaseViewController];
     
@@ -50,7 +54,7 @@
     };
     
     // Directly call BookingBashSDK method
-    _bookingBashVC = [BookingBashSDK createExperienceHomeViewWithEncryptPayLoad:encryptedPayload callback:onFinisCallbck];
+    _bookingBashVC = [BookingBashSDK createExperienceHomeViewWithEncryptPayLoad:encryptedPayload callback:onFinisCallbck environment:environment];
     
     if (_bookingBashVC) {
         _bookingBashVC.modalPresentationStyle = UIModalPresentationFullScreen;

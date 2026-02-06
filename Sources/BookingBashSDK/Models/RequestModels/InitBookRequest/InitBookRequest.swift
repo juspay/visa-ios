@@ -4,9 +4,9 @@ import Foundation
 struct InitBookRequest: Codable {
     let booking_details: InitBookingDetails
     let contact_details: InitContactDetails
-    let earning_details: InitEarningDetails
-    let gst_details: InitGSTDetails
-    let pickup_details: InitPickupDetails
+//    let earning_details: InitEarningDetails
+//    let gst_details: InitGSTDetails
+//    let pickup_details: InitPickupDetails
     let language_details: InitLanguageDetails
     let booking_question: InitBookingQuestion
 }
@@ -66,8 +66,14 @@ struct InitLanguageDetails: Codable {
 
 struct InitBookingQuestion: Codable {
     let traveller_details: [InitTravellerDetail]
-    let arrival: InitTravelDetail
-    let departure: InitTravelDetail
+    let booking_questions_answers: [bookingQuestionsDetails]
+}
+
+struct bookingQuestionsDetails: Codable {
+    let question: String
+    let answer: String
+    var unit: String? = nil
+    var travelerNum: Int? = nil
 }
 
 struct InitTravellerDetail: Codable {

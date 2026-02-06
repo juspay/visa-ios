@@ -2,7 +2,7 @@
 //  CommonSearchBarView.swift
 //  VisaActivity
 //
-//  Created by Neosoft on 22/11/25.
+//  Created by Pranoti Wakodkar on 22/11/25.
 //
 
 import SwiftUI

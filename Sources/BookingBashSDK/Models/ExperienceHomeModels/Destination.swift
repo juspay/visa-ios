@@ -9,23 +9,13 @@ struct Destination: Identifiable {
     
     let destinationId: String
     let destinationType: Int
-    let locationName: String
-    let city: String
-    let state: String
-    let region: String
-    let currency: String
     
-    init(name: String, imageURL: String, destinationId: String, destinationType: Int, locationName: String, city: String, state: String, region: String, currency: String) {
+    init(name: String, imageURL: String, destinationId: String, destinationType: Int) {
         self.name = name
         self.imageName = ""
         self.imageURL = imageURL
         self.destinationId = destinationId
         self.destinationType = destinationType
-        self.locationName = locationName
-        self.city = city
-        self.state = state
-        self.region = region
-        self.currency = currency
     }
     
     init(name: String, imageName: String) {
@@ -33,11 +23,7 @@ struct Destination: Identifiable {
         self.imageName = imageName
         self.imageURL = nil
         self.destinationId = ""
-        self.destinationType = 2  
-        self.locationName = name
-        self.city = ""
-        self.state = ""
-        self.region = ""
-        self.currency = ""
+        self.destinationType = 2
     }
 }
+

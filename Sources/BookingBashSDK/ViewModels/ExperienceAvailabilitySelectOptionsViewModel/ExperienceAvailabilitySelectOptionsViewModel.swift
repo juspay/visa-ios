@@ -15,9 +15,11 @@ class ExperienceAvailabilitySelectOptionsViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var hasInitializedPackages: Bool = false
     @Published var isAvailabilityResponseFetched: Bool = false
+    @Published var priceCheckResponse: PriceCheckResponse? = nil
     var currentActivityCode: String?
     var currentCurrencyCode: String?
     @Published var ageBands: [DetailAgeBand] = []
+    @Published var navigateToCheckout: Bool = false
     private let calendar = Calendar.current
     let icons = ["bolt.fill"]
 
@@ -95,10 +97,21 @@ class ExperienceAvailabilitySelectOptionsViewModel: ObservableObject {
         refreshAvailabilityAfterParticipantChange()
     }
 
-    @Published var packages: [Package] = []
-    var selectedPackage: Package? {
-        return packages.first { $0.isExpanded }
+    // ✅ 1. packages triggers update to selectedPackage automatically
+    @Published var packages: [Package] = [] {
+        didSet {
+            // Automatically set selectedPackage if a package in the list isExpanded
+            if let expanded = packages.first(where: { $0.isExpanded }) {
+                selectedPackage = expanded
+            } else {
+                // If no package is expanded (all collapsed), selected is nil
+                selectedPackage = nil
+            }
+        }
     }
+
+    // ✅ 2. selectedPackage is now a stored Published property
+    @Published var selectedPackage: Package? = nil
 
     func updateSelectedPackageData() {
         guard let selected = selectedPackage else {
@@ -211,10 +224,14 @@ class ExperienceAvailabilitySelectOptionsViewModel: ObservableObject {
                     label = category.count > 1 ? "Children" : "Child"
                 } else if category.bandId.lowercased().contains("infant") {
                     label = category.count > 1 ? "Infants" : "Infant"
-                }else if category.bandId.lowercased().contains("custom") {
+                } else if category.bandId.lowercased().contains("custom") {
                     label = "Custom"
+                } else if category.bandId.lowercased().contains("family") {
+                    label = category.count > 1 ? "Families" : "Family"
+                } else if category.bandId.lowercased().contains("person") {
+                    label = category.count > 1 ? "People" : "Person"
                 } else {
-                    label = category.bandId
+                    label = category.count == 1 ? category.bandId.capitalized : "\(category.bandId.capitalized)s"
                 }
                 parts.append("\(category.count) \(label)")
             }
@@ -237,8 +254,14 @@ class ExperienceAvailabilitySelectOptionsViewModel: ObservableObject {
                     label = category.count > 1 ? "Children" : "Child"
                 } else if category.bandId.lowercased().contains("infant") {
                     label = category.count > 1 ? "Infants" : "Infant"
+                } else if category.bandId.lowercased().contains("family") {
+                    label = category.count > 1 ? "Families" : "Family"
+                } else if category.bandId.lowercased().contains("person") {
+                    label = category.count > 1 ? "People" : "Person"
+                } else if category.bandId.lowercased().contains("custom") {
+                    label = "Custom"
                 } else {
-                    label = category.bandId
+                    label = category.count == 1 ? category.bandId.capitalized : "\(category.bandId.capitalized)s"
                 }
                 parts.append("\(category.count) \(label)")
             }
@@ -260,6 +283,13 @@ class ExperienceAvailabilitySelectOptionsViewModel: ObservableObject {
         let currencyCode = currentCurrencyCode ??
             response?.data?.result?.first?.rates.first?.price.currency ?? "AED"
         fetchAvailabilities(productCode: activityCode, currencyCode: currencyCode)
+    }
+
+    func findAvailabilityKey(for package: Package?) -> String {
+        if let title = package?.title , let availabilityItem = response?.data?.result?.first(where: { $0.subActivityName == title }) {
+            return availabilityItem.availabilityId
+        }
+        return ""
     }
 }
 extension ExperienceAvailabilitySelectOptionsViewModel {
@@ -313,7 +343,7 @@ extension ExperienceAvailabilitySelectOptionsViewModel {
                     switch result {
                     case .success(let data):
                         self.response = data
-                        if data.status == false || data.statusCode != 200 {
+                        if data.status == false || data.statusCode != 200, data.data == nil {
                             self.errorMessage = Constants.ErrorMessages.somethingWentWrong
                             self.showErrorView = true
                         } else {
@@ -330,6 +360,27 @@ extension ExperienceAvailabilitySelectOptionsViewModel {
             }
         )
     }
+
+    func priceCheck(request: PriceCheckRequest, completion: @escaping (Result<PriceCheckResponse, Error>) -> Void) {
+        guard let url = URL(string: Constants.APIURLs.priceCheck) else {
+            completion(.failure(URLError(.badURL)))
+            return
+        }
+        let headers = [
+            Constants.APIHeaders.accessToken: ssoTokenGlobal,
+            Constants.APIHeaders.siteId: ssoSiteIdGlobal,
+            Constants.APIHeaders.authorizationKey: TokenProvider.getAuthHeader() ?? "",
+            Constants.APIHeaders.contentTypeKey: Constants.APIHeaders.contentTypeValue
+        ]
+
+        NetworkManager.shared.post(
+            url: url,
+            body: request,
+            headers: headers,
+            completion: completion
+        )
+    }
+
     func setApiResponse(_ responseData: AvailabilityData?) {
         guard let data = responseData else { return }
         avalabulityUid = data.uid ?? ""
@@ -340,14 +391,21 @@ extension ExperienceAvailabilitySelectOptionsViewModel {
             return
         }
         packages = resultArray.enumerated().map { index, item in
-            let times = item.rates.map { $0.time }
+            let slotDetails = item.rates.map { data in
+                SlotDetails(
+                    availabilityStatus: data.available,
+                    time: data.time,
+                    availableTimeSlot: data.availableTickets
+                )
+            }
+
             let firstRate = item.rates.first
-            let pricingDescriptions = firstRate?.price.pricePerAge.map { "\($0.count) \($0.bandId) x AED \($0.bandTotal)" } ?? []
+            let pricingDescriptions = firstRate?.price.pricePerAge.map { "\($0.count) \($0.bandId) x \(firstRate?.price.currency ?? "AED") \($0.bandTotal)" } ?? []
             let totalAmount = firstRate?.price.pricePerAge.map { $0.bandTotal }.reduce(0, +) ?? 0
             let subActivityCode = firstRate?.subActivityCode
             return Package(
                 title: item.subActivityName,
-                times: times,
+                slotDetails: slotDetails,
                 infoItems: [],
                 pricingDescription: pricingDescriptions,
                 totalAmount: "\(totalAmount)",
@@ -357,7 +415,8 @@ extension ExperienceAvailabilitySelectOptionsViewModel {
                 supplierName: nil,
                 subActivityCode: subActivityCode,
                 activityCode: currentActivityCode,
-                availabilityKey: item.availabilityKey
+                availabilityKey: item.availabilityKey,
+                subActivityDescription: item.subActivityDescription
             )
         }
         updateSelectedPackageData()

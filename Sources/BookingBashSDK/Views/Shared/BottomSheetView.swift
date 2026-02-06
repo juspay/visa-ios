@@ -9,6 +9,7 @@ import SwiftUI
 
 struct BottomSheetView<Content: View>: View {
     @Binding var isPresented: Bool
+    var dismissOnbackgroundClick: Bool?
     let sheetHeight: CGFloat?
     let content: Content
     var productCode: String?
@@ -22,12 +23,14 @@ struct BottomSheetView<Content: View>: View {
     init(
         isPresented: Binding<Bool>,
         sheetHeight: CGFloat? = nil,
+        dismissOnbackgroundClick: Bool? = false,
         @ViewBuilder content: () -> Content,
         productCode: String? = nil,
         isDragToDismissEnabled: Bool = true
     ) {
         self._isPresented = isPresented
         self.sheetHeight = sheetHeight
+        self.dismissOnbackgroundClick = dismissOnbackgroundClick
         self.content = content()
         self.productCode = productCode
         self.isDragToDismissEnabled = isDragToDismissEnabled
@@ -40,6 +43,9 @@ struct BottomSheetView<Content: View>: View {
                     .ignoresSafeArea()
                     .contentShape(Rectangle())
                     .onTapGesture {
+                        if let dismissOnbackgroundClick = dismissOnbackgroundClick, dismissOnbackgroundClick {
+                            dismissSheet()
+                        }
                     }
                 
                 VStack(spacing: 0) {

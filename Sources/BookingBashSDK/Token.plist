@@ -2,7 +2,23 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>authHeader</key>
-	<string>AA4cAgpONjtQPjoUKTU+PF5RDzU1ARgFKhIwOiEvLxkhcyE4LQUgHRtTPTwhFjZZJFw9KCwJJwU2FiYTDVIMJiUDDTs9ADAZWn8=</string>
+    <key>sandbox</key>
+    <dict>
+        <key>baseURL</key>
+        <string>https://travelapi-sandbox.bookingbash.com/services</string>
+        <key>sslKey</key>
+        <string>sha256/VcG4ZpvsiI0vGDzYVei+7Nmx90QrkeWK9GcTSJUrGU8=</string>
+        <key>authHeader</key>
+        <string>AA4cAgpONjtQNT8WITwmWQ1RDTYhAg04IhwmOTUrLAkMKTY4OQQ3ChMYPSwDFzY/BQQpKCMeJwY2XiYuN1YbCykEDyspATAJWn8=</string>
+    </dict>
+    <key>production</key>
+    <dict>
+        <key>baseURL</key>
+        <string>https://travelapi.bookingbash.com/services</string>
+        <key>sslKey</key>
+        <string>sha256/VcG4ZpvsiI0vGDzYVei+7Nmx90QrkeWK9GcTSJUrGU8=</string>
+        <key>authHeader</key>
+        <string>AA4cAgpONjtQPjoUKTU+PF5RDzU1ARgFKhIwOiEvLxkhcyE4LQUgHRtTPTwhFjZZJFw9KCwJJwU2FiYTDVIMJiUDDTs9ADAZWn8=</string>
+    </dict>
 </dict>
 </plist>

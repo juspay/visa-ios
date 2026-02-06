@@ -104,8 +104,10 @@ private extension ExperienceDetailView {
                         isExpanded: $experienceDetailViewModel.isViewMoreExpanded
                     )
                 }
-                
-                FreeCancellationView(cancellationPolicy: experienceDetailViewModel.cancellationPolicy)
+
+                if let cancellationPolicy = experienceDetailViewModel.cancellationPolicy {
+                    FreeCancellationView(cancellationPolicy: cancellationPolicy)
+                }
                 // PopularDaysCardView(days: experienceDetailViewModel.popularDays)
                 InfoListView(viewModel: experienceDetailViewModel)
                 
@@ -168,18 +170,21 @@ private extension ExperienceDetailView {
                 }
                 // Cross button at top right
                 if !showParticipantsSheet {
-                    Button(action: {
+                    Button {
                         shouldPresentCalenderView = false
-                    }) {
+                    } label: {
                         Image(systemName: "xmark")
-                            .font(.system(size: 14, weight: .bold))
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 12, height: 12)
                             .foregroundColor(.gray)
-                            .padding(12)
-                            .background(Color(.systemGray6))
+                            .padding(4)
+                            .background(Color(.systemGray6).opacity(0.9))
                             .clipShape(Circle())
+                            .shadow(radius: 1)
                     }
-                    .offset(y: -15)
                     .zIndex(1)
+                    .buttonStyle(.plain)
                     .padding(.trailing, 16)
                 }
             }

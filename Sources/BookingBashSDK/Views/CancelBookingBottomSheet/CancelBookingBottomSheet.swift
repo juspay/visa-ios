@@ -5,7 +5,7 @@ struct CancelBookingBottomSheet: View {
     var onFinish: () -> Void
     
     var body: some View {
-        BottomSheetView(isPresented: $isPresented, sheetHeight: 420) {
+        BottomSheetView(isPresented: $isPresented, sheetHeight: 420, dismissOnbackgroundClick: true) {
             VStack(spacing: 0) {
                 ZStack {
                     if let image = ImageLoader.bundleImage(named: Constants.CancelBookingBottomSheetConstants.imageName) {

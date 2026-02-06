@@ -417,7 +417,6 @@ struct DatePickerSheet: View {
             Button("Done") { presentationMode.wrappedValue.dismiss() }
                 .padding()
         }
-//        .presentationDetents([.medium])
     }
 }
 

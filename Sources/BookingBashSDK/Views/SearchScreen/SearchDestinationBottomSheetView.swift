@@ -2,10 +2,30 @@ import SwiftUI
 
 struct SearchDestinationBottomSheetView: View {
     @ObservedObject var searchDestinationViewModel: SearchDestinationViewModel
+    var destinations: [SearchDestinationModel]
     var onSelectDestination: (SearchRequestModel) -> Void
     @FocusState private var isSearchFieldFocused: Bool
     @Binding var isPresented: Bool
     @State private var isContentVisible: Bool = false
+    
+    init(searchDestinationViewModel: SearchDestinationViewModel,
+         destinations: [Destination],
+         isPresented: Binding<Bool>,
+         onSelectDestination: @escaping (SearchRequestModel) -> Void
+        ) {
+        self.searchDestinationViewModel = searchDestinationViewModel
+        self._isPresented = isPresented
+        self.onSelectDestination = onSelectDestination
+
+        self.destinations = destinations.map {
+            SearchDestinationModel(
+                name: $0.name,
+                destinationId: $0.destinationId,
+                destinationType: $0.destinationType,
+                isRecent: false
+            )
+        }
+    }
 
     var body: some View {
         ZStack {
@@ -21,6 +41,7 @@ struct SearchDestinationBottomSheetView: View {
                     Spacer()
                     Button(action: {
                         isPresented = false
+                        hideKeyboard()
                     }) {
                         Image(systemName: "xmark")
                             .font(.system(size: 10, weight: .bold))
@@ -63,12 +84,20 @@ struct SearchDestinationBottomSheetView: View {
                                     onClear: nil,
                                     onTap: { searchDestinationViewModel.handleDestinationTap($0, onSelect: onSelectDestination) }
                                 )
+                            } else {
+                                SectionView(
+                                    title: Constants.searchScreenConstants.selectDestination,
+                                    showClear: false,
+                                    destinations: destinations,
+                                    onClear: nil,
+                                    onTap: { searchDestinationViewModel.handleDestinationTap($0, onSelect: onSelectDestination) }
+                                )
                             }
                         }
                     }
                 }
             }
-            .padding()
+            .padding([.horizontal, .bottom])
             .opacity(isContentVisible ? 1 : 0)
             .animation(.easeOut(duration: 0.15), value: isContentVisible)
         }

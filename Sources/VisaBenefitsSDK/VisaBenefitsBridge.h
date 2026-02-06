@@ -2,7 +2,7 @@
 //  VisaBenefitsBridge.h
 //  JuspayBankSDK
 //
-//  Created by Harsh Garg on 11/09/25.
+//  Created by Namit Goel on 11/09/25.
 //
 
 #import <Foundation/Foundation.h>
@@ -14,6 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)setBridgeComponent:(id<BridgeComponent>)component;
 - (void)launchBookingBash:(NSString *)encryptedPayload :(NSString *) callback;
+- (void)launchBookingBashWithEnv:(NSString *)encryptedPayload :(NSString *) callback :(NSString *) environment;
 
 @end
 

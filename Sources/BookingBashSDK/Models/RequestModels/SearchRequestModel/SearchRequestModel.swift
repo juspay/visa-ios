@@ -1,7 +1,6 @@
 struct SearchRequestModel: Codable {
     let destinationId: String
     let destinationType: Int
-    let location: String
     let checkInDate: String
     let checkOutDate: String
     let currency: String
@@ -13,7 +12,6 @@ struct SearchRequestModel: Codable {
     enum CodingKeys: String, CodingKey {
         case destinationId = "destination_id"
         case destinationType = "destination_type"
-        case location
         case checkInDate = "check_in_date"
         case checkOutDate = "check_out_date"
         case currency
@@ -25,8 +23,8 @@ struct SearchRequestModel: Codable {
 }
 
 struct SearchFilters: Codable {
-    let limit: Int
-    let offset: Int
+    var limit: Int
+    var offset: Int
     let priceRange: [Double]
     let rating: [Int]
     let duration: [Int]

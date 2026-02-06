@@ -6,46 +6,86 @@ struct CombinedTitleFirstName: View {
     let titleOptions: [String]
     @Binding var selectedTitle: String
     @Binding var firstName: String
-    
+    @Binding var showError: Bool
+
+    private var filteredTitles: [String] {
+        titleOptions.filter { $0 != Constants.GuestDetailsFormConstants.title }
+    }
+
     var body: some View {
         HStack(spacing: 0) {
-            // Left: Title menu
+
+            // MARK: - Title Menu
             Menu {
-                ForEach(titleOptions.filter { $0 != Constants.GuestDetailsFormConstants.title }, id: \ .self) { t in
-                    Button(t) {
+                ForEach(filteredTitles, id: \.self) { t in
+                    Button {
                         selectedTitle = t
+                        UserDefaultsManager.shared.set(t, for: UserDefaultsKey.salutationTitle.rawValue)
+                    } label: {
+                        Text(t)
                     }
                 }
             } label: {
-                HStack(spacing: 4) {
-                    Text(selectedTitle)
-                        .font(.system(size: 14))
-                        .foregroundColor(selectedTitle == Constants.GuestDetailsFormConstants.title ? Color(.systemGray3) : Color(.label))
-                    Image(systemName: Constants.GuestDetailsFormConstants.systemNameChevronDown)
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(Color(.brown))
+                HStack(spacing: 6) {
+                    Text(
+                        selectedTitle.isEmpty
+                        ? Constants.GuestDetailsFormConstants.title
+                        : selectedTitle
+                    )
+                    .font(.system(size: 14))
+                    .foregroundColor(
+                        selectedTitle.isEmpty
+                        ? Color(.systemGray3)
+                        : Color(.label)
+                    )
+
+                    Spacer()
+
+                    if let arrow = ImageLoader.bundleImage(named: Constants.Icons.arrowDown) {
+                        arrow
+                            .resizable()
+                            .frame(width: 20, height: 20)
+                            .foregroundColor(Color(hex: Constants.HexColors.primary))
+                    }
                 }
                 .frame(minWidth: 88, maxWidth: 100, alignment: .leading)
-                .padding(.leading, 12)
-                .padding(.vertical, 12)
+                .padding(10)
             }
-            
-            // vertical divider
+
+            // MARK: - Divider
             Rectangle()
-                .fill(Color.gray.opacity(0.25))
+                .fill(
+                    (showError && selectedTitle.isEmpty)
+                    ? Color(hex: Constants.HexColors.error)
+                    : Color.gray.opacity(0.25)
+                )
                 .frame(width: 1)
-            
-            // Right: first name textfield (bare style)
-            BareTextField(placeholder: Constants.GuestDetailsFormConstants.enterFirstName, text: $firstName)
-                .disabled(true)
-                .opacity(0.6)
-                .padding(.vertical, 0)
-                .padding(.leading, 12)
-            
+
+            // MARK: - First Name Field
+            BareTextField(
+                placeholder: Constants.GuestDetailsFormConstants.enterFirstName,
+                text: $firstName
+            )
+            .disabled(true)
+            .opacity(0.6)
+            .padding(.leading, 12)
         }
         .frame(height: 44)
         .background(Color.white)
-        .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray.opacity(0.35)))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(
+                    (showError && selectedTitle.isEmpty)
+                    ? Color(hex: Constants.HexColors.error)
+                    : Color.gray.opacity(0.35)
+                )
+        )
         .cornerRadius(8)
+        .onAppear {
+            if selectedTitle.isEmpty,
+               let savedTitle: String = UserDefaultsManager.shared.get(for: UserDefaultsKey.salutationTitle.rawValue) {
+                selectedTitle = savedTitle
+            }
+        }
     }
 }

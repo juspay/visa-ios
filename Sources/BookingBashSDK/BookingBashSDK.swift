@@ -3,7 +3,7 @@ import SUINavigation
 
 @objc public class BookingBashSDK: NSObject {
 
-    @objc public static func createExperienceHomeView(encryptPayLoad: String, callback: @escaping () -> Void) -> UIViewController {
+    @objc public static func createExperienceHomeView(encryptPayLoad: String, callback: @escaping () -> Void, environment: String) -> UIViewController {
         let view =
             if #available(iOS 16.0, *) {
                 AnyView(
@@ -11,7 +11,8 @@ import SUINavigation
                         ExperienceHomeView(
                             encryptPayLoadMainapp: encryptPayLoad,
                             isActive: .constant(true),
-                            onFinish:callback
+                            onFinish:callback,
+                            environment: environment
                         )
                         .preferredColorScheme(.light)
                     }
@@ -22,7 +23,8 @@ import SUINavigation
                         ExperienceHomeView(
                             encryptPayLoadMainapp: encryptPayLoad,
                             isActive: .constant(true),
-                            onFinish: callback
+                            onFinish: callback,
+                            environment: environment
                         )
                         .preferredColorScheme(.light)
                     }

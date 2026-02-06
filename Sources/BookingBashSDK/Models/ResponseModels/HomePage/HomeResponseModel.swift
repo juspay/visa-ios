@@ -2,101 +2,115 @@ import Foundation
 
 struct HomeResponseModel: Codable {
     let status: Bool
-    let statusCode: Int
-    let data: HomeDataModel
+    let data: DataClass?
+
     enum CodingKeys: String, CodingKey {
-        case status
-        case statusCode = "status_code"
-        case data
+        case status, data
     }
 }
 
-struct HomeDataModel: Codable {
-    let popularDestinations: [HomeDestinationModel]
-    let featuredActivities: [HomeFeatureActivityModel]
-    let pageUrls: HomePageUrlsModel
-    let currency: String
+struct DataClass: Codable {
+    let body: Body?
+    let footer: Footer?
+
     enum CodingKeys: String, CodingKey {
-        case popularDestinations = "popular_destinations"
-        case featuredActivities = "featured_activities"
-        case pageUrls = "page_urls"
-        case currency
+        case body, footer
     }
 }
 
-struct HomeDestinationModel: Codable {
-    let title: String
-    let destinationType: Int
-    let destinationId: String
-    let locationName: String
-    let city: String
-    let state: String
-    let region: String
-    let latLong: HomeLatLongModel?
-    let image: String
+// MARK: - Body
+struct Body: Codable {
+    let mobile: [MobileElement]?
+}
+
+// MARK: - Footer
+struct Footer: Codable {
+    let menu: [SocialmediaElement]
+
     enum CodingKeys: String, CodingKey {
-        case title
-        case destinationType = "destination_type"
-        case destinationId = "destination_id"
-        case locationName = "location_name"
-        case city
-        case state
-        case region
-        case latLong = "lat_long"
-        case image
+        case menu
     }
 }
 
-struct HomeLatLongModel: Codable {
-    let lat: Double
-    let lng: Double
+// MARK: - SocialmediaElement
+struct SocialmediaElement: Codable {
+    let order: Int?
+    let text: String?
+    let url: String?
+    let icon: String?
+    let active: String?
 }
 
-struct HomeFeatureActivityModel: Codable {
-    let activityCode: String?
-    let title: String
-    let shortDescription: String?
-    let thumbnail: String
-    let price: HomePriceModel
-    let rating: Int
-    let reviewCount: Int
-    let durationHours: HomeDurationHoursModel
-    let destinationId: String
-    let destinationName: String
-    let specialOfferAvailable: Bool
-    let confirmationType: String?
-    let itineraryType: String?
-    let featureFlags: [String]?
-    let categories: [HomeCategoryModel]?
-    let productId: String?
+// MARK: - MobileElement
+struct MobileElement: Codable {
+    let order: Int?
+    let type: String
+    let isNew: Int?
+    let text, url, bannerData: String?
+    let title, description: String?
+    let data: [HomeFeatureActivityModel2]?
+
     enum CodingKeys: String, CodingKey {
-        case activityCode = "activity_code"
-        case title
-        case shortDescription = "short_description"
-        case thumbnail
-        case price
-        case rating
-        case reviewCount = "review_count"
-        case durationHours = "duration_hours"
-        case destinationId = "destination_id"
-        case destinationName = "destination_name"
-        case specialOfferAvailable = "special_offer_available"
-        case confirmationType = "confirmation_type"
-        case itineraryType = "itinerary_type"
-        case featureFlags = "feature_flags"
-        case categories
-        case productId = "product_id"
+        case order, type
+        case isNew = "is_new"
+        case text, url
+        case bannerData = "banner_data"
+        case title, description, data
     }
 }
 
-struct HomeCategoryModel: Codable {
-    let name: String?
-    let tagId: Int?
-    let parentIds: [Int]?
+struct HomeFeatureActivityModel2: Codable {
+    let name, destinationID, mobileBanner: String?
+    let title: String?
+    let destinationType: Int?
+    let activityCode, destinationName: String?
+    let thumbnail: String?
+    let price: PriceOrString?
+
     enum CodingKeys: String, CodingKey {
         case name
-        case tagId = "tag_id"
-        case parentIds = "parent_ids"
+        case destinationID = "destination_id"
+        case mobileBanner = "mobile_banner"
+        case title
+        case destinationType = "destination_type"
+        case activityCode = "activity_code"
+        case destinationName = "destination_name"
+        case thumbnail
+        case price
+    }
+}
+
+enum PriceOrString: Codable {
+    case price(HomePriceModel)
+    case string(String)
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        
+        if let price = try? container.decode(HomePriceModel.self) {
+            self = .price(price)
+            return
+        }
+        
+        if let str = try? container.decode(String.self) {
+            self = .string(str)
+            return
+        }
+        
+        throw DecodingError.typeMismatch(
+            PriceOrString.self,
+            DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Expected HomePriceModel or String for price")
+        )
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        switch self {
+        case .price(let price):
+            try container.encode(price)
+        case .string(let str):
+            try container.encode(str)
+        }
     }
 }
 
@@ -106,7 +120,9 @@ struct HomePriceModel: Codable {
     let totalAmount: Double
     let strikeout: HomeStrikeoutModel?
     let currency: String
-    let roeBase: Double
+    let roeBase: Double?
+    let pricingModel: String?
+
     enum CodingKeys: String, CodingKey {
         case baseRate = "base_rate"
         case taxes
@@ -114,6 +130,7 @@ struct HomePriceModel: Codable {
         case strikeout
         case currency
         case roeBase = "roe_base"
+        case pricingModel = "pricing_model"
     }
 }
 
@@ -121,7 +138,7 @@ struct HomeStrikeoutModel: Codable {
     let baseRate: Double?
     let taxes: Double?
     let totalAmount: Double?
-    let savingPercentage: Int?
+    let savingPercentage: Double?
     let savingAmount: Double?
     enum CodingKeys: String, CodingKey {
         case baseRate = "base_rate"
@@ -129,19 +146,5 @@ struct HomeStrikeoutModel: Codable {
         case totalAmount = "total_amount"
         case savingPercentage = "saving_percentage"
         case savingAmount = "saving_amount"
-    }
-}
-
-struct HomeDurationHoursModel: Codable {
-    let from: Int
-    let to: Int
-}
-
-struct HomePageUrlsModel: Codable {
-    let termsAndConditions: String
-    let privacyPolicy: String
-    enum CodingKeys: String, CodingKey {
-        case termsAndConditions = "terms_and_conditions"
-        case privacyPolicy = "privacy_policy"
     }
 }

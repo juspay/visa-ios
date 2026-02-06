@@ -32,6 +32,7 @@ struct AvailabilitySelectionRowView: View {
                 Text(value)
                     .font(.custom(Constants.Font.openSansSemiBold, size: 12))
                     .foregroundStyle(Color(hex: Constants.HexColors.surfaceWeakest))
+                    .multilineTextAlignment(.trailing)
 
                 if let arrowImage = ImageLoader.bundleImage(named: Constants.Icons.arrowRight) {
                     arrowImage

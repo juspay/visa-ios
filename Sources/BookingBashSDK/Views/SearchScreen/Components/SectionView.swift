@@ -33,13 +33,13 @@ struct SectionView: View {
                     }) {
                         HStack(spacing: 12) {
 
-                            if let mapImage = ImageLoader.bundleImage(named: Constants.Icons.mapGray) {
-                                mapImage
-                                    .resizable()
-                                    .foregroundColor(.gray)
-                                    .frame(width: 20, height: 20)
-                                    .foregroundStyle(.gray)
-                            }
+//                            if let mapImage = ImageLoader.bundleImage(named: Constants.Icons.mapGray) {
+//                                mapImage
+//                                    .resizable()
+//                                    .foregroundColor(.gray)
+//                                    .frame(width: 20, height: 20)
+//                                    .foregroundStyle(.gray)
+//                            }
 
                             Text(destination.name)
                                 .font(.custom(Constants.Font.openSansSemiBold, size: 12))

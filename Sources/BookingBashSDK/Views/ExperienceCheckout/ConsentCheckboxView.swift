@@ -45,27 +45,29 @@ struct CheckboxTermsView: View {
                     Text(Constants.CheckoutPageConstants.agree)
                         .foregroundStyle(Color(hex: Constants.HexColors.neutral))
                     
-                    Button(action: {
-                        termsAndConditionTapped()
-                    }) {
-                        Text(Constants.CheckoutPageConstants.termsConditions)
-                            .foregroundStyle(Color(hex: Constants.HexColors.primary))
-                    }
-                    .buttonStyle(PlainButtonStyle())
+                    Text(Constants.CheckoutPageConstants.termsConditions)
+                        .foregroundStyle(Color(hex: Constants.HexColors.primary))
+                        .onTapGesture {
+                            termsAndConditionTapped()
+                        }
                     
                     Text(Constants.CheckoutPageConstants.andText)
                         .foregroundStyle(Color(hex: Constants.HexColors.neutral))
-                }
-                .font(.custom(Constants.Font.openSansSemiBold, size: 12))
-                
-                Button(action: {
-                    privacyPolicytapped()
-                }) {
-                    Text(Constants.CheckoutPageConstants.privacyPolicy)
+
+                    Text(Constants.CheckoutPageConstants.privacy)
                         .font(.custom(Constants.Font.openSansSemiBold, size: 12))
                         .foregroundStyle(Color(hex: Constants.HexColors.primary))
+                        .onTapGesture {
+                            privacyPolicytapped()
+                        }
                 }
-                .buttonStyle(PlainButtonStyle())
+                .font(.custom(Constants.Font.openSansSemiBold, size: 12))
+                Text(Constants.CheckoutPageConstants.policy)
+                    .font(.custom(Constants.Font.openSansSemiBold, size: 12))
+                    .foregroundStyle(Color(hex: Constants.HexColors.primary))
+                    .onTapGesture {
+                        privacyPolicytapped()
+                    }
             }
             
             Spacer()

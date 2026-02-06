@@ -7,5 +7,5 @@ struct InfoItem: Identifiable {
 }
 
 enum InfoType {
-    case highlights, included, excluded, cancellation, know, where_, reviews, photos
+    case highlights, included, excluded, cancellation, where_, reviews, photos, know_before_you_go
 }

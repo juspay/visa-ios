@@ -1,7 +1,7 @@
 import Foundation
 
 struct GuestDetails {
-    var title: String = "Title"
+    var title: String = ""
     var firstName: String = ""
     var lastName: String = ""
     var email: String = ""

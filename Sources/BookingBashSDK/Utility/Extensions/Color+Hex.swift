@@ -47,13 +47,15 @@ extension TransactionStatus {
         case .confirmed:
             return Color(hex: Constants.HexColors.greenShade)
         case .pending:
-            return .orange
+            return Color(hex: Constants.HexColors.yellowShade)
         case .cancelled:
-            return .red
+            return Color(hex: Constants.HexColors.error)
         case .completed:
             return .blue
         case .failed:
-            return .red
+            return Color(hex: Constants.HexColors.error)
+        case .refunded:
+            return Color(hex: Constants.HexColors.error)
         }
     }
 }

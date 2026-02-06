@@ -1,45 +1,88 @@
 import SwiftUI
 
+enum MenuItems: CaseIterable, Identifiable {
+    case profile
+    case transactions
+    case currency
+
+    var id: Self { self }
+
+    var imageName: String {
+        switch self {
+        case .profile:
+            return Constants.Icons.usergray
+        case .transactions:
+            return Constants.Icons.activity
+        case .currency:
+            return Constants.Icons.currencyWhite
+        }
+    }
+
+    var title: String {
+        switch self {
+        case .profile:
+            return Constants.SideMenuConstants.myProfile
+        case .transactions:
+            return Constants.SideMenuConstants.myTransactions
+        case .currency:
+            return Constants.SideMenuConstants.currency
+        }
+    }
+
+    @ViewBuilder
+    func destination(viewModel: HomeViewModel) -> some View {
+        switch self {
+        case .profile:
+            ProfileView()
+        case .transactions:
+            MyTransactionView(homeViewModel: viewModel)
+        case .currency:
+            CurrencyListView(viewModel: viewModel)
+        }
+    }
+}
+
 struct SideMenuView: View {
+    @ObservedObject var viewModel: HomeViewModel
+
     var body: some View {
         NavigationView {
             VStack(alignment: .leading, spacing: 24) {
-                
+
                 // Profile Section
                 HStack(spacing: 6) {
-                    
-                    Group {
-                        if let profileImage = ImageLoader.bundleImage(named: Constants.SideMenuConstants.iconProfile) {
-                            profileImage
-                                .resizable()
-                                .frame(width: 24, height: 24)
-                        }
+                    if let profileImage = ImageLoader.bundleImage(
+                        named: Constants.SideMenuConstants.iconProfile
+                    ) {
+                        profileImage
+                            .resizable()
+                            .frame(width: 24, height: 24)
                     }
-                    
-                    Text(String(format: Constants.SideMenuConstants.greetingText, firstName))
-                        .lineLimit(1)
-                        .font(.custom(Constants.Font.lexendBold, size: 14))
-                        .foregroundColor(.black)
+
+                    Text(String(
+                        format: Constants.SideMenuConstants.greetingText,
+                        firstName
+                    ))
+                    .lineLimit(1)
+                    .font(.custom(Constants.Font.lexendBold, size: 14))
+                    .foregroundColor(Color(hex: Constants.HexColors.blackStrong))
                 }
                 .padding(.top, 40)
                 .padding(.horizontal, 20)
-                
+
                 // Menu Items
                 VStack(spacing: 8) {
-                    //  Navigate to MyTransactionView
-                    NavigationLink(destination: MyTransactionView()) {
-                        MenuRow(icon: Constants.Icons.activity, title: Constants.SideMenuConstants.myTransactions)
-                    }
-                    
-//                    MenuRow(icon: Constants.Icons.savingGray, title: Constants.SideMenuConstants.myBBProSavings )
-//                    
-//                    MenuRow(icon: Constants.Icons.wishlist, title: Constants.SideMenuConstants.myFavorites)
-                    NavigationLink(destination: ProfileView()) {
-                        MenuRow(icon: Constants.Icons.usergray, title: Constants.SideMenuConstants.myProfile)
+                    ForEach(MenuItems.allCases) { item in
+                        NavigationLink(destination: item.destination(viewModel: viewModel)) {
+                            MenuRow(
+                                icon: item.imageName,
+                                title: item.title
+                            )
+                        }
                     }
                 }
                 .padding(.horizontal, 20)
-                
+
                 Spacer()
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -68,7 +111,7 @@ struct MenuRow: View {
             
             Text(title)
                 .font(.custom(Constants.Font.openSansSemiBold, size: 14))
-                .foregroundColor(.black)
+                .foregroundColor(Color(hex: Constants.HexColors.blackStrong))
             
             Spacer()
             
@@ -81,8 +124,8 @@ struct MenuRow: View {
                 }
             }
         }
-        .padding()
-        .background(Color.gray.opacity(0.08))
+        .padding(14)
+        .background(Color(hex: Constants.HexColors.surfaceWeakest))
         .cornerRadius(12)
     }
 }

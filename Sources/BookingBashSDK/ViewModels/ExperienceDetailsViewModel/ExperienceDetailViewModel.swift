@@ -18,6 +18,7 @@ final class ExperienceDetailViewModel: ObservableObject {
     @Published var exclusions: [InfoDetailModel] = []
     @Published var highlights: [InfoDetailModel] = []
     @Published var cancellationPolicyData: [InfoDetailModel] = []
+    @Published var knowBeforeYouGoData: [InfoDetailModel] = []
     @Published var reviews: [ReviewsModel] = []
     @Published var images: [TravellerPhotosModel] = []
     @Published var price: String = ""
@@ -38,7 +39,7 @@ final class ExperienceDetailViewModel: ObservableObject {
     var shouldShowErrorOverlay: Bool {
         return showErrorOverlay
     }
-    var cancellationPolicy: String = ""
+    var cancellationPolicy: String? = nil
     let icons = ["bolt.fill"]
     var ageBandsForAvailability: [DetailAgeBand] = []
     func fetchReviewData(activityCode: String, currency: String) {
@@ -135,7 +136,11 @@ final class ExperienceDetailViewModel: ObservableObject {
         guard let data = responseData else { return }
         maxTravelersPerBooking = data.info.bookingRequirements.maxTravelersPerBooking
         apiReviewResponseData = data
-
+        if carousalData.isEmpty {
+            for _ in 0..<4 {
+                carousalData.append(ExperienceDetailCarousalModel(imageUrl: data.info.thumbnail))
+            }
+        }
         let formattedPrice = String(format: "%.2f", data.price.totalAmount)
         price = "\(data.price.currency) \(formattedPrice)"
         priceValue = data.price.totalAmount
@@ -182,6 +187,10 @@ final class ExperienceDetailViewModel: ObservableObject {
                 features.append(FeatureItem(iconName: "bolt", title: ticketInfo.ticketTypeDescription))
             }
         }
+        let refundableStatus  = data.info.cancellationPolicy.refundable ?? false
+        let title = refundableStatus ? Constants.BookingStatusScreenConstants.refundable : Constants.BookingStatusScreenConstants.nonRefundable
+        features.append(FeatureItem(iconName: "bolt", title: title))
+
         allFeatures = features
         if !data.info.description.isEmpty {
             let aboutDescription = "\(data.info.description)\n\nDuration: \(durationDisplay)"
@@ -195,6 +204,10 @@ final class ExperienceDetailViewModel: ObservableObject {
         cancellationPolicyData = [
             InfoDetailModel(title: "Cancellation Policy", items: cancellationItems)
         ]
+        if let knowBeforeYouGoDetail = data.info.knowBeforeYouGo, !knowBeforeYouGoDetail.isEmpty {
+            knowBeforeYouGoData = [InfoDetailModel(title: "Know Before You Go", items: [knowBeforeYouGoDetail])]
+        }
+
         let inclusionItems = data.info.inclusions.compactMap { inclusion -> String? in
             if let description = inclusion.description, !description.isEmpty, description != "Other" {
                 return description
@@ -278,6 +291,9 @@ final class ExperienceDetailViewModel: ObservableObject {
         }
         if let firstCancellation = cancellationPolicyData.first, !firstCancellation.items.isEmpty {
             availableItems.append(InfoItem(title: "Cancellation Policy", type: .cancellation))
+        }
+        if let firstKnowBeforeYouGo = knowBeforeYouGoData.first, !firstKnowBeforeYouGo.items.isEmpty {
+            availableItems.append(InfoItem(title: "Know Before You Go", type: .know_before_you_go))
         }
         items = availableItems
     }

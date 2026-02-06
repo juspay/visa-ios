@@ -14,6 +14,7 @@ enum BookingStatus {
     case paymentfailed
     case bookingFailed
     case cancelled
+    case refunded
 }
 
 struct ExperienceBookingStatusScreenView: View {
@@ -36,6 +37,9 @@ struct ExperienceBookingStatusScreenView: View {
                 
             case .cancelled:
                 BookingCancellationView(experienceBookingConfirmationViewModel: viewModel, participantsSummary: viewModel.participantsSummary, selectedTime: viewModel.selectedTime ?? "")
+                
+            case .refunded:
+                BookingRefundedView(experienceBookingConfirmationViewModel: viewModel, participantsSummary: viewModel.participantsSummary, selectedTime: viewModel.selectedTime ?? "")
             }
         }
     }

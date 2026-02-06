@@ -47,7 +47,7 @@ enum MyTransactionRoute: Hashable {
 struct MyTransactionView: View {
     @StateObject private var viewModel = TransactionsViewModel()
     @StateObject private var bookingViewModel = ExperienceBookingConfirmationViewModel()
-
+    @ObservedObject var homeViewModel: HomeViewModel
     @Environment(\.presentationMode) var presentationMode
     @State private var selectedTransaction: Booking? = nil
     @State private var cancelledBooking: Booking? = nil
@@ -57,24 +57,25 @@ struct MyTransactionView: View {
         NavigationStorageView {
             ThemeTemplateView(needsScroll: false,
                               header: {
-                // Header
-                HStack(spacing: 10) {
-                    if let vectorImage = ImageLoader.bundleImage(named: Constants.Icons.vector) {
-                        vectorImage
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 20, height: 20)
-                            .foregroundColor(.white)
-                    }
+                VStack {
+                    HStack(spacing: 10) {
+                        if let vectorImage = ImageLoader.bundleImage(named: Constants.Icons.vector) {
+                            vectorImage
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 20, height: 20)
+                                .foregroundColor(.white)
+                        }
 
-                    Text(Constants.TransactionRowConstants.myTransactionsTitle)
-                        .bold()
-                        .foregroundColor(.white)
-                        .font(.custom("Lexend-Bold", size: 16))
-                    
-                    Spacer()
+                        Text(Constants.TransactionRowConstants.myTransactionsTitle)
+                            .bold()
+                            .foregroundColor(.white)
+                            .font(.custom("Lexend-Bold", size: 16))
+                        
+                        Spacer()
+                    }
+                    .padding(.top, 8)
                 }
-                .padding(.top, 8)
             },
             content: {
                 VStack(spacing: 0) {
@@ -86,27 +87,17 @@ struct MyTransactionView: View {
                     ScrollView {
                         LazyVStack(spacing: 19) {
                             if viewModel.bookings.isEmpty && !viewModel.isLoading {
-                                // Empty state for current tab
-                                VStack(spacing: 16) {
-                                    Image(systemName: Constants.TransactionRowConstants.docTextSystemImage)
-                                        .font(.system(size: 50))
-                                        .foregroundColor(.black)
-                                    Text(String(format: Constants.TransactionRowConstants.noBookingsFormat, viewModel.selectedTab.rawValue.lowercased()))
-                                        .font(.headline)
-                                        .foregroundColor(.primary)
-                                }
-                                .frame(maxWidth: .infinity)
-                                .padding(.top, 50)
+                                noTransactionView
                             } else {
                                 ForEach(viewModel.bookings) { item in
                                     Button(action: {
-                                        if item.status == .cancelled {
-                                            cancelledBooking = item
-                                        } else {
+//                                        if item.status == .cancelled {
+//                                            cancelledBooking = item
+//                                        } else {
                                             selectedTransaction = item
-                                        }
+//                                        }
                                     }) {
-                                        TransactionRow(item: item, participantsSummary: bookingViewModel.participantsSummary)
+                                        TransactionRow(item: item)
                                     }
                                     .onAppear {
                                         // Load more when the last item appears
@@ -119,7 +110,6 @@ struct MyTransactionView: View {
                             
                             if viewModel.isLoading {
                                 LoaderView(text: "Loading bookings...")
-
                             }
                         }
                         .padding(.horizontal)
@@ -154,19 +144,45 @@ struct MyTransactionView: View {
                     )
                     .hidden()
                 }
-                .sheet(item: $cancelledBooking) { booking in
-                    CancelBookingBottomSheet(isPresented: .constant(true), onFinish: {
-                        cancelledBooking = nil
-                    })
-                }
             }
             )
             .onAppear {
                 viewModel.fetchBookings()
             }
             .navigationBarBackButtonHidden(true)
-            
         }
         .navigationBarHidden(true)
+    }
+
+    private var noTransactionView: some View {
+        VStack {
+            if let noResultImage = ImageLoader.bundleImage(named: Constants.Icons.noTransactionResult) {
+                noResultImage
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 123, height: 123)
+                    .padding(.top, 40)
+            }
+
+            Text(String(format: Constants.TransactionRowConstants.noTransactionResult, viewModel.selectedTab.rawValue.lowercased()))
+                .font(.custom(Constants.Font.openSansSemiBold, size: 14))
+                .foregroundColor(.primary)
+                .padding(.top, 16)
+            
+            Button {
+                homeViewModel.showMenu = false
+                presentationMode.wrappedValue.dismiss()
+            } label: {
+                Text(String(format: Constants.TransactionRowConstants.bookExperience, viewModel.selectedTab.rawValue.lowercased()))
+                    .font(.custom(Constants.Font.openSansBold, size: 12))
+                    .foregroundColor(Color.white)
+                    .padding()
+                    .background(Color(hex: Constants.HexColors.primary))
+                    .cornerRadius(4)
+            }
+            .padding(.top, 60)
+        }
+        .frame(maxWidth: .infinity)
+        .padding()
     }
 }

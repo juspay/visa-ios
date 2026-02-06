@@ -87,11 +87,10 @@ struct ExperienceDestinationDetailView : View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 16) {
                             ForEach(sampleExperiences) { exp in
-                                ExperienceCardView(
-                                    experience: exp,
-                                    cardHeight: 220,
-                                    cardWidth: 180
-                                )
+//                                ExperienceCardView(
+//                                    experience: exp,
+//                                    cardHeight: 220
+//                                )
                             }
                         }
                         .padding(.horizontal, 16)
@@ -102,7 +101,6 @@ struct ExperienceDestinationDetailView : View {
                     ExperienceListDetailView(
                         destinationId: "12633",
                         destinationType: 0,
-                        location: "Dubai",
                         checkInDate: "2025-09-26",
                         checkOutDate: "2025-09-27",
                         currency: "AED",
@@ -132,29 +130,26 @@ struct ExperienceDestinationDetailView : View {
 let sampleExperiences: [Experience] = [
     Experience(
         imageURL: "Sky",   // bundle image name
-        country: "UAE",
         title: "Dubai Red Dunes ATV",
         originalPrice: 350,
         discount: 15,
         finalPrice: 295,
-        productCode: "EXP001", currency: ""
+        productCode: "EXP001", currency: "", pricingModel: "Person"
     ),
     Experience(
         imageURL: "DubaiImage",
-        country: "UAE",
         title: "Dubai Frame Entry Ticket",
         originalPrice: 320,
         discount: 10,
         finalPrice: 290,
-        productCode: "EXP002", currency: ""
+        productCode: "EXP002", currency: "", pricingModel: "Person"
     ),
     Experience(
         imageURL: "Sky",
-        country: "UAE",
         title: "Burj Khalifa 124th Floor",
         originalPrice: 450,
         discount: 20,
         finalPrice: 360,
-        productCode: "EXP003", currency: ""
+        productCode: "EXP003", currency: "", pricingModel: "Person"
     )
 ]

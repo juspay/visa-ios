@@ -12,7 +12,7 @@ struct BookingCancellationView: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            ThemeTemplateView(header: {
+            ThemeTemplateView(hideBackButton: true, header: {
                 ExperienceBookingConfirmationTopView(bookingInfo: experienceBookingConfirmationViewModel.bookingCancelledInfo)
                     .padding(.bottom, 22)
             }, content: {
@@ -20,7 +20,6 @@ struct BookingCancellationView: View {
                     BookingBasicDetailsCardView(basicBookingDetailsModel: experienceBookingConfirmationViewModel.bookingBasicDetails)
                     
                     BookedExperienceDetailCardView(
-                        experienceViewModel: ExperienceAvailabilitySelectOptionsViewModel(),
                         confirmationViewModel: experienceBookingConfirmationViewModel,
                         viewDetailsButtonTapped: {
                             shouldExpandDetails = true
@@ -30,7 +29,7 @@ struct BookingCancellationView: View {
                     )
                     
                     if shouldExpandDetails {
-                        FareSummaryCardView(fairSummaryData: experienceBookingConfirmationViewModel.fairSummaryData, totalPrice: "\(experienceBookingConfirmationViewModel.currency) \(String(format: "%.2f", experienceBookingConfirmationViewModel.totalAmount))", shouldShowTopBanner: false)
+                        FareSummaryCardView(fairSummaryData: experienceBookingConfirmationViewModel.fairSummaryData, totalPrice: "\(experienceBookingConfirmationViewModel.currency) \(experienceBookingConfirmationViewModel.totalAmount.commaSeparated())", shouldShowTopBanner: false)
                         RefundDetailsCardView(viewModel: experienceBookingConfirmationViewModel)
                         ConfirmationInfoReusableCardView(section: experienceBookingConfirmationViewModel.cancellationPolicy, showBullets: false)
                         ConfirmationInfoReusableCardView(section: experienceBookingConfirmationViewModel.leadTraveller, showBullets: false)
@@ -50,16 +49,6 @@ struct BookingCancellationView: View {
             }
             .modifier(NavigationDestinationModifier(navigateToHome: $navigateToHome))
 
-        }
-        .overlay {
-            if showCancelBottomSheet {
-                CancelBookingBottomSheet(
-                    isPresented: $showCancelBottomSheet,
-                    onFinish: {
-                        showCancelBottomSheet = false
-                    }
-                )
-            }
         }
     }
 }

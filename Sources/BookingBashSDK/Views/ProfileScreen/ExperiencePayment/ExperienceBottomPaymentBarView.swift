@@ -44,7 +44,7 @@ struct ExperienceBottomPaymentBarView: View {
                         .foregroundStyle(Color(hex: Constants.HexColors.neutral))
                     
                     HStack(spacing: 4) {
-                        Text("\(Constants.ExperiencePaymentConstants.aed) \(price)")
+                        Text("\(currencyGlobal) \(price)")
                             .font(.custom(Constants.Font.openSansBold, size: 16))
                             .foregroundStyle(Color(hex: Constants.HexColors.secondary))
                         

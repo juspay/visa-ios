@@ -53,9 +53,6 @@ struct InfoListView: View {
             InfoDetailListView(sections: viewModel.exclusions, showBullets: true, experienceName: experienceName)
         case .cancellation:
             InfoDetailListView(sections: viewModel.cancellationPolicyData, showBullets: false, experienceName: experienceName)
-        case .know:
-//            InfoDetailListView(sections: viewModel.knowBeforeGo, showBullets: true, experienceName: experienceName)
-            Text("")
         case .where_:
             Text("Where View")
         case .reviews:
@@ -64,6 +61,8 @@ struct InfoListView: View {
             TravellerPhotosGridView(viewModel: viewModel)
         case .none:
             EmptyView()
+        case .know_before_you_go:
+            InfoDetailListView(sections: viewModel.knowBeforeYouGoData, showBullets: false, experienceName: experienceName)
         }
     }
 }

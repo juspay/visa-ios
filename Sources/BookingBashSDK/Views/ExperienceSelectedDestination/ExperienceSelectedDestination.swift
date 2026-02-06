@@ -24,7 +24,7 @@ struct ExperienceSelectedDestination: View {
     
     // Currency
     @State private var isCurrencySheetPresented = false
-    @State private var selectedCurrency: String = "AED"
+    @State private var selectedCurrency: String = currencyGlobal
     
     private let currencies = ["AED", "₹ INR", "$ USD", "£ GBP", "€ EUR"]
     
@@ -139,7 +139,7 @@ struct ExperienceSelectedDestination: View {
                             title: Constants.HomeScreenConstants.epicExperiences,
                             showViewAll: false
                         )
-                        ExperienceListView(experiences: homeViewModel.experiences)
+                        ExperienceListView(experiences: $homeViewModel.experiences)
                     }
                 }
                 .onAppear {
@@ -216,7 +216,6 @@ private extension ExperienceSelectedDestination {
         SearchRequestModel(
             destinationId: destination.destinationId,
             destinationType: destination.destinationType,
-            location: destination.city,
             checkInDate: Constants.ExperienceHomeConstants.defaultCheckInDate,
             checkOutDate: Constants.ExperienceHomeConstants.defaultCheckOutDate,
             currency: Constants.ExperienceHomeConstants.defaultCurrency,

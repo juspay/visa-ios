@@ -35,7 +35,7 @@ struct ReviewTourDetailData: Codable {
     let tourOption: ReviewTourOption?
     let price: ReviewPriceSummary?
     let questions: [String]?
-    let bookingQuestions: [ReviewBookingQuestionOrString]? // Now supports both object and string
+    let bookingQuestions: BookingQuestion?
     let travelerPickup: ReviewTravelerPickup?
 
     enum CodingKeys: String, CodingKey {
@@ -50,39 +50,50 @@ struct ReviewTourDetailData: Codable {
     }
 }
 
-
-// Enum to handle both ReviewBookingQuestion object and String in booking_questions
-enum ReviewBookingQuestionOrString: Codable {
-    case question(ReviewBookingQuestion)
-    case string(String)
-
-    init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        if let question = try? container.decode(ReviewBookingQuestion.self) {
-            self = .question(question)
-        } else if let string = try? container.decode(String.self) {
-            self = .string(string)
-        } else {
-            throw DecodingError.typeMismatch(
-                ReviewBookingQuestionOrString.self,
-                DecodingError.Context(
-                    codingPath: decoder.codingPath,
-                    debugDescription: "Expected ReviewBookingQuestion or String"
-                )
-            )
-        }
-    }
-
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        switch self {
-        case .question(let question):
-            try container.encode(question)
-        case .string(let string):
-            try container.encode(string)
-        }
+struct PGPrice: Codable {
+    let totalAmount: Double?
+    let currency: String?
+    let currencyName: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case totalAmount = "total_amount"
+        case currency
+        case currencyName = "currency_name"
     }
 }
+
+// Enum to handle both ReviewBookingQuestion object and String in booking_questions
+//enum ReviewBookingQuestionOrString: Codable {
+//    case question(ReviewBookingQuestion)
+//    case string(String)
+//
+//    init(from decoder: Decoder) throws {
+//        let container = try decoder.singleValueContainer()
+//        if let question = try? container.decode(ReviewBookingQuestion.self) {
+//            self = .question(question)
+//        } else if let string = try? container.decode(String.self) {
+//            self = .string(string)
+//        } else {
+//            throw DecodingError.typeMismatch(
+//                ReviewBookingQuestionOrString.self,
+//                DecodingError.Context(
+//                    codingPath: decoder.codingPath,
+//                    debugDescription: "Expected ReviewBookingQuestion or String"
+//                )
+//            )
+//        }
+//    }
+//
+//    func encode(to encoder: Encoder) throws {
+//        var container = encoder.singleValueContainer()
+//        switch self {
+//        case .question(let question):
+//            try container.encode(question)
+//        case .string(let string):
+//            try container.encode(string)
+//        }
+//    }
+//}
 
 // MARK: - ReviewTourInfo
 struct ReviewTourInfo: Codable {
@@ -527,6 +538,7 @@ struct ReviewRate: Codable {
     let subActivityCode: String?
     let price: ReviewRatePrice?
     let guestDetailRequired: String?
+    let ismarkup : Bool?
 
     enum CodingKeys: String, CodingKey {
         case available, time
@@ -534,6 +546,7 @@ struct ReviewRate: Codable {
         case subActivityCode = "sub_activity_code"
         case price
         case guestDetailRequired = "guest_detail_required"
+        case ismarkup
     }
 }
 
@@ -601,6 +614,7 @@ struct ReviewPriceSummary: Codable {
     let pricingModel: String?
     let priceType: String?
     let strikeout: ReviewStrikeout?
+    let pgPrice: PGPrice?
 
     enum CodingKeys: String, CodingKey {
         case baseRate = "base_rate"
@@ -612,22 +626,39 @@ struct ReviewPriceSummary: Codable {
         case pricingModel = "pricing_model"
         case priceType = "price_type"
         case strikeout
+        case pgPrice = "pg_price"
     }
 }
 
 struct ReviewPricePerAgeSummary: Codable {
-    let ageBand: String?
-    let pricePerTraveller: Double?
-    let travellerCount: Double?
-    let totalAmount: Double?
+    let bandId: String?
+    let count: Double?
+    let perPriceTraveller: Double?
+    let type: String?
+    let bandTotal: Double?
 
     enum CodingKeys: String, CodingKey {
-        case ageBand = "age_band"
-        case pricePerTraveller = "price_per_traveller"
-        case travellerCount = "traveller_count"
-        case totalAmount = "total_amount"
+        case bandId = "band_id"       // Matches JSON
+        case count = "count"          // Matches JSON
+        case perPriceTraveller = "per_price_traveller"
+        case type
+        case bandTotal = "band_total"
     }
 }
+
+//struct ReviewPricePerAgeSummary: Codable {
+//    let ageBand: String?
+//    let pricePerTraveller: Double?
+//    let travellerCount: Double?
+//    let totalAmount: Double?
+//
+//    enum CodingKeys: String, CodingKey {
+//        case ageBand = "age_band"
+//        case pricePerTraveller = "price_per_traveller"
+//        case travellerCount = "traveller_count"
+//        case totalAmount = "total_amount"
+//    }
+//}
 
 // MARK: - ReviewBookingQuestion
 struct ReviewBookingQuestion: Codable {
@@ -667,3 +698,70 @@ struct ReviewBookingQuestion: Codable {
 
 // MARK: - ReviewCommunicationChannel
 struct ReviewCommunicationChannel: Codable {}
+
+// MARK: - BookingQuestion
+struct BookingQuestion: Codable {
+    let travellerBookingQuestions: [TravellerBookingQuestionModel]?
+    let pickupPointQuestion: PickupPointQuestion?
+
+    enum CodingKeys: String, CodingKey {
+        case travellerBookingQuestions = "traveller_booking_questions"
+        case pickupPointQuestion = "pickup_point_question"
+    }
+}
+
+
+// MARK: - PickupPointQuestion
+struct PickupPointQuestion: Codable {
+    let arrivalPickupMode, departurePickupMode: [PickupMode]?
+    let arrivalModeDetails, departureModeDetails: ModeDetails?
+
+    enum CodingKeys: String, CodingKey {
+        case arrivalPickupMode = "arrival_pickup_mode"
+        case departurePickupMode = "departure_pickup_mode"
+        case arrivalModeDetails = "arrival_mode_details"
+        case departureModeDetails = "departure_mode_details"
+    }
+}
+
+// MARK: - ModeDetails
+struct ModeDetails: Codable {
+    let hotel, flight, rail, sea: [TravellerBookingQuestionModel]?
+}
+
+// MARK: - Item
+struct Item: Codable {
+    let reference: String?
+    let name: String?
+    let pickupType: String?
+    let price: Double?
+
+    enum CodingKeys: String, CodingKey {
+        case reference, name
+        case pickupType = "pickup_type"
+        case price
+    }
+
+    // Custom Decoding Logic to save you from the API's mess
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        reference = try container.decodeIfPresent(String.self, forKey: .reference)
+        name = try container.decodeIfPresent(String.self, forKey: .name)
+        pickupType = try container.decodeIfPresent(String.self, forKey: .pickupType)
+        
+        // TRY DECODING PRICE AS DOUBLE OR STRING
+        if let doublePrice = try? container.decodeIfPresent(Double.self, forKey: .price) {
+            price = doublePrice
+        } else if let stringPrice = try? container.decodeIfPresent(String.self, forKey: .price) {
+            price = Double(stringPrice)
+        } else {
+            price = 0.0
+        }
+    }
+}
+
+// MARK: - PickupMode
+struct PickupMode: Codable {
+    let id, mode: String?
+}

@@ -11,6 +11,7 @@ import SwiftUI
 struct ContactDetailsCardView: View {
     let contactDetailsModel: [ContactDetailsModel]
     let title: String
+    var whatsappNumberRequired: Bool = true
     var body: some View {
         VStack(alignment:.leading, spacing: 8) {
             Text(title)
@@ -35,6 +36,30 @@ struct ContactDetailsCardView: View {
                         Text(item.value)
                             .font(.custom(Constants.Font.openSansSemiBold, size: 12))
                             .foregroundStyle(Color(hex: Constants.HexColors.neutral))
+                    }
+                }
+                if whatsappNumberRequired {
+                    HStack(spacing: 4) {
+                        if let icon = ImageLoader.bundleImage(named: "whatsapp") {
+                            icon
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 20, height: 20)
+                                .foregroundStyle(Color(hex: Constants.HexColors.neutral))
+                        } else {
+                            Image("whatsapp")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 20, height: 20)
+                                .foregroundStyle(Color(hex: Constants.HexColors.neutral))
+                        }
+                        Text("+971 505601104")
+                            .font(.custom(Constants.Font.openSansSemiBold, size: 12))
+                            .foregroundStyle(Color(hex: Constants.HexColors.neutral))
+                    }
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        openWhatsApp()
                     }
                 }
             }

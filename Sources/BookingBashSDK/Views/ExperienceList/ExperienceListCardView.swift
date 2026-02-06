@@ -6,7 +6,7 @@ struct ExperienceListCardView: View {
 
     // Helper function to format price
     private func formatPrice(_ price: Double) -> String {
-        return String(format: "%.2f", price)
+        return price.commaSeparated()
     }
 
     // Dynamic height logic
@@ -14,9 +14,9 @@ struct ExperienceListCardView: View {
         if let strikeoutPrice = experience.strikeoutPrice,
            let savingPercentage = experience.savingPercentage,
            strikeoutPrice > experience.price {
-            return 140
-        } else {
             return 120
+        } else {
+            return 100
         }
     }
 
@@ -114,7 +114,7 @@ struct ExperienceListCardView: View {
 
                             // Title
                             Text(experience.title)
-                                .font(.custom(Constants.Font.openSansSemiBold, size: 15))
+                                .font(.custom(Constants.Font.openSansSemiBold, size: 14))
                                 .foregroundStyle(Color(hex: Constants.HexColors.blackStrong))
                                 .fixedSize(horizontal: false, vertical: true)
                                 .lineLimit(3)
