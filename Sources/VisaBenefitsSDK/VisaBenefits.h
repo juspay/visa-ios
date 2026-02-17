@@ -25,6 +25,10 @@ typedef HyperEventsCallback VisaBenefitsEventsCallback;
 
 - (instancetype _Nonnull)initWithClientId:(NSString * _Nonnull)clientId region:(NSString * _Nonnull)region;
 
+- (void)initiateSDK:(UIViewController * _Nonnull)viewController payload:(NSDictionary * _Nonnull)sdkPayload callback:(VisaBenefitsCallback _Nonnull)callback;
+
+- (void)processSDK:(NSDictionary * _Nonnull)sdkPayload;
+
 - (void)show:(UIViewController * _Nonnull)viewController payload:(NSDictionary * _Nonnull)sdkPayload callback:(VisaBenefitsCallback _Nonnull)callback;
 
 - (VisaBenefitsEventsCallback _Nullable)merchantEvent;
