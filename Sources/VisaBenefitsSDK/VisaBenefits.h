@@ -19,17 +19,23 @@ typedef HyperEventsCallback VisaBenefitsEventsCallback;
 
 @end
 
-@interface VisaBenefits: HyperServices
+@interface VisaBenefits : NSObject
 
 @property (nonatomic, weak) id <VisaBenefitsDelegate> _Nullable delegate;
+@property (nonatomic, assign) BOOL shouldHideNavigationBarWhenPushed;
+@property (nonatomic, assign) BOOL shouldUseViewController;
 
 - (instancetype _Nonnull)initWithClientId:(NSString * _Nonnull)clientId region:(NSString * _Nonnull)region;
 
-- (void)initiateSDK:(UIViewController * _Nonnull)viewController payload:(NSDictionary * _Nonnull)sdkPayload callback:(VisaBenefitsCallback _Nonnull)callback;
+- (void)initiate:(UIViewController * _Nonnull)viewController payload:(NSDictionary * _Nonnull)sdkPayload callback:(VisaBenefitsCallback _Nonnull)callback;
 
-- (void)processSDK:(NSDictionary * _Nonnull)sdkPayload;
+- (void)process:(NSDictionary * _Nonnull)sdkPayload;
 
 - (void)show:(UIViewController * _Nonnull)viewController payload:(NSDictionary * _Nonnull)sdkPayload callback:(VisaBenefitsCallback _Nonnull)callback;
+
+- (BOOL)isInitialised;
+
+- (void)terminate;
 
 - (VisaBenefitsEventsCallback _Nullable)merchantEvent;
 
