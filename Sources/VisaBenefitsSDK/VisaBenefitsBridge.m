@@ -18,7 +18,7 @@
 
 @implementation VisaBenefitsBridge
 
-- (void)dealloc {
+- (void) dealloc {
     _bookingBashVC = nil;
     _bridgeComponent = nil;
 }
