@@ -1,9 +1,9 @@
 require 'json'
 
 allTenantParams = [  {
-            resource_url: "https://visabenefits.me1.juspay.io/build/visabenefits/visapay-ios/zip",
-            sandbox_resource_url: "https://visabenefits.me1.juspay.io/build/visabenefits/visapay-ios/zip",
-            versioned_resource_url: "https://visabenefits.me1.juspay.io/build/visabenefits/visapay-ios/zip",
+            resource_url: "https://visabenefits.me1.juspay.io/build/visabenefits/%@client_id-ios/zip",
+            sandbox_resource_url: "https://visabenefits.me1.juspay.io/build/visabenefits/%@client_id-ios/zip",
+            versioned_resource_url: "https://visabenefits.me1.juspay.io/build/visabenefits/%@client_id-ios/zip",
             merchant_config_json: "VisaBenefitsConfig.json",
             tenant_id: "visabenefits"
         }]
