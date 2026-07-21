@@ -4,7 +4,7 @@ import PackageDescription
 let package = Package(
     name: "VisaBenefitsSDK",
     platforms: [
-        .iOS("15.8.3")
+        .iOS("15.8.5")
     ],
     products: [
         .library(
