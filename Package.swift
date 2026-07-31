@@ -17,7 +17,7 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(name: "HyperSDK", url: "https://github.com/juspay/hypersdk-ios.git", .exact("2.2.8-rc.4")),
+        .package(name: "HyperSDK", url: "https://github.com/juspay/hypersdk-ios.git", .exact("2.2.8-rc.5")),
         .package(url: "https://github.com/ozontech/SUINavigation.git", from: "1.11.0"),
         .package(name: "SwiftUIIntrospect", url: "https://github.com/siteline/swiftui-introspect.git", from: "1.3.0"),
         .package(name: "SVGKit", url: "https://github.com/SVGKit/SVGKit.git", from: "3.0.0"),
@@ -26,7 +26,7 @@ let package = Package(
         .target(
             name: "VisaBenefitsSDK",
             dependencies: [
-                .product(name: "HyperSDK", package: "HyperSDK"),
+                .product(name: "HyperSDKCore", package: "HyperSDK"),
                 "BookingBashSDK"
             ],
             path: "Sources/VisaBenefitsSDK",
