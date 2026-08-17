@@ -3,12 +3,12 @@
 //  VisaBenefitsSDK
 //
 //  Auto-generated from VERSION file - DO NOT EDIT
-//  Version: 1.1.1
+//  Version: 1.1.2
 //
 
 #import <Foundation/Foundation.h>
 
-#define VISA_BENEFITS_SDK_VERSION @"1.1.1"
+#define VISA_BENEFITS_SDK_VERSION @"1.1.2"
 
 NS_ASSUME_NONNULL_BEGIN
 
