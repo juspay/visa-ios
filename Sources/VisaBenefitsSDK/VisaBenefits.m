@@ -44,6 +44,7 @@
     
     NSMutableDictionary *headers = [[NSMutableDictionary alloc] init];
     [headers setObject:([VisaBenefitsUtils isCUG] ? @"true" : @"false") forKey:@"isCug"];
+    [headers setObject:[VisaBenefitsUtils sdkVersion] forKey:@"wrapperSdkVersion"];
     tenantParams.releaseConfigHeaders = headers;
 //
 //  tenantParams.baseContent =
