@@ -10,40 +10,19 @@ let package = Package(
         .library(
             name: "VisaBenefitsSDK",
             targets: ["VisaBenefitsSDK"]
-        ),
-        .library(
-            name: "BookingBashSDK",
-            targets: ["BookingBashSDK"]
         )
     ],
     dependencies: [
         .package(name: "HyperSDK", url: "https://github.com/juspay/hypersdk-ios.git", .exact("2.2.9-visa.1")),
-        .package(url: "https://github.com/ozontech/SUINavigation.git", from: "1.11.0"),
-        .package(name: "SwiftUIIntrospect", url: "https://github.com/siteline/swiftui-introspect.git", from: "1.3.0"),
-        .package(name: "SVGKit", url: "https://github.com/SVGKit/SVGKit.git", from: "3.0.0"),
     ],
     targets: [
         .target(
             name: "VisaBenefitsSDK",
             dependencies: [
-                .product(name: "HyperSDKCore", package: "HyperSDK"),
-                "BookingBashSDK"
+                .product(name: "HyperSDKCore", package: "HyperSDK")
             ],
             path: "Sources/VisaBenefitsSDK",
             publicHeadersPath: "."
-        ),
-        .target(
-            name: "BookingBashSDK",
-            dependencies: [
-                .product(name: "SUINavigation", package: "SUINavigation"),
-                .product(name: "SwiftUIIntrospect", package: "SwiftUIIntrospect"),
-                .product(name: "SVGKit", package: "SVGKit")
-            ],
-            path: "Sources/BookingBashSDK",
-            resources: [
-                .process("Resources"),
-                .process("Token.plist")
-            ]
         )
     ]
 )
