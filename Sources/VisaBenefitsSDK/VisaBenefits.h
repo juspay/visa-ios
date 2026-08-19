@@ -5,9 +5,7 @@
 #import <Foundation/Foundation.h>
 #import <HyperSDK/Hyper.h>
 
-// Forward declaration for BookingBash integration
 @class UIViewController;
-@protocol BookingBashDelegate;
 
 NS_ASSUME_NONNULL_BEGIN
 
