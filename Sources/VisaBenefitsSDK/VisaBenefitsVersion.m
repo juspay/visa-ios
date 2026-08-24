@@ -3,7 +3,7 @@
 //  VisaBenefitsSDK
 //
 //  Auto-generated from VERSION file - DO NOT EDIT
-//  Version: 1.1.3
+//  Version: 1.1.4
 //
 
 #import "VisaBenefitsVersion.h"
